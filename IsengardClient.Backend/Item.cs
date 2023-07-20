@@ -728,6 +728,15 @@ namespace IsengardClient.Backend
         [PluralName("Ahrot's magic strings")]
         AhrotsMagicString,
 
+        [SingularName("alligator leather")]
+        [SingularSelection("alligator leather boots")]
+        //CSRTODO: plural
+        [LookText("hardened alligator leather.")]
+        [EquipmentType(EquipmentType.Feet)]
+        [Weight(3)]
+        [ArmorClass(0.6)]
+        AlligatorLeather,
+
         [SingularName("amber scroll")]
         [PluralName("amber scrolls")]
         [Scroll(SpellsEnum.burn)]

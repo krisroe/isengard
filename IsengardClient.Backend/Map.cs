@@ -3206,11 +3206,11 @@ namespace IsengardClient.Backend
         {
             RoomGraph breeToImladrisGraph = _graphs[MapType.BreeToImladris];
 
-            breeToImladrisGraph.Rooms[breeEastGateInside] = new PointF(-2, 4);
-            breeToImladrisGraph.Rooms[oCemetery] = new PointF(-2, 3);
+            breeToImladrisGraph.Rooms[breeEastGateInside] = new PointF(-3, 4);
+            breeToImladrisGraph.Rooms[oCemetery] = new PointF(-3, 3);
 
             AddExit(breeEastGateInside, breeEastGateOutside, "gate");
-            breeToImladrisGraph.Rooms[breeEastGateOutside] = new PointF(-1, 4);
+            breeToImladrisGraph.Rooms[breeEastGateOutside] = new PointF(-2, 4);
             Exit e = AddExit(breeEastGateOutside, breeEastGateInside, "gate");
             e.RequiresDay = true;
             AddMapBoundaryPoint(breeEastGateInside, breeEastGateOutside, MapType.BreeStreets, MapType.BreeToImladris);
@@ -3218,7 +3218,7 @@ namespace IsengardClient.Backend
             Room oGreatEastRoad1 = AddRoom("Great East Road", "Great East Road");
             AddBidirectionalExits(breeEastGateOutside, oGreatEastRoad1, BidirectionalExitType.WestEast);
             AddToFarmHouseAndUglies(oGreatEastRoad1, out oOuthouse, breeToImladrisGraph);
-            breeToImladrisGraph.Rooms[oGreatEastRoad1] = new PointF(0, 4);
+            breeToImladrisGraph.Rooms[oGreatEastRoad1] = new PointF(-1, 4);
 
             Room oGreatEastRoad2 = AddRoom("Great East Road", "Great East Road");
             AddBidirectionalExits(oGreatEastRoad1, oGreatEastRoad2, BidirectionalExitType.WestEast);
@@ -3505,7 +3505,7 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oTallGrass, oGrasslands9, BidirectionalExitType.WestEast);
             breeToImladrisGraph.Rooms[oTallGrass] = new PointF(3.5F, 7);
 
-            Room oTallGrass2 = AddRoom("Tall Grass", "Tall Grass");
+            Room oTallGrass2 = AddRoom("Venus Fly Trap", "Tall Grass");
             AddPermanentMobs(oTallGrass2, MobTypeEnum.GiantVenusFlyTrap);
             AddBidirectionalExits(oTallGrass, oTallGrass2, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oTallGrass2] = new PointF(3.5F, 7.5F);
@@ -3521,11 +3521,12 @@ namespace IsengardClient.Backend
 
             Room oTallGrass5 = AddRoom("Tall Grass", "Tall Grass");
             AddBidirectionalExits(oTallGrass5, oTallGrass4, BidirectionalExitType.WestEast);
+            AddExit(oTallGrass5, oTallGrass4, "west");
             breeToImladrisGraph.Rooms[oTallGrass5] = new PointF(2, 7.5F);
 
             Room oTallGrass6 = AddRoom("Tall Grass", "Tall Grass");
             AddBidirectionalExits(oTallGrass6, oTallGrass5, BidirectionalExitType.NorthSouth);
-            AddExit(oTallGrass6, oTallGrass3, "east");
+            AddExit(oTallGrass6, oTallGrass4, "east");
             breeToImladrisGraph.Rooms[oTallGrass6] = new PointF(2, 7);
 
             Room oTallGrass7 = AddRoom("Tall Grass", "Tall Grass");
@@ -3536,59 +3537,79 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oTallGrass5, oTallGrass8, BidirectionalExitType.NorthSouth);
             AddExit(oTallGrass8, oTallGrass2, "east");
             breeToImladrisGraph.Rooms[oTallGrass8] = new PointF(2, 8);
+
+            Room oTallGrass9 = AddRoom("Tall Grass", "Tall Grass");
+            AddBidirectionalExits(oTallGrass7, oTallGrass9, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oTallGrass9] = new PointF(1.25F, 7.5F);
+
+            Room oShortGrass1 = AddRoom("Short Grass", "Short Grass");
+            AddBidirectionalExits(oTallGrass9, oShortGrass1, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oShortGrass1] = new PointF(1.25F, 8);
+
+            Room oShortGrass2 = AddRoom("Short Grass", "Short Grass");
+            AddBidirectionalExits(oShortGrass1, oShortGrass2, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oShortGrass2] = new PointF(0.5F, 8.5F);
+
+            Room oShortGrass3 = AddRoom("Short Grass", "Short Grass");
+            AddBidirectionalExits(oShortGrass2, oShortGrass3, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oShortGrass3] = new PointF(1.25F, 9);
+
+            Room oShortGrass4 = AddRoom("Short Grass", "Short Grass");
+            AddBidirectionalExits(oShortGrass3, oShortGrass4, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oShortGrass4] = new PointF(0.5F, 9.5F);
         }
 
         private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph)
         {
             Room oRoadToFarm1 = AddRoom("Farmland", "Farmland");
             AddBidirectionalExits(oGreatEastRoad1, oRoadToFarm1, BidirectionalExitType.NorthSouth);
-            breeToImladrisGraph.Rooms[oRoadToFarm1] = new PointF(0, 5);
+            breeToImladrisGraph.Rooms[oRoadToFarm1] = new PointF(-1, 5);
 
             Room oRoadToFarm2 = AddRoom("Farmland", "Farmland");
             AddBidirectionalExits(oRoadToFarm1, oRoadToFarm2, BidirectionalExitType.NorthSouth);
-            breeToImladrisGraph.Rooms[oRoadToFarm2] = new PointF(0, 6);
+            breeToImladrisGraph.Rooms[oRoadToFarm2] = new PointF(-1, 6);
 
             Room oWheatField = AddRoom("Wheat Field", "Wheat Field");
             AddBidirectionalExits(oWheatField, oRoadToFarm2, BidirectionalExitType.WestEast);
-            breeToImladrisGraph.Rooms[oWheatField] = new PointF(-1, 6);
+            breeToImladrisGraph.Rooms[oWheatField] = new PointF(-2, 6);
 
             Room oCornField = AddRoom("Corn Field", "Corn Field");
             AddBidirectionalExits(oCornField, oWheatField, BidirectionalExitType.SoutheastNorthwest);
-            breeToImladrisGraph.Rooms[oCornField] = new PointF(-2, 5.75F);
+            breeToImladrisGraph.Rooms[oCornField] = new PointF(-3, 5.75F);
 
             Room oLembasField = AddRoom("Lembas Field", "Lembas Field");
             AddBidirectionalExits(oWheatField, oLembasField, BidirectionalExitType.SouthwestNortheast);
-            breeToImladrisGraph.Rooms[oLembasField] = new PointF(-2, 6.25F);
+            breeToImladrisGraph.Rooms[oLembasField] = new PointF(-3, 6.25F);
 
             Room oRoadToFarm3 = AddRoom("Farmland", "Farmland");
             AddBidirectionalExits(oRoadToFarm2, oRoadToFarm3, BidirectionalExitType.NorthSouth);
-            breeToImladrisGraph.Rooms[oRoadToFarm3] = new PointF(0, 7);
+            breeToImladrisGraph.Rooms[oRoadToFarm3] = new PointF(-1, 7);
 
             Room oRoadToFarm4 = AddRoom("Farmland", "Farmland");
             AddBidirectionalExits(oRoadToFarm3, oRoadToFarm4, BidirectionalExitType.NorthSouth);
-            breeToImladrisGraph.Rooms[oRoadToFarm4] = new PointF(0, 8.5F);
+            breeToImladrisGraph.Rooms[oRoadToFarm4] = new PointF(-1, 9.5F);
 
             Room oRoadToFarm5 = AddRoom("Ranch House Path", "Path to Ranch House");
             AddBidirectionalExits(oRoadToFarm5, oRoadToFarm4, BidirectionalExitType.WestEast);
-            breeToImladrisGraph.Rooms[oRoadToFarm5] = new PointF(-1, 8.5F);
+            breeToImladrisGraph.Rooms[oRoadToFarm5] = new PointF(-2, 9.5F);
 
             Room oRoadToFarm6 = AddRoom("Front Steps", "Ranch House Front Steps");
             AddBidirectionalExits(oRoadToFarm6, oRoadToFarm5, BidirectionalExitType.WestEast);
-            breeToImladrisGraph.Rooms[oRoadToFarm6] = new PointF(-2, 8.5F);
+            breeToImladrisGraph.Rooms[oRoadToFarm6] = new PointF(-3, 9.5F);
 
             Room oGrainSilo = AddRoom("Grain Silo", "Grain Silo");
             AddBidirectionalExits(oRoadToFarm6, oGrainSilo, BidirectionalExitType.NorthSouth);
-            breeToImladrisGraph.Rooms[oGrainSilo] = new PointF(-2, 9);
+            breeToImladrisGraph.Rooms[oGrainSilo] = new PointF(-3, 10);
 
             oOuthouse = AddRoom("Outhouse", "Outhouse");
             AddPermanentItems(oOuthouse, ItemTypeEnum.OutOfOrderSign);
             AddBidirectionalExits(oRoadToFarm4, oOuthouse, BidirectionalExitType.WestEast);
-            breeToImladrisGraph.Rooms[oOuthouse] = new PointF(5, 8.5F);
+            breeToImladrisGraph.Rooms[oOuthouse] = new PointF(5, 9.5F);
 
             Room oSwimmingPond = AddRoom("Swimming Pond", "Swimming Pond");
             AddExit(oOuthouse, oSwimmingPond, "pond");
             AddExit(oSwimmingPond, oOuthouse, "west");
-            breeToImladrisGraph.Rooms[oSwimmingPond] = new PointF(6, 8.5F);
+            breeToImladrisGraph.Rooms[oSwimmingPond] = new PointF(6, 9.5F);
 
             Room oPond = AddRoom("Pond", "Pond");
             AddPermanentMobs(oPond, MobTypeEnum.WaterTurtle);
@@ -3599,7 +3620,7 @@ namespace IsengardClient.Backend
             Exit e = AddExit(oSwimmingPond, oMuddyPath, "path");
             e.Hidden = true;
             AddExit(oMuddyPath, oSwimmingPond, "pond");
-            breeToImladrisGraph.Rooms[oMuddyPath] = new PointF(7, 8.5F);
+            breeToImladrisGraph.Rooms[oMuddyPath] = new PointF(7, 9.5F);
 
             Room oSmallPlayground = AddRoom("Playground", "Small Playground");
             AddBidirectionalExits(oSmallPlayground, oMuddyPath, BidirectionalExitType.SouthwestNortheast);
@@ -3632,33 +3653,33 @@ namespace IsengardClient.Backend
             AddPermanentMobs(oRoadToFarm7HoundDog, MobTypeEnum.HoundDog);
             e = AddBidirectionalExitsWithOut(oRoadToFarm6, oRoadToFarm7HoundDog, "porch");
             e.MinimumLevel = 7;
-            breeToImladrisGraph.Rooms[oRoadToFarm7HoundDog] = new PointF(-1, 7.5F);
+            breeToImladrisGraph.Rooms[oRoadToFarm7HoundDog] = new PointF(-2, 7.5F);
 
             Room oFarmParlorManagerMulloyThreshold = AddRoom("Farm Parlor", "Parlor");
             AddBidirectionalSameNameMustOpenExit(oFarmParlorManagerMulloyThreshold, oRoadToFarm7HoundDog, "door");
-            breeToImladrisGraph.Rooms[oFarmParlorManagerMulloyThreshold] = new PointF(-1, 7);
+            breeToImladrisGraph.Rooms[oFarmParlorManagerMulloyThreshold] = new PointF(-2, 7);
 
             Room oManagerMulloy = AddRoom("Manager Mulloy", "Study");
             AddPermanentMobs(oManagerMulloy, MobTypeEnum.ManagerMulloy);
             AddBidirectionalExitsWithOut(oFarmParlorManagerMulloyThreshold, oManagerMulloy, "study");
-            breeToImladrisGraph.Rooms[oManagerMulloy] = new PointF(-1, 6.5F);
+            breeToImladrisGraph.Rooms[oManagerMulloy] = new PointF(-2, 6.5F);
 
             Room oFarmKitchen = AddRoom("Kitchen", "Kitchen");
             AddExit(oFarmParlorManagerMulloyThreshold, oFarmKitchen, "kitchen");
             AddExit(oFarmKitchen, oFarmParlorManagerMulloyThreshold, "parlor");
-            breeToImladrisGraph.Rooms[oFarmKitchen] = new PointF(-2, 6.5F);
+            breeToImladrisGraph.Rooms[oFarmKitchen] = new PointF(-3, 6.5F);
 
             Room oFarmBackPorch = AddRoom("Back Porch", "Back Porch");
             AddExit(oFarmKitchen, oFarmBackPorch, "backdoor");
             AddExit(oFarmBackPorch, oFarmKitchen, "kitchen");
-            breeToImladrisGraph.Rooms[oFarmBackPorch] = new PointF(-2, 7);
+            breeToImladrisGraph.Rooms[oFarmBackPorch] = new PointF(-3, 7);
 
             Room oFarmCat = AddRoom("Farm Cat", "The Woodshed");
             AddPermanentMobs(oFarmCat, MobTypeEnum.FarmCat);
             oFarmCat.NoFlee = true;
             AddExit(oFarmBackPorch, oFarmCat, "woodshed");
             e = AddExit(oFarmCat, oFarmBackPorch, "out");
-            breeToImladrisGraph.Rooms[oFarmCat] = new PointF(-2, 7.5F);
+            breeToImladrisGraph.Rooms[oFarmCat] = new PointF(-3, 7.5F);
 
             Room oCrabbe = AddRoom("Crabbe", "Detention Room");
             AddPermanentMobs(oCrabbe, MobTypeEnum.CrabbeTheClassBully);
