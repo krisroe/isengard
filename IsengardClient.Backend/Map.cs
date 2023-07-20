@@ -3417,10 +3417,14 @@ namespace IsengardClient.Backend
             Room oForest = AddRoom("Forest", "Brethil Forest");
             AddBidirectionalExits(oDarkForest1, oForest, BidirectionalExitType.SouthwestNortheast);
             breeToImladrisGraph.Rooms[oForest] = new PointF(8.5F, 5.5F);
+            //CSRTODO: northwest
+            //all exits are south, northwest, northeast
 
             Room oForest2 = AddRoom("Forest", "Brethil Forest");
             AddBidirectionalExits(oForest, oForest2, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oForest2] = new PointF(8.5F, 6);
+            //CSRTODO: southwest, west
+            //all exits are north, southwest, west
         }
 
         private void AddToFarmHouseAndUglies(Room oGreatEastRoad1, out Room oOuthouse, RoomGraph breeToImladrisGraph)

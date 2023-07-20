@@ -2140,6 +2140,7 @@ namespace IsengardClient.Backend
 
         [SingularName("reddish-orange potion")]
         [PluralName("reddish-orange potions")]
+        [LookText("You see a strange, reddish-orange viscous liquid in a glass beaker.")]
         [Potion(SpellsEnum.mend)]
         [Weight(1)]
         [Sellable(SellableEnum.NotSellable)]
