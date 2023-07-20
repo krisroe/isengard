@@ -6231,14 +6231,19 @@ BeforeHazy:
 
         private bool FoundMob(BackgroundWorkerParameters pms)
         {
-            bool ret;
+            bool ret = false;
+            string mobTarget = string.Empty;
             if (pms.MobType.HasValue)
             {
-                ret = !string.IsNullOrEmpty(GetMobTargetFromMobType(pms.MobType.Value, pms.MobTypeCounter, false));
+                mobTarget = GetMobTargetFromMobType(pms.MobType.Value, pms.MobTypeCounter, false);
+                if (string.IsNullOrEmpty(mobTarget))
+                {
+                    return false;
+                }
             }
             else if (!string.IsNullOrEmpty(pms.MobText))
             {
-                ret = true; //there's no way of verifying from mob text, so just say ok
+                mobTarget = pms.MobText;
             }
             else if (pms.MobTypeCounter >= 1) //attacking any monster based on what's in the room
             {
@@ -6270,6 +6275,11 @@ BeforeHazy:
             else //not attacking anything
             {
                 ret = false;
+            }
+            if (!string.IsNullOrEmpty(mobTarget)) //look at the mob to verify it exists
+            {
+                CommandResultObject resultObject = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtMob, "look " + mobTarget, pms, AbortIfFleeingOrHazying, true);
+                ret = resultObject.Result == CommandResult.CommandSuccessful;
             }
             return ret;
         }
