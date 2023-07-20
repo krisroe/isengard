@@ -1635,6 +1635,9 @@
         [PluralName("treants")]
         Treant,
 
+        [SingularName("tree elf")]
+        TreeElf,
+
         [SingularName("tree sprite")]
         [PluralName("tree sprites")]
         TreeSprite,
