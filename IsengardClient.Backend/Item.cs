@@ -2434,8 +2434,10 @@ namespace IsengardClient.Backend
 
         [SingularName("sprite boots")]
         [PluralName("sprite bootses")] //verified 7/5/23
+        [LookText("You see a pair of boots, just the right size for a sprite.")]
         [EquipmentType(EquipmentType.Feet)]
         [Weight(3)]
+        [ArmorClass(0.2)]
         [Sellable(198)]
         SpriteBoots,
 
