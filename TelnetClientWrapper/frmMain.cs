@@ -5973,13 +5973,13 @@ BeforeHazy:
             RemoveHeldItem(pms, abortLogic, (ie) => 
             {
                 bool ret;
-                if (keyItemType.HasValue)
+                if (keyItemType.HasValue) //only remove the specified key item type
                 {
                     ret = keyItemType == ie.ItemType;
                 }
-                else
+                else //remove any key item type
                 {
-                    StaticItemData sid = ItemEntity.StaticItemData[keyItemType.Value];
+                    StaticItemData sid = ItemEntity.StaticItemData[ie.ItemType.Value];
                     ret = sid.ItemClass == ItemClass.Key;
                 }
                 return ret;
