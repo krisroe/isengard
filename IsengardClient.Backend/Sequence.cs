@@ -350,8 +350,8 @@ namespace IsengardClient.Backend
 
     public class InformationOutputSequence : AOutputProcessingSequence
     {
-        public Action<FeedLineParameters, int, int, int, int, int, int, int, int, int, int> _onSatisfied;
-        public InformationOutputSequence(Action<FeedLineParameters, int, int, int, int, int, int, int, int, int, int> onSatisfied)
+        public Action<FeedLineParameters, SexEnum, int, int, int, int, int, int, int, int, int, int> _onSatisfied;
+        public InformationOutputSequence(Action<FeedLineParameters, SexEnum, int, int, int, int, int, int, int, int, int, int> onSatisfied)
         {
             _onSatisfied = onSatisfied;
         }
@@ -367,10 +367,12 @@ namespace IsengardClient.Backend
             int iSorcery = 0;
             int iExperience = 0;
             int iTNL = 0;
+            SexEnum eSex = SexEnum.Male;
             bool foundFirstProficienciesLine = false;
             bool foundSecondProficienciesLine = false;
             bool foundHeader = false;
             bool foundExperience = false;
+            bool foundSex = false;
             List<string> Lines = Parameters.Lines;
             if (Lines.Count > 0)
             {
@@ -382,7 +384,36 @@ namespace IsengardClient.Backend
                         {
                             string[] sSplit = s.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
                             int numPieces = sSplit.Length;
-                            if (numPieces == 6)
+                            if (numPieces > 0 && sSplit[0] == "Age/Gender:")
+                            {
+                                if (numPieces >= 2)
+                                {
+                                    if (sSplit[1].EndsWith("/M"))
+                                    {
+                                        eSex = SexEnum.Male;
+                                        foundSex = true;
+                                    }
+                                    if (sSplit[1].EndsWith("/F"))
+                                    {
+                                        eSex = SexEnum.Female;
+                                        foundSex = true;
+                                    }
+                                    if (numPieces >= 3)
+                                    {
+                                        if (sSplit[2].EndsWith("/M"))
+                                        {
+                                            eSex = SexEnum.Male;
+                                            foundSex = true;
+                                        }
+                                        if (sSplit[2].EndsWith("/F"))
+                                        {
+                                            eSex = SexEnum.Female;
+                                            foundSex = true;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (foundSex && numPieces == 6)
                             {
                                 if (sSplit[0] == "Experience:" &&
                                     sSplit[2] == "To" &&
@@ -456,7 +487,7 @@ namespace IsengardClient.Backend
                 }
                 if (foundFirstProficienciesLine && foundSecondProficienciesLine && foundExperience)
                 {
-                    _onSatisfied(Parameters, iEarth, iWind, iFire, iWater, iDivination, iArcana, iLife, iSorcery, iExperience, iTNL);
+                    _onSatisfied(Parameters, eSex, iEarth, iWind, iFire, iWater, iDivination, iArcana, iLife, iSorcery, iExperience, iTNL);
                 }
             }
         }

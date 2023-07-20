@@ -913,4 +913,10 @@ namespace IsengardClient.Backend
         Unknown,
         Multiline,
     }
+
+    public enum SexEnum
+    {
+        Male,
+        Female,
+    }
 }

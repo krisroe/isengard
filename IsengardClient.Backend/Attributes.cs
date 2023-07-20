@@ -326,4 +326,13 @@ namespace IsengardClient.Backend
             this.LookText = LookText;
         }
     }
+
+    public class SexRestrictionAttribute : Attribute
+    {
+        public SexEnum Sex { get; set; }
+        public SexRestrictionAttribute(SexEnum Sex)
+        {
+            this.Sex = Sex;
+        }
+    }
 }

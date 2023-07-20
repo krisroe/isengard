@@ -103,6 +103,8 @@ namespace IsengardClient.Backend
                 if (valueAttributes != null && valueAttributes.Length > 0) sid.ArmorClass = ((ArmorClassAttribute)valueAttributes[0]).ArmorClass;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DisallowedClassesAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0) sid.DisallowedClasses = ((DisallowedClassesAttribute)valueAttributes[0]).Classes;
+                valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(SexRestrictionAttribute), false);
+                if (valueAttributes != null && valueAttributes.Length > 0) sid.SexRestriction = ((SexRestrictionAttribute)valueAttributes[0]).Sex;
                 valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(LookTextAttribute), false);
                 if (valueAttributes != null && valueAttributes.Length > 0)
                 {
@@ -382,6 +384,7 @@ namespace IsengardClient.Backend
         public SellableEnum Sellable { get; set; }
         public int SellGold { get; set; }
         public ClassTypeFlags DisallowedClasses { get; set; }
+        public SexEnum? SexRestriction { get; set; }
     }
 
     public class DynamicItemDataWithInheritance : DynamicItemData
@@ -1313,7 +1316,9 @@ namespace IsengardClient.Backend
 
         [SingularName("emerald collar")]
         [PluralName("emerald collars")]
+        [LookText("You see a leather collar studded with emeralds")]
         [EquipmentType(EquipmentType.Neck)]
+        [SexRestriction(SexEnum.Female)]
         [Weight(4)]
         [Sellable(495)]
         EmeraldCollar,

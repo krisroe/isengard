@@ -44,7 +44,9 @@ namespace IsengardClient
         private byte _mpColorRUI;
         private byte _mpColorGUI;
         private byte _mpColorBUI;
+        private SexEnum _sex;
         private ClassType _class;
+        private ClassTypeFlags _classFlags;
         private int _level = 0;
         private string _currentPlayerHeader = null;
         private string _currentPlayerHeaderUI = null;
@@ -997,7 +999,7 @@ namespace IsengardClient
             }
         }
 
-        private void OnInformation(FeedLineParameters flParams, int earth, int wind, int fire, int water, int divination, int arcana, int life, int sorcery, int experience, int tnl)
+        private void OnInformation(FeedLineParameters flParams, SexEnum sex, int earth, int wind, int fire, int water, int divination, int arcana, int life, int sorcery, int experience, int tnl)
         {
             InitializationStep currentStep = _initializationSteps;
             bool forInit = (currentStep & InitializationStep.Information) == InitializationStep.None;
@@ -1012,6 +1014,7 @@ namespace IsengardClient
             _currentEntityInfo.UserSpellProficiencies[SpellProficiency.Sorcery] = sorcery;
             _experience = experience;
             _tnl = tnl;
+            _sex = sex;
 
             if (forInit)
             {
@@ -1066,6 +1069,7 @@ namespace IsengardClient
             }
 
             _class = playerClass;
+            _classFlags = (ClassTypeFlags)Enum.Parse(typeof(ClassTypeFlags), playerClass.ToString());
             _level = level;
             _totalhp = maxHP;
             _totalmp = maxMP;
@@ -3276,7 +3280,8 @@ namespace IsengardClient
                         {
                             messages.Add("Unknown weapon type for " + itemType);
                         }
-                        if (((sid.DisallowedClasses & ClassTypeFlags.Mage) == ClassTypeFlags.None))
+                        if ((!sid.SexRestriction.HasValue || _sex == sid.SexRestriction.Value) && 
+                            ((sid.DisallowedClasses & _classFlags) == ClassTypeFlags.None))
                         {
                             if (sid.EquipmentType == EquipmentType.Unknown)
                             {
