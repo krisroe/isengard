@@ -1915,7 +1915,9 @@ namespace IsengardClient.Backend
         MithrilBreastplate,
 
         [SingularName("mithril chain armor")]
+        [LookText("It is beautiful armor, made by the dwarves")]
         [EquipmentType(EquipmentType.Torso)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(18)]
         [Sellable(6187)]
         MithrilChainArmor,
