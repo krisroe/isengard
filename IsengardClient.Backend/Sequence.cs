@@ -1045,6 +1045,11 @@ namespace IsengardClient.Backend
                             flp.FinishedProcessing = true;
                             return;
                         }
+                        else if (nextLine == "You weren't able to carry everything.")
+                        {
+                            if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.PickUpItem) return;
+                            eAction = ItemManagementAction.PickUpItem;
+                        }
                         else if (nextLine.StartsWith(YOU_WEAR_PREFIX))
                         {
                             if (eAction != ItemManagementAction.None && eAction != ItemManagementAction.WearItem) return;
