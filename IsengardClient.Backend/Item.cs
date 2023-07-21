@@ -2218,6 +2218,9 @@ namespace IsengardClient.Backend
 
         [SingularName("repair kit")]
         [PluralName("repair kits")]
+        [LookText("A kit for repairing weapons and armor.")]
+        [Weight(2)]
+        [Sellable(24)]
         RepairKit,
 
         [SingularName("ribbed plate boots")]
@@ -2385,6 +2388,11 @@ namespace IsengardClient.Backend
         [PluralName("silver keys")]
         [ItemClass(ItemClass.Key)]
         SilverKey,
+
+        [SingularName("silver-nickel neckguard")]
+        [PluralName("silver-nickel neckguards")]
+        [LookText("You see an ornate protective device for your neck.")]
+        SilverNickelNeckguard,
 
         [SingularName("silver scimitar")]
         [PluralName("silver scimitars")]
@@ -2738,6 +2746,12 @@ namespace IsengardClient.Backend
         [Weight(3)]
         [Sellable(1262)]
         WagonmastersWhip,
+
+        [SingularName("wand of the efreeti")]
+        //CSRTODO: plural
+        [LookText("A fire red wand that burns your hands as you grab it.")]
+        [Weight(5)]
+        WandOfTheEfreeti,
 
         [SingularName("warhammer")]
         [PluralName("warhammers")]
