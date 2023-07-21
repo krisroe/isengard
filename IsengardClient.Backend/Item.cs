@@ -1205,6 +1205,11 @@ namespace IsengardClient.Backend
         [WeaponType(WeaponType.Slash)]
         DoubleBladedAxe,
 
+        [SingularName("dragon eye")]
+        [PluralName("dragon eyes")]
+        [LookText("You see a metal band for use around the neck.")]
+        DragonEye,
+
         [SingularName("dried seaweed")]
         //CSRTODO: plural?
         DriedSeaweed,
