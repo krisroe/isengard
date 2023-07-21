@@ -2434,6 +2434,7 @@ namespace IsengardClient.Backend
 
         [SingularName("small metal shield")]
         [PluralName("small metal shields")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Shield)]
         [Weight(6)]
         [ArmorClass(0.4)]
