@@ -854,6 +854,7 @@ namespace IsengardClient.Backend
 
         [SingularName("black scroll")]
         [PluralName("black scrolls")]
+        [LookText("The scroll is as black as charcoal, its strange words written in white.")]
         [Scroll(SpellsEnum.hurt)]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
