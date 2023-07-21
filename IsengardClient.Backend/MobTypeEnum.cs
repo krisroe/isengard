@@ -973,6 +973,10 @@
         [Experience(1)]
         LittleMouse,
 
+        [SingularName("llama")]
+        [PluralName("llamas")]
+        Llama,
+
         [SingularName("longshoreman")]
         [PluralName("longshoremen")]
         Longshoreman,
