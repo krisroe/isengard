@@ -1209,6 +1209,7 @@ namespace IsengardClient.Backend
         [SingularName("dragon eye")]
         [PluralName("dragon eyes")]
         [LookText("You see a metal band for use around the neck.")]
+        [Weight(1)]
         DragonEye,
 
         [SingularName("dried seaweed")]
