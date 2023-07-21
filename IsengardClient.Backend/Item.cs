@@ -2793,7 +2793,9 @@ namespace IsengardClient.Backend
         WhoopieCushion,
 
         [SingularName("yellow beholder's eye")]
+        [SingularSelection("yellow beholder eye")]
         [PluralName("yellow beholder's eyes")]
+        [LookText("You see a yellow eye of a beholder.")]
         [Wand(SpellsEnum.lightning)]
         YellowBeholdersEye,
 
