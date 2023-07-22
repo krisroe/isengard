@@ -8060,7 +8060,6 @@ BeforeHazy:
         {
             yield return txtMob;
             yield return txtWand;
-            yield return txtPotion;
             yield return cboArea;
             foreach (Button btn in flpOneClickStrategies.Controls)
             {

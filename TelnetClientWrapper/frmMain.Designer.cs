@@ -55,8 +55,6 @@
             this.txtSetValue = new System.Windows.Forms.TextBox();
             this.grpOneClickStrategies = new System.Windows.Forms.GroupBox();
             this.flpOneClickStrategies = new System.Windows.Forms.FlowLayoutPanel();
-            this.txtPotion = new System.Windows.Forms.TextBox();
-            this.lblPotion = new System.Windows.Forms.Label();
             this.btnNortheast = new System.Windows.Forms.Button();
             this.btnNorth = new System.Windows.Forms.Button();
             this.btnNorthwest = new System.Windows.Forms.Button();
@@ -489,24 +487,6 @@
             this.flpOneClickStrategies.Size = new System.Drawing.Size(399, 102);
             this.flpOneClickStrategies.TabIndex = 0;
             // 
-            // txtPotion
-            // 
-            this.txtPotion.Location = new System.Drawing.Point(95, 81);
-            this.txtPotion.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.txtPotion.Name = "txtPotion";
-            this.txtPotion.Size = new System.Drawing.Size(213, 22);
-            this.txtPotion.TabIndex = 68;
-            // 
-            // lblPotion
-            // 
-            this.lblPotion.AutoSize = true;
-            this.lblPotion.Location = new System.Drawing.Point(19, 86);
-            this.lblPotion.Name = "lblPotion";
-            this.lblPotion.Size = new System.Drawing.Size(48, 16);
-            this.lblPotion.TabIndex = 67;
-            this.lblPotion.Text = "Potion:";
-            this.lblPotion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // btnNortheast
             // 
             this.btnNortheast.Location = new System.Drawing.Point(116, 22);
@@ -667,8 +647,6 @@
             this.pnlMain.Controls.Add(this.btnLookAtMob);
             this.pnlMain.Controls.Add(this.btnLook);
             this.pnlMain.Controls.Add(this.btnCastVigor);
-            this.pnlMain.Controls.Add(this.txtPotion);
-            this.pnlMain.Controls.Add(this.lblPotion);
             this.pnlMain.Controls.Add(this.btnCastCurePoison);
             this.pnlMain.Controls.Add(this.grpOneClickStrategies);
             this.pnlMain.Controls.Add(this.btnPowerAttackMob);
@@ -796,7 +774,7 @@
             // btnGoToInventorySink
             // 
             this.btnGoToInventorySink.Enabled = false;
-            this.btnGoToInventorySink.Location = new System.Drawing.Point(241, 144);
+            this.btnGoToInventorySink.Location = new System.Drawing.Point(240, 109);
             this.btnGoToInventorySink.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnGoToInventorySink.Name = "btnGoToInventorySink";
             this.btnGoToInventorySink.Size = new System.Drawing.Size(68, 28);
@@ -809,7 +787,7 @@
             // btnGoToPawnShop
             // 
             this.btnGoToPawnShop.Enabled = false;
-            this.btnGoToPawnShop.Location = new System.Drawing.Point(168, 144);
+            this.btnGoToPawnShop.Location = new System.Drawing.Point(167, 109);
             this.btnGoToPawnShop.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnGoToPawnShop.Name = "btnGoToPawnShop";
             this.btnGoToPawnShop.Size = new System.Drawing.Size(68, 28);
@@ -901,7 +879,7 @@
             // btnGoToHealingRoom
             // 
             this.btnGoToHealingRoom.Enabled = false;
-            this.btnGoToHealingRoom.Location = new System.Drawing.Point(95, 144);
+            this.btnGoToHealingRoom.Location = new System.Drawing.Point(94, 109);
             this.btnGoToHealingRoom.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnGoToHealingRoom.Name = "btnGoToHealingRoom";
             this.btnGoToHealingRoom.Size = new System.Drawing.Size(68, 28);
@@ -914,7 +892,7 @@
             // lblArea
             // 
             this.lblArea.AutoSize = true;
-            this.lblArea.Location = new System.Drawing.Point(19, 117);
+            this.lblArea.Location = new System.Drawing.Point(18, 82);
             this.lblArea.Name = "lblArea";
             this.lblArea.Size = new System.Drawing.Size(39, 16);
             this.lblArea.TabIndex = 144;
@@ -925,7 +903,7 @@
             // 
             this.cboArea.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboArea.FormattingEnabled = true;
-            this.cboArea.Location = new System.Drawing.Point(95, 112);
+            this.cboArea.Location = new System.Drawing.Point(94, 77);
             this.cboArea.Margin = new System.Windows.Forms.Padding(4);
             this.cboArea.Name = "cboArea";
             this.cboArea.Size = new System.Drawing.Size(213, 24);
@@ -2007,8 +1985,6 @@
         private System.Windows.Forms.TextBox txtSetValue;
         private System.Windows.Forms.GroupBox grpOneClickStrategies;
         private System.Windows.Forms.FlowLayoutPanel flpOneClickStrategies;
-        private System.Windows.Forms.TextBox txtPotion;
-        private System.Windows.Forms.Label lblPotion;
         private System.Windows.Forms.Button btnNortheast;
         private System.Windows.Forms.Button btnNorth;
         private System.Windows.Forms.Button btnNorthwest;
