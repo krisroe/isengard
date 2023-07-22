@@ -4632,8 +4632,7 @@ namespace IsengardClient
                             {
                                 if (dmd.HasData() && (pms.Strategy != null || dmd.Strategy != null))
                                 {
-                                    effectiveStrategy = new Strategy(dmd.Strategy ?? pms.Strategy);
-                                    effectiveStrategy.ApplyStrategyOverrides(dmd.StrategyOverrides);
+                                    effectiveStrategy = new Strategy(pms.Strategy, dmd);
                                     GetInformationFromEffectiveStrategy(effectiveStrategy, out useManaPool, out onMonsterKilledAction, out usedAutoSpellMin, out usedAutoSpellMax, out availableRealms, out haveMagicStrategySteps, out haveMeleeStrategySteps, out haveMagicStunWandStep, out havePotionsStrategySteps);
                                 }
                             }
@@ -7361,8 +7360,7 @@ BeforeHazy:
                             {
                                 if (dmd.HasData() && (bwp.Strategy != null || dmd.Strategy != null))
                                 {
-                                    resetStrategy = new Strategy(dmd.Strategy ?? bwp.Strategy);
-                                    resetStrategy.ApplyStrategyOverrides(dmd.StrategyOverrides);
+                                    resetStrategy = new Strategy(bwp.Strategy, dmd);
                                 }
                             }
                         }

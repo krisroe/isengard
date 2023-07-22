@@ -46,13 +46,27 @@ namespace IsengardClient.Backend
 
         public Strategy(Strategy copied)
         {
+            CopyFromStrategy(copied, false);
+        }
+
+        private void CopyFromStrategy(Strategy copied, bool forInheritance)
+        {
             DisplayName = copied.DisplayName;
-            AfterKillMonsterAction = copied.AfterKillMonsterAction;
+            if (!forInheritance || copied.AfterKillMonsterAction.HasValue)
+            {
+                AfterKillMonsterAction = copied.AfterKillMonsterAction;
+            }
             ManaPool = copied.ManaPool;
             FinalMagicAction = copied.FinalMagicAction;
-            AutoSpellLevelMin = copied.AutoSpellLevelMin;
-            AutoSpellLevelMax = copied.AutoSpellLevelMax;
-            Realms = copied.Realms;
+            if (!forInheritance || copied.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
+            {
+                AutoSpellLevelMin = copied.AutoSpellLevelMin;
+                AutoSpellLevelMax = copied.AutoSpellLevelMax;
+            }
+            if (!forInheritance || copied.Realms.HasValue)
+            {
+                Realms = copied.Realms;
+            }
             MagicOnlyWhenStunnedForXMS = copied.MagicOnlyWhenStunnedForXMS;
             MagicLastCommandsToRunIndefinitely = copied.MagicLastCommandsToRunIndefinitely;
             if (copied.MagicSteps != null)
@@ -77,6 +91,15 @@ namespace IsengardClient.Backend
             }
 
             TypesWithStepsEnabled = copied.TypesWithStepsEnabled;
+        }
+
+        public Strategy(Strategy baseStrategy, DynamicMobData dmd) : this(baseStrategy ?? dmd.Strategy)
+        {
+            if (baseStrategy != null && dmd.Strategy != null)
+            {
+                CopyFromStrategy(dmd.Strategy, true);
+            }
+            ApplyStrategyOverrides(dmd.StrategyOverrides);
         }
 
         public override string ToString()
