@@ -40,7 +40,9 @@ namespace IsengardClient
 
         public void SaveMobDynamicData()
         {
-            _dmd.Strategy = getSelectedStrategy();
+            Strategy s = getSelectedStrategy();
+            _dmd.Strategy = s;
+            _dmd.StrategyID = s == null ? 0 : s.ID;
             ucStrategyModifications1.SaveChanges();
         }
 

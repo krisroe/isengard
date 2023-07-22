@@ -212,6 +212,7 @@ namespace IsengardClient.Tests
             Assert.AreEqual(settings.DynamicMobData.Count, sets2.DynamicMobData.Count);
             foreach (var next in settings.DynamicMobData)
             {
+                Assert.AreEqual(settings.DynamicMobData[next.Key].StrategyID, sets2.DynamicMobData[next.Key].StrategyID);
                 VerifyStrategiesMatch(settings.DynamicMobData[next.Key].Strategy, sets2.DynamicMobData[next.Key].Strategy, expectIDsPopulated);
                 VerifyStrategyOverridesMatch(settings.DynamicMobData[next.Key].StrategyOverrides, sets2.DynamicMobData[next.Key].StrategyOverrides);
             }
@@ -336,52 +337,56 @@ namespace IsengardClient.Tests
 
         internal void VerifyStrategiesMatch(Strategy s1, Strategy s2, bool expectIDsPopulated)
         {
-            Assert.AreEqual(s1.ID, s2.ID);
-            if (expectIDsPopulated)
-                Assert.AreNotEqual(s1.ID, 0);
-            else
-                Assert.AreEqual(s1.ID, 0);
-            Assert.AreEqual(s1.DisplayName ?? string.Empty, s2.DisplayName ?? string.Empty);
-            Assert.AreEqual(s1.AfterKillMonsterAction, s2.AfterKillMonsterAction);
-            Assert.AreEqual(s1.ManaPool, s2.ManaPool);
-            Assert.AreEqual(s1.FinalMagicAction, s2.FinalMagicAction);
-            Assert.AreEqual(s1.FinalMeleeAction, s2.FinalMeleeAction);
-            Assert.AreEqual(s1.FinalPotionsAction, s2.FinalPotionsAction);
-            Assert.AreEqual(s1.MagicOnlyWhenStunnedForXMS, s2.MagicOnlyWhenStunnedForXMS);
-            Assert.AreEqual(s1.MeleeOnlyWhenStunnedForXMS, s2.MeleeOnlyWhenStunnedForXMS);
-            Assert.AreEqual(s1.PotionsOnlyWhenStunnedForXMS, s2.PotionsOnlyWhenStunnedForXMS);
-            Assert.AreEqual(s1.MagicLastCommandsToRunIndefinitely, s2.MagicLastCommandsToRunIndefinitely);
-            Assert.AreEqual(s1.MeleeLastCommandsToRunIndefinitely, s2.MeleeLastCommandsToRunIndefinitely);
-            Assert.AreEqual(s1.PotionsLastCommandsToRunIndefinitely, s2.PotionsLastCommandsToRunIndefinitely);
-            Assert.AreEqual(s1.TypesWithStepsEnabled, s2.TypesWithStepsEnabled);
-            Assert.AreEqual(s1.AutoSpellLevelMin, s2.AutoSpellLevelMin);
-            Assert.AreEqual(s1.AutoSpellLevelMax, s2.AutoSpellLevelMax);
-            Assert.AreEqual(s1.Realms, s2.Realms);
-            Assert.AreEqual(s1.MagicSteps == null, s2.MagicSteps == null);
-            Assert.AreEqual(s1.MeleeSteps == null, s2.MeleeSteps == null);
-            Assert.AreEqual(s1.PotionsSteps == null, s2.PotionsSteps == null);
-            if (s1.MagicSteps != null)
+            Assert.AreEqual(s1 == null, s2 == null);
+            if (s1 != null)
             {
-                Assert.AreEqual(s1.MagicSteps.Count, s2.MagicSteps.Count);
-                for (int i = 0; i < s1.MagicSteps.Count; i++)
+                Assert.AreEqual(s1.ID, s2.ID);
+                if (expectIDsPopulated)
+                    Assert.AreNotEqual(s1.ID, 0);
+                else
+                    Assert.AreEqual(s1.ID, 0);
+                Assert.AreEqual(s1.DisplayName ?? string.Empty, s2.DisplayName ?? string.Empty);
+                Assert.AreEqual(s1.AfterKillMonsterAction, s2.AfterKillMonsterAction);
+                Assert.AreEqual(s1.ManaPool, s2.ManaPool);
+                Assert.AreEqual(s1.FinalMagicAction, s2.FinalMagicAction);
+                Assert.AreEqual(s1.FinalMeleeAction, s2.FinalMeleeAction);
+                Assert.AreEqual(s1.FinalPotionsAction, s2.FinalPotionsAction);
+                Assert.AreEqual(s1.MagicOnlyWhenStunnedForXMS, s2.MagicOnlyWhenStunnedForXMS);
+                Assert.AreEqual(s1.MeleeOnlyWhenStunnedForXMS, s2.MeleeOnlyWhenStunnedForXMS);
+                Assert.AreEqual(s1.PotionsOnlyWhenStunnedForXMS, s2.PotionsOnlyWhenStunnedForXMS);
+                Assert.AreEqual(s1.MagicLastCommandsToRunIndefinitely, s2.MagicLastCommandsToRunIndefinitely);
+                Assert.AreEqual(s1.MeleeLastCommandsToRunIndefinitely, s2.MeleeLastCommandsToRunIndefinitely);
+                Assert.AreEqual(s1.PotionsLastCommandsToRunIndefinitely, s2.PotionsLastCommandsToRunIndefinitely);
+                Assert.AreEqual(s1.TypesWithStepsEnabled, s2.TypesWithStepsEnabled);
+                Assert.AreEqual(s1.AutoSpellLevelMin, s2.AutoSpellLevelMin);
+                Assert.AreEqual(s1.AutoSpellLevelMax, s2.AutoSpellLevelMax);
+                Assert.AreEqual(s1.Realms, s2.Realms);
+                Assert.AreEqual(s1.MagicSteps == null, s2.MagicSteps == null);
+                Assert.AreEqual(s1.MeleeSteps == null, s2.MeleeSteps == null);
+                Assert.AreEqual(s1.PotionsSteps == null, s2.PotionsSteps == null);
+                if (s1.MagicSteps != null)
                 {
-                    Assert.AreEqual(s1.MagicSteps[i], s2.MagicSteps[i]);
+                    Assert.AreEqual(s1.MagicSteps.Count, s2.MagicSteps.Count);
+                    for (int i = 0; i < s1.MagicSteps.Count; i++)
+                    {
+                        Assert.AreEqual(s1.MagicSteps[i], s2.MagicSteps[i]);
+                    }
                 }
-            }
-            if (s1.MeleeSteps != null)
-            {
-                Assert.AreEqual(s1.MeleeSteps.Count, s2.MeleeSteps.Count);
-                for (int i = 0; i < s1.MeleeSteps.Count; i++)
+                if (s1.MeleeSteps != null)
                 {
-                    Assert.AreEqual(s1.MeleeSteps[i], s2.MeleeSteps[i]);
+                    Assert.AreEqual(s1.MeleeSteps.Count, s2.MeleeSteps.Count);
+                    for (int i = 0; i < s1.MeleeSteps.Count; i++)
+                    {
+                        Assert.AreEqual(s1.MeleeSteps[i], s2.MeleeSteps[i]);
+                    }
                 }
-            }
-            if (s1.PotionsSteps != null)
-            {
-                Assert.AreEqual(s1.PotionsSteps.Count, s2.PotionsSteps.Count);
-                for (int i = 0; i < s1.PotionsSteps.Count; i++)
+                if (s1.PotionsSteps != null)
                 {
-                    Assert.AreEqual(s1.PotionsSteps[i], s2.PotionsSteps[i]);
+                    Assert.AreEqual(s1.PotionsSteps.Count, s2.PotionsSteps.Count);
+                    for (int i = 0; i < s1.PotionsSteps.Count; i++)
+                    {
+                        Assert.AreEqual(s1.PotionsSteps[i], s2.PotionsSteps[i]);
+                    }
                 }
             }
         }

@@ -492,9 +492,12 @@ namespace IsengardClient.Backend
                         Strategies.Add(s);
                         for (int i = mobStrategyIDs.Count - 1; i >= 0; i--)
                         {
-                            if (mobStrategyIDs[i].Value == s.ID)
+                            var mobStrategyID = mobStrategyIDs[i];
+                            if (mobStrategyID.Value == s.ID)
                             {
-                                DynamicMobData[mobStrategyIDs[i].Key].Strategy = s;
+                                DynamicMobData dmd = DynamicMobData[mobStrategyID.Key];
+                                dmd.Strategy = s;
+                                dmd.StrategyID = s.ID;
                                 mobStrategyIDs.RemoveAt(i);
                             }
                         }
@@ -1910,6 +1913,10 @@ namespace IsengardClient.Backend
                 foreach (var nextDMD in DynamicMobData)
                 {
                     DynamicMobData dmd = nextDMD.Value;
+                    if (dmd.StrategyID == 0 && dmd.Strategy != null)
+                    {
+                        dmd.StrategyID = dmd.Strategy.ID;
+                    }
                     string sNextKey = nextDMD.Key.ToString();
                     if (existingKeys.Contains(sNextKey))
                     {
@@ -1921,7 +1928,7 @@ namespace IsengardClient.Backend
                         cmd.CommandText = sInsertBaseRecordCommand;
                     }
                     keyParam.Value = sNextKey;
-                    strategyIDParam.Value = dmd.Strategy == null ? (object)DBNull.Value : dmd.Strategy.ID;
+                    strategyIDParam.Value = dmd.StrategyID <= 0 ? (object)DBNull.Value : dmd.StrategyID;
                     SetStrategyOverrideParameterValues(dmd.StrategyOverrides, useMagicCombatParam, useMeleeCombatParam, usePotionsCombatParam, afterKillMonsterActionParam, autoSpellLevelMinParam, autoSpellLevelMaxParam, realmsParam);
                     cmd.ExecuteNonQuery();
                 }

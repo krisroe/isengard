@@ -430,10 +430,12 @@ namespace IsengardClient.Backend
         public DynamicMobData(DynamicMobData copied)
         {
             MobType = copied.MobType;
+            StrategyID = copied.StrategyID;
             Strategy = copied.Strategy;
             StrategyOverrides = new StrategyOverrides(copied.StrategyOverrides);
         }
         public MobTypeEnum MobType { get; set; }
+        public int StrategyID { get; set; }
         public Strategy Strategy { get; set; }
         public StrategyOverrides StrategyOverrides { get; set; }
 
