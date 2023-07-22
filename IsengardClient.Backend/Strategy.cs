@@ -51,6 +51,10 @@ namespace IsengardClient.Backend
 
         private void CopyFromStrategy(Strategy copied, bool forInheritance)
         {
+            if (!forInheritance)
+            {
+                ID = copied.ID;
+            }
             DisplayName = copied.DisplayName;
             if (!forInheritance || copied.AfterKillMonsterAction.HasValue)
             {
@@ -485,15 +489,6 @@ namespace IsengardClient.Backend
             int stunWaitMS = 250;
 
             Strategy s;
-
-            //no combat
-            s = new Strategy();
-            s.FinalMeleeAction = FinalStepAction.FinishCombat;
-            s.FinalMagicAction = FinalStepAction.FinishCombat;
-            s.FinalPotionsAction = FinalStepAction.FinishCombat;
-            s.AfterKillMonsterAction = Backend.AfterKillMonsterAction.StopCombat;
-            s.TypesWithStepsEnabled = CommandType.None;
-            yield return s;
 
             //attack with melee, heal with magic/potions
             s = new Strategy();

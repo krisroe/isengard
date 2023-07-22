@@ -191,29 +191,33 @@ namespace IsengardClient
 
         public CommandType GetEffectiveCombatTypesEnabled(Strategy s)
         {
-            CommandType typesWithStepsEnabled = s.TypesWithStepsEnabled;
-            if (_allowOverrides)
+            CommandType typesWithStepsEnabled = CommandType.None;
+            if (s != null)
             {
-                if (chkMagic.Enabled)
+                typesWithStepsEnabled = s.TypesWithStepsEnabled;
+                if (_allowOverrides)
                 {
-                    if (chkMagic.Checked)
-                        typesWithStepsEnabled |= CommandType.Magic;
-                    else
-                        typesWithStepsEnabled &= ~CommandType.Magic;
-                }
-                if (chkMelee.Enabled)
-                {
-                    if (chkMelee.Checked)
-                        typesWithStepsEnabled |= CommandType.Melee;
-                    else
-                        typesWithStepsEnabled &= ~CommandType.Melee;
-                }
-                if (chkPotions.Enabled)
-                {
-                    if (chkPotions.Checked)
-                        typesWithStepsEnabled |= CommandType.Potions;
-                    else
-                        typesWithStepsEnabled &= ~CommandType.Potions;
+                    if (chkMagic.Enabled)
+                    {
+                        if (chkMagic.Checked)
+                            typesWithStepsEnabled |= CommandType.Magic;
+                        else
+                            typesWithStepsEnabled &= ~CommandType.Magic;
+                    }
+                    if (chkMelee.Enabled)
+                    {
+                        if (chkMelee.Checked)
+                            typesWithStepsEnabled |= CommandType.Melee;
+                        else
+                            typesWithStepsEnabled &= ~CommandType.Melee;
+                    }
+                    if (chkPotions.Enabled)
+                    {
+                        if (chkPotions.Checked)
+                            typesWithStepsEnabled |= CommandType.Potions;
+                        else
+                            typesWithStepsEnabled &= ~CommandType.Potions;
+                    }
                 }
             }
             return typesWithStepsEnabled;

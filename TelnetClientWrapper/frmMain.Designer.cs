@@ -53,8 +53,6 @@
             this.btnUseWandOnMob = new System.Windows.Forms.Button();
             this.btnPowerAttackMob = new System.Windows.Forms.Button();
             this.txtSetValue = new System.Windows.Forms.TextBox();
-            this.grpOneClickStrategies = new System.Windows.Forms.GroupBox();
-            this.flpOneClickStrategies = new System.Windows.Forms.FlowLayoutPanel();
             this.btnNortheast = new System.Windows.Forms.Button();
             this.btnNorth = new System.Windows.Forms.Button();
             this.btnNorthwest = new System.Windows.Forms.Button();
@@ -67,6 +65,8 @@
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
             this.grpPermRuns = new System.Windows.Forms.GroupBox();
+            this.btnAdHocPermRun = new System.Windows.Forms.Button();
+            this.btnNonCombatPermRun = new System.Windows.Forms.Button();
             this.btnResumeCurrentPermRun = new System.Windows.Forms.Button();
             this.btnCompleteCurrentPermRun = new System.Windows.Forms.Button();
             this.btnRemoveNextPermRun = new System.Windows.Forms.Button();
@@ -182,7 +182,6 @@
             this.ctxConsole = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiClearConsole = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlCommand = new System.Windows.Forms.Panel();
-            this.grpOneClickStrategies.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.tabMain.SuspendLayout();
             this.pnlMain.SuspendLayout();
@@ -466,27 +465,6 @@
             this.txtSetValue.Size = new System.Drawing.Size(117, 22);
             this.txtSetValue.TabIndex = 56;
             // 
-            // grpOneClickStrategies
-            // 
-            this.grpOneClickStrategies.Controls.Add(this.flpOneClickStrategies);
-            this.grpOneClickStrategies.Location = new System.Drawing.Point(31, 178);
-            this.grpOneClickStrategies.Margin = new System.Windows.Forms.Padding(4);
-            this.grpOneClickStrategies.Name = "grpOneClickStrategies";
-            this.grpOneClickStrategies.Padding = new System.Windows.Forms.Padding(4);
-            this.grpOneClickStrategies.Size = new System.Drawing.Size(407, 125);
-            this.grpOneClickStrategies.TabIndex = 65;
-            this.grpOneClickStrategies.TabStop = false;
-            this.grpOneClickStrategies.Text = "Strategies";
-            // 
-            // flpOneClickStrategies
-            // 
-            this.flpOneClickStrategies.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpOneClickStrategies.Location = new System.Drawing.Point(4, 19);
-            this.flpOneClickStrategies.Margin = new System.Windows.Forms.Padding(4);
-            this.flpOneClickStrategies.Name = "flpOneClickStrategies";
-            this.flpOneClickStrategies.Size = new System.Drawing.Size(399, 102);
-            this.flpOneClickStrategies.TabIndex = 0;
-            // 
             // btnNortheast
             // 
             this.btnNortheast.Location = new System.Drawing.Point(116, 22);
@@ -648,7 +626,6 @@
             this.pnlMain.Controls.Add(this.btnLook);
             this.pnlMain.Controls.Add(this.btnCastVigor);
             this.pnlMain.Controls.Add(this.btnCastCurePoison);
-            this.pnlMain.Controls.Add(this.grpOneClickStrategies);
             this.pnlMain.Controls.Add(this.btnPowerAttackMob);
             this.pnlMain.Controls.Add(this.btnAbort);
             this.pnlMain.Controls.Add(this.btnUseWandOnMob);
@@ -665,6 +642,8 @@
             // 
             // grpPermRuns
             // 
+            this.grpPermRuns.Controls.Add(this.btnAdHocPermRun);
+            this.grpPermRuns.Controls.Add(this.btnNonCombatPermRun);
             this.grpPermRuns.Controls.Add(this.btnResumeCurrentPermRun);
             this.grpPermRuns.Controls.Add(this.btnCompleteCurrentPermRun);
             this.grpPermRuns.Controls.Add(this.btnRemoveNextPermRun);
@@ -674,12 +653,36 @@
             this.grpPermRuns.Controls.Add(this.lblNextPermRun);
             this.grpPermRuns.Controls.Add(this.txtCurrentPermRun);
             this.grpPermRuns.Controls.Add(this.lblCurrent);
-            this.grpPermRuns.Location = new System.Drawing.Point(445, 180);
+            this.grpPermRuns.Location = new System.Drawing.Point(303, 180);
             this.grpPermRuns.Name = "grpPermRuns";
-            this.grpPermRuns.Size = new System.Drawing.Size(386, 123);
+            this.grpPermRuns.Size = new System.Drawing.Size(528, 123);
             this.grpPermRuns.TabIndex = 156;
             this.grpPermRuns.TabStop = false;
             this.grpPermRuns.Text = "Perm Runs";
+            // 
+            // btnAdHocPermRun
+            // 
+            this.btnAdHocPermRun.Location = new System.Drawing.Point(379, 58);
+            this.btnAdHocPermRun.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnAdHocPermRun.Name = "btnAdHocPermRun";
+            this.btnAdHocPermRun.Size = new System.Drawing.Size(107, 34);
+            this.btnAdHocPermRun.TabIndex = 158;
+            this.btnAdHocPermRun.Tag = "";
+            this.btnAdHocPermRun.Text = "Ad Hoc";
+            this.btnAdHocPermRun.UseVisualStyleBackColor = true;
+            this.btnAdHocPermRun.Click += new System.EventHandler(this.btnAdHocPermRun_Click);
+            // 
+            // btnNonCombatPermRun
+            // 
+            this.btnNonCombatPermRun.Location = new System.Drawing.Point(379, 20);
+            this.btnNonCombatPermRun.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnNonCombatPermRun.Name = "btnNonCombatPermRun";
+            this.btnNonCombatPermRun.Size = new System.Drawing.Size(107, 34);
+            this.btnNonCombatPermRun.TabIndex = 157;
+            this.btnNonCombatPermRun.Tag = "";
+            this.btnNonCombatPermRun.Text = "Non Combat";
+            this.btnNonCombatPermRun.UseVisualStyleBackColor = true;
+            this.btnNonCombatPermRun.Click += new System.EventHandler(this.btnNonCombatPermRun_Click);
             // 
             // btnResumeCurrentPermRun
             // 
@@ -1916,7 +1919,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Isengard";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.frmMain_FormClosed);
-            this.grpOneClickStrategies.ResumeLayout(false);
             this.tcMain.ResumeLayout(false);
             this.tabMain.ResumeLayout(false);
             this.pnlMain.ResumeLayout(false);
@@ -1983,8 +1985,6 @@
         private System.Windows.Forms.Button btnUseWandOnMob;
         private System.Windows.Forms.Button btnPowerAttackMob;
         private System.Windows.Forms.TextBox txtSetValue;
-        private System.Windows.Forms.GroupBox grpOneClickStrategies;
-        private System.Windows.Forms.FlowLayoutPanel flpOneClickStrategies;
         private System.Windows.Forms.Button btnNortheast;
         private System.Windows.Forms.Button btnNorth;
         private System.Windows.Forms.Button btnNorthwest;
@@ -2112,6 +2112,8 @@
         private System.Windows.Forms.Button btnCompleteCurrentPermRun;
         private System.Windows.Forms.Button btnResumeCurrentPermRun;
         private System.Windows.Forms.ToolStripMenuItem tsmiTimeInfo;
+        private System.Windows.Forms.Button btnNonCombatPermRun;
+        private System.Windows.Forms.Button btnAdHocPermRun;
     }
 }
 

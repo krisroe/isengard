@@ -139,7 +139,11 @@ namespace IsengardClient.Backend
             foreach (var next in copied.DynamicMobData)
             {
                 DynamicMobData copyDMD = new DynamicMobData(next.Value);
-                if (copyDMD.Strategy != null) copyDMD.Strategy = oStrategyMapping[copyDMD.Strategy];
+                if (copyDMD.Strategy != null)
+                {
+                    copyDMD.Strategy = oStrategyMapping[copyDMD.Strategy];
+                    copyDMD.StrategyID = copyDMD.Strategy.ID;
+                }
                 DynamicMobData[next.Key] = copyDMD;
             }
         }

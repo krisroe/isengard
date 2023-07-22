@@ -22,7 +22,6 @@ namespace IsengardClient
         /// </summary>
         private HashSet<Area> _currentAreasForEdit;
 
-        private bool IsCombatStrategy { get; set; }
         private string MobText { get; set; }
         private MobTypeEnum? MobType { get; set; }
         private int MobIndex { get; set; }
@@ -30,19 +29,19 @@ namespace IsengardClient
         /// <summary>
         /// constructor used when initiating a perm run ad hoc from a strategy
         /// </summary>
-        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, SupportedKeysFlags keys, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, Area currentArea)
+        public frmPermRun(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skills, SupportedKeysFlags keys, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, Strategy strategy, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastOptions, WorkflowSpells spellsPotionsOptions, Area currentArea, PermRunEditFlow permRunEditFlow)
         {
             InitializeComponent();
             txtDisplayName.Enabled = false;
             StrategyOverrides stratAndOverrides = new StrategyOverrides();
             stratAndOverrides.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
             stratAndOverrides.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
-            stratAndOverrides.UseMagicCombat = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
-            stratAndOverrides.UseMeleeCombat = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
-            stratAndOverrides.UsePotionsCombat = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
+            stratAndOverrides.UseMagicCombat = strategy == null ? (bool?)null : ((strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None);
+            stratAndOverrides.UseMeleeCombat = strategy == null ? (bool?)null : ((strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None);
+            stratAndOverrides.UsePotionsCombat = strategy == null ? (bool?)null : ((strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None);
             stratAndOverrides.Realms = null;
             stratAndOverrides.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
-            Initialize(gameMap, settingsData, skills, keys, currentRoom, currentMob, GetGraphInputs, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, currentArea, currentArea, currentArea != null, false, stratAndOverrides, strategy);
+            Initialize(gameMap, settingsData, skills, keys, currentRoom, currentMob, GetGraphInputs, invWorkflow, currentEntityInfo, beforeFull, afterFull, spellsCastOptions, spellsPotionsOptions, currentArea, currentArea, currentArea != null, false, stratAndOverrides, strategy, permRunEditFlow);
         }
 
         /// <summary>
@@ -52,7 +51,6 @@ namespace IsengardClient
         {
             InitializeComponent();
             _permRun = permRun;
-            _permRunEditFlow = permRunEditFlow;
             txtDisplayName.Text = permRun.DisplayName;
             string sCurrentMob = string.Empty;
             bool hasMob = false;
@@ -77,7 +75,7 @@ namespace IsengardClient
             }
             sCurrentMob = sCurrentMob ?? string.Empty;
             Area mostCompatibleArea = _permRun.DetermineMostCompatibleArea(currentArea, gameMap, GetGraphInputs());
-            Initialize(gameMap, settingsData, skills, keys, currentRoom, sCurrentMob, GetGraphInputs, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, currentArea, mostCompatibleArea, _permRun.Rehome, _permRun.RemoveAllEquipment, _permRun.StrategyOverrides, _permRun.Strategy);
+            Initialize(gameMap, settingsData, skills, keys, currentRoom, sCurrentMob, GetGraphInputs, _permRun.ItemsToProcessType, currentEntityInfo, _permRun.BeforeFull, _permRun.AfterFull, spellsCastOptions, spellsPotionsOptions, currentArea, mostCompatibleArea, _permRun.Rehome, _permRun.RemoveAllEquipment, _permRun.StrategyOverrides, _permRun.Strategy, permRunEditFlow);
         }
 
         /// <summary>
@@ -92,8 +90,9 @@ namespace IsengardClient
         /// <param name="keysToShow">keys to show checkboxes for</param>
         /// <param name="currentArea">current area where the player currently is</param>
         /// <param name="targetArea">target area for the perm run</param>
-        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, SupportedKeysFlags keysToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, Area currentArea, Area targetArea, bool rehome, bool removeAllEquipment, StrategyOverrides strategyAndOverrides, Strategy strategy)
+        private void Initialize(IsengardMap gameMap, IsengardSettingData settingsData, PromptedSkills skillsToShow, SupportedKeysFlags keysToShow, Room currentRoom, string currentMob, Func<GraphInputs> GetGraphInputs, ItemsToProcessType invWorkflow, CurrentEntityInfo currentEntityInfo, FullType beforeFull, FullType afterFull, WorkflowSpells spellsCastToShow, WorkflowSpells spellsPotionsToShow, Area currentArea, Area targetArea, bool rehome, bool removeAllEquipment, StrategyOverrides strategyAndOverrides, Strategy strategy, PermRunEditFlow permRunEditFlow)
         {
+            _permRunEditFlow = permRunEditFlow;
             _GraphInputs = GetGraphInputs;
             _gameMap = gameMap;
             _settingsData = settingsData;
@@ -110,6 +109,7 @@ namespace IsengardClient
             cboBeforeFull.SelectedItem = beforeFull;
             cboAfterFull.SelectedItem = afterFull;
 
+            ucStrategyModifications1.Visible = permRunEditFlow != PermRunEditFlow.AdHocNonCombat;
             ucStrategyModifications1.Initialize(strategyAndOverrides, strategy, !ForImmediateRun(), _settingsData, _permRunEditFlow, getSelectedStrategy, RefreshUIFromEffectiveStrategy);
 
             cboItemsToProcessType.Items.Add(ItemsToProcessType.NoProcessing);
@@ -175,8 +175,7 @@ namespace IsengardClient
                         }
                         if (_permRun == null)
                         {
-                            isChecked = nextSkill == PromptedSkills.PowerAttack && strategy.IsCombatStrategy(CommandType.Melee, ucStrategyModifications1.GetEffectiveCombatTypesEnabled(strategy));
-                            isChecked = true;
+                            isChecked = nextSkill == PromptedSkills.PowerAttack && (_permRunEditFlow == PermRunEditFlow.AdHocCombat || strategy.IsCombatStrategy(CommandType.Melee, ucStrategyModifications1.GetEffectiveCombatTypesEnabled(strategy)));
                             if (nextSkill == PromptedSkills.PowerAttack)
                             {
                                 chk.Visible = isChecked;
@@ -255,16 +254,25 @@ namespace IsengardClient
             }
             chkRehome.Checked = rehome;
             chkRemoveAllEquipment.Checked = removeAllEquipment;
-
-            if (_permRun != null && _permRun.Strategy == null)
+            
+            if (permRunEditFlow == PermRunEditFlow.AdHocNonCombat)
             {
-                cboStrategy.Items.Add(string.Empty);
+                cboStrategy.Items.Add(strategy);
+                cboStrategy.Enabled = false;
+                cboStrategy.SelectedIndex = 0;
             }
-            foreach (Strategy s in settingsData.Strategies)
+            else
             {
-                cboStrategy.Items.Add(s);
+                if (_permRun != null && _permRun.Strategy == null)
+                {
+                    cboStrategy.Items.Add(string.Empty);
+                }
+                foreach (Strategy s in settingsData.Strategies)
+                {
+                    cboStrategy.Items.Add(s);
+                }
+                cboStrategy.SelectedItem = _permRun == null ? strategy : _permRun.Strategy;
             }
-            cboStrategy.SelectedItem = _permRun == null ? strategy : _permRun.Strategy;
             RefreshUIFromEffectiveStrategy();
             _initialized = true;
         }
@@ -375,12 +383,13 @@ namespace IsengardClient
         private void btnOK_Click(object sender, EventArgs e)
         {
             Strategy strategySelectedInDropdown = cboStrategy.SelectedItem as Strategy;
-            if (_permRun != null && strategySelectedInDropdown == null)
+            if (strategySelectedInDropdown == null)
             {
                 MessageBox.Show("No strategy selected.", "Perm Run");
                 return;
             }
-            IsCombatStrategy = strategySelectedInDropdown.IsCombatStrategy(CommandType.All, ucStrategyModifications1.GetEffectiveCombatTypesEnabled(strategySelectedInDropdown));
+            bool IsCombatStrategy = strategySelectedInDropdown.IsCombatStrategy(CommandType.All, ucStrategyModifications1.GetEffectiveCombatTypesEnabled(strategySelectedInDropdown));
+            bool IsMeleeStrategy = strategySelectedInDropdown.IsCombatStrategy(CommandType.Melee, ucStrategyModifications1.GetEffectiveCombatTypesEnabled(strategySelectedInDropdown));
             if (IsCombatStrategy)
             {
                 if (MobEntity.GetMobInfo(GetInputMobText(), out string mobText, out MobTypeEnum? mobType, out int mobIndex))
@@ -400,6 +409,14 @@ namespace IsengardClient
                 MobText = string.Empty;
                 MobType = null;
                 MobIndex = 0;
+            }
+
+            if (_permRunEditFlow == PermRunEditFlow.AdHocCombat && IsMeleeStrategy && !_settingsData.Weapon.HasValue)
+            {
+                if (MessageBox.Show("No weapon specified. Continue?", "Strategy", MessageBoxButtons.OKCancel) != DialogResult.OK)
+                {
+                    return;
+                }
             }
 
             Room targetRoom = cboTargetRoom.SelectedItem as Room;

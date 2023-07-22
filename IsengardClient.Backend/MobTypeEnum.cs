@@ -1140,6 +1140,7 @@
 
         [SingularName("monster")]
         [PluralName("monsters")]
+        [Experience(45)]
         Monster,
 
         [SingularName("morality officer")]

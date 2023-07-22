@@ -1383,20 +1383,6 @@ namespace IsengardClient
         {
             tsmiQuitWithoutSaving.Visible = _settingsData.SaveSettingsOnQuit;
 
-            flpOneClickStrategies.Controls.Clear();
-            int iOneClickTabIndex = 0;
-            foreach (Strategy oStrategy in _settingsData.Strategies)
-            {
-                Button btnOneClick = new Button();
-                btnOneClick.AutoSize = true;
-                btnOneClick.TabIndex = iOneClickTabIndex++;
-                btnOneClick.Tag = oStrategy;
-                btnOneClick.Text = oStrategy.ToString();
-                btnOneClick.UseVisualStyleBackColor = true;
-                btnOneClick.Click += btnOneClick_Click;
-                flpOneClickStrategies.Controls.Add(btnOneClick);
-            }
-
             RefreshAreaDropdown();
 
             RealmTypeFlags newRealms = _settingsData.Realms;
@@ -4298,11 +4284,6 @@ namespace IsengardClient
             tsbWho.Tag = new CommandButtonTag(tsbWho, "who", CommandType.None, DependentObjectType.None);
             tsbUptime.Tag = new CommandButtonTag(tsbUptime, "uptime", CommandType.None, DependentObjectType.None);
             tsbSpells.Tag = new CommandButtonTag(tsbSpells, "spells", CommandType.None, DependentObjectType.None);
-        }
-
-        private void btnOneClick_Click(object sender, EventArgs e)
-        {
-            RunStrategy((Strategy)((Button)sender).Tag);
         }
 
         private void _bwBackgroundProcess_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -8164,10 +8145,6 @@ BeforeHazy:
             yield return txtMob;
             yield return txtWand;
             yield return cboArea;
-            foreach (Button btn in flpOneClickStrategies.Controls)
-            {
-                yield return btn;
-            }
             yield return btnNorthwest;
             yield return btnNorth;
             yield return btnNortheast;
@@ -8769,18 +8746,29 @@ BeforeHazy:
             cboSetOption_SelectedIndexChanged(null, null);
         }
 
-        private void RunStrategy(Strategy strategy)
+        private void btnNonCombatPermRun_Click(object sender, EventArgs e)
         {
-            CommandType eStrategyCombatCommandType = strategy.CombatCommandTypes;
-            bool isMeleeStrategy = (eStrategyCombatCommandType & CommandType.Melee) == CommandType.Melee;
-            bool hasWeapon = _settingsData.Weapon.HasValue;
-            if (isMeleeStrategy && !hasWeapon)
-            {
-                if (MessageBox.Show("No weapon specified. Continue?", "Strategy", MessageBoxButtons.OKCancel) != DialogResult.OK)
-                {
-                    return;
-                }
-            }
+            Strategy s = new Strategy();
+            s.FinalMeleeAction = FinalStepAction.FinishCombat;
+            s.FinalMagicAction = FinalStepAction.FinishCombat;
+            s.FinalPotionsAction = FinalStepAction.FinishCombat;
+            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
+            s.TypesWithStepsEnabled = CommandType.None;
+            RunAdHocStrategy(s, PermRunEditFlow.AdHocNonCombat);
+        }
+
+        private void btnAdHocPermRun_Click(object sender, EventArgs e)
+        {
+            RunAdHocStrategy(null, PermRunEditFlow.AdHocCombat);
+        }
+
+        /// <summary>
+        /// runs an ad hoc strategy
+        /// </summary>
+        /// <param name="strategy">strategy to run</param>
+        /// <param name="permRunEditFlow">perm run edit flow</param>
+        private void RunAdHocStrategy(Strategy strategy, PermRunEditFlow permRunEditFlow)
+        {
             WorkflowSpells workflowSpellsPotions = WorkflowSpells.None;
             ItemsToProcessType inventoryFlow;
             DateTime utcNow = DateTime.UtcNow;
@@ -8806,7 +8794,13 @@ BeforeHazy:
 
             FullType beforeFull;
             FullType afterFull;
-            if (strategy.TypesWithStepsEnabled == CommandType.None)
+            if (strategy == null || strategy.TypesWithStepsEnabled != CommandType.None)
+            {
+                beforeFull = FullType.Total;
+                afterFull = FullType.Almost;
+                inventoryFlow = ItemsToProcessType.ProcessMonsterDrops;
+            }
+            else
             {
                 if (currentRoom == null || !currentRoom.HealingRoom.HasValue)
                 {
@@ -8821,14 +8815,8 @@ BeforeHazy:
                     inventoryFlow = ItemsToProcessType.NoProcessing;
                 }
             }
-            else
-            {
-                beforeFull = FullType.Total;
-                afterFull = FullType.Almost;
-                inventoryFlow = ItemsToProcessType.ProcessMonsterDrops;
-            }
             PermRun p;
-            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, keys, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, inventoryFlow, _currentEntityInfo, beforeFull, afterFull, workflowSpellsCast, workflowSpellsPotions, initArea))
+            using (frmPermRun frm = new frmPermRun(_gameMap, _settingsData, skills, keys, _currentEntityInfo.CurrentRoom, txtMob.Text, GetGraphInputs, strategy, inventoryFlow, _currentEntityInfo, beforeFull, afterFull, workflowSpellsCast, workflowSpellsPotions, initArea, permRunEditFlow))
             {
                 if (frm.ShowDialog(this) != DialogResult.OK)
                 {
