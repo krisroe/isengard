@@ -120,6 +120,7 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.lblOnKillMonster = new System.Windows.Forms.Label();
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
+            this.chkIsDefault = new System.Windows.Forms.CheckBox();
             this.grpMagic.SuspendLayout();
             this.ctxMagicSteps.SuspendLayout();
             this.grpMelee.SuspendLayout();
@@ -960,11 +961,22 @@
             this.cboOnKillMonster.Size = new System.Drawing.Size(200, 24);
             this.cboOnKillMonster.TabIndex = 146;
             // 
+            // chkIsDefault
+            // 
+            this.chkIsDefault.AutoSize = true;
+            this.chkIsDefault.Location = new System.Drawing.Point(682, 356);
+            this.chkIsDefault.Name = "chkIsDefault";
+            this.chkIsDefault.Size = new System.Drawing.Size(89, 20);
+            this.chkIsDefault.TabIndex = 147;
+            this.chkIsDefault.Text = "Is default?";
+            this.chkIsDefault.UseVisualStyleBackColor = true;
+            // 
             // frmStrategy
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(987, 427);
+            this.Controls.Add(this.chkIsDefault);
             this.Controls.Add(this.cboOnKillMonster);
             this.Controls.Add(this.lblOnKillMonster);
             this.Controls.Add(this.btnCancel);
@@ -1088,5 +1100,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiPotionsChangeToMendWounds;
         private System.Windows.Forms.ToolStripMenuItem tsmiPotionsChangeToGenericHeal;
         private System.Windows.Forms.ToolStripMenuItem tsmiPotionsChangeToCurePoison;
+        private System.Windows.Forms.CheckBox chkIsDefault;
     }
 }

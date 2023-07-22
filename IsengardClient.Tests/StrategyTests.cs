@@ -16,9 +16,6 @@ namespace IsengardClient.Tests
             int iIndex = 0;
 
             strategy = defaultStrategies[iIndex++];
-            Assert.IsTrue(strategy.TypesWithStepsEnabled == CommandType.None);
-
-            strategy = defaultStrategies[iIndex++];
             ValidateCastStrategy(strategy, null, new List<MagicStrategyStep>() { MagicStrategyStep.GenericHeal });
             ValidateIndefiniteAttackStrategy(strategy, true);
 

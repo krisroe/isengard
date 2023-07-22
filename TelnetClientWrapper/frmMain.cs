@@ -8159,6 +8159,10 @@ BeforeHazy:
             yield return btnOtherSingleMove;
             yield return btnSet;
             yield return btnLook;
+            yield return btnNonCombatPermRun;
+            yield return btnAdHocPermRun;
+            yield return btnFightOne;
+            yield return btnFightAll;
         }
 
         private void EnableDisableActionButtons(BackgroundWorkerParameters bwp)
@@ -11405,6 +11409,53 @@ BeforeHazy:
                 message = "No time information available.";
             }
             MessageBox.Show(message);
+        }
+
+        private void btnFightOne_Click(object sender, EventArgs e)
+        {
+            DoFight(AfterKillMonsterAction.StopCombat);
+        }
+
+        private void btnFightAll_Click(object sender, EventArgs e)
+        {
+            DoFight(AfterKillMonsterAction.SelectFirstMonsterInRoom);
+        }
+
+        private void DoFight(AfterKillMonsterAction afterKillMonsterAction)
+        {
+            MobTypeEnum? firstAttackableMob;
+            lock (_currentEntityInfo.EntityLock)
+            {
+                firstAttackableMob = _currentEntityInfo.GetFirstAttackableMob();
+            }
+            if (!firstAttackableMob.HasValue)
+            {
+                MessageBox.Show("No attackable mobs in room.");
+                return;
+            }
+            MobTypeEnum mobValue = firstAttackableMob.Value;
+            Strategy defaultStrategy = null;
+            foreach (Strategy s in _settingsData.Strategies)
+            {
+                if (s.IsDefault)
+                {
+                    defaultStrategy = s;
+                    break;
+                }
+            }
+            _settingsData.DynamicMobData.TryGetValue(mobValue, out DynamicMobData dmd);
+            if (defaultStrategy == null && dmd?.Strategy == null)
+            {
+                MessageBox.Show("No strategy found.");
+                return;
+            }
+            Strategy effectiveDefaultStrategy = defaultStrategy ?? dmd?.Strategy;
+            effectiveDefaultStrategy.AfterKillMonsterAction = afterKillMonsterAction;
+            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+            bwp.MobType = mobValue;
+            bwp.MobTypeCounter = 1;
+            bwp.Strategy = effectiveDefaultStrategy;
+            RunBackgroundProcess(bwp);
         }
     }
 }

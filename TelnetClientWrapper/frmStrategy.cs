@@ -130,6 +130,8 @@ namespace IsengardClient
             }
             txtPotionsLastXStepsRunIndefinitely.Text = hasSteps && s.PotionsLastCommandsToRunIndefinitely > 0 ? s.PotionsLastCommandsToRunIndefinitely.ToString() : string.Empty;
             txtPotionsLastXStepsRunIndefinitely.Enabled = hasSteps;
+
+            chkIsDefault.Checked = s.IsDefault;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -259,6 +261,8 @@ namespace IsengardClient
             _strategy.FinalMagicAction = (FinalStepAction)cboMagicFinalAction.SelectedIndex;
             _strategy.FinalMeleeAction = (FinalStepAction)cboMeleeFinalAction.SelectedIndex;
             _strategy.FinalPotionsAction = (FinalStepAction)cboPotionsFinalAction.SelectedIndex;
+
+            _strategy.IsDefault = chkIsDefault.Checked;
 
             DialogResult = DialogResult.OK;
             Close();

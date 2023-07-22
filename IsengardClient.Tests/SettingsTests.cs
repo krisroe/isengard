@@ -348,6 +348,7 @@ namespace IsengardClient.Tests
                 Assert.AreEqual(s1.DisplayName ?? string.Empty, s2.DisplayName ?? string.Empty);
                 Assert.AreEqual(s1.AfterKillMonsterAction, s2.AfterKillMonsterAction);
                 Assert.AreEqual(s1.ManaPool, s2.ManaPool);
+                Assert.AreEqual(s1.IsDefault, s2.IsDefault);
                 Assert.AreEqual(s1.FinalMagicAction, s2.FinalMagicAction);
                 Assert.AreEqual(s1.FinalMeleeAction, s2.FinalMeleeAction);
                 Assert.AreEqual(s1.FinalPotionsAction, s2.FinalPotionsAction);

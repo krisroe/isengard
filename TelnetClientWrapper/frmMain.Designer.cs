@@ -65,6 +65,8 @@
             this.tabMain = new System.Windows.Forms.TabPage();
             this.pnlMain = new System.Windows.Forms.Panel();
             this.grpPermRuns = new System.Windows.Forms.GroupBox();
+            this.btnFightAll = new System.Windows.Forms.Button();
+            this.btnFightOne = new System.Windows.Forms.Button();
             this.btnAdHocPermRun = new System.Windows.Forms.Button();
             this.btnNonCombatPermRun = new System.Windows.Forms.Button();
             this.btnResumeCurrentPermRun = new System.Windows.Forms.Button();
@@ -642,6 +644,8 @@
             // 
             // grpPermRuns
             // 
+            this.grpPermRuns.Controls.Add(this.btnFightAll);
+            this.grpPermRuns.Controls.Add(this.btnFightOne);
             this.grpPermRuns.Controls.Add(this.btnAdHocPermRun);
             this.grpPermRuns.Controls.Add(this.btnNonCombatPermRun);
             this.grpPermRuns.Controls.Add(this.btnResumeCurrentPermRun);
@@ -653,12 +657,36 @@
             this.grpPermRuns.Controls.Add(this.lblNextPermRun);
             this.grpPermRuns.Controls.Add(this.txtCurrentPermRun);
             this.grpPermRuns.Controls.Add(this.lblCurrent);
-            this.grpPermRuns.Location = new System.Drawing.Point(303, 180);
+            this.grpPermRuns.Location = new System.Drawing.Point(253, 158);
             this.grpPermRuns.Name = "grpPermRuns";
-            this.grpPermRuns.Size = new System.Drawing.Size(528, 123);
+            this.grpPermRuns.Size = new System.Drawing.Size(608, 123);
             this.grpPermRuns.TabIndex = 156;
             this.grpPermRuns.TabStop = false;
             this.grpPermRuns.Text = "Perm Runs";
+            // 
+            // btnFightAll
+            // 
+            this.btnFightAll.Location = new System.Drawing.Point(492, 58);
+            this.btnFightAll.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnFightAll.Name = "btnFightAll";
+            this.btnFightAll.Size = new System.Drawing.Size(107, 34);
+            this.btnFightAll.TabIndex = 160;
+            this.btnFightAll.Tag = "";
+            this.btnFightAll.Text = "Fight All";
+            this.btnFightAll.UseVisualStyleBackColor = true;
+            this.btnFightAll.Click += new System.EventHandler(this.btnFightAll_Click);
+            // 
+            // btnFightOne
+            // 
+            this.btnFightOne.Location = new System.Drawing.Point(492, 20);
+            this.btnFightOne.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.btnFightOne.Name = "btnFightOne";
+            this.btnFightOne.Size = new System.Drawing.Size(107, 34);
+            this.btnFightOne.TabIndex = 159;
+            this.btnFightOne.Tag = "";
+            this.btnFightOne.Text = "Fight One";
+            this.btnFightOne.UseVisualStyleBackColor = true;
+            this.btnFightOne.Click += new System.EventHandler(this.btnFightOne_Click);
             // 
             // btnAdHocPermRun
             // 
@@ -1126,11 +1154,11 @@
             // grpMessages
             // 
             this.grpMessages.Controls.Add(this.lstMessages);
-            this.grpMessages.Location = new System.Drawing.Point(35, 311);
+            this.grpMessages.Location = new System.Drawing.Point(35, 288);
             this.grpMessages.Margin = new System.Windows.Forms.Padding(4);
             this.grpMessages.Name = "grpMessages";
             this.grpMessages.Padding = new System.Windows.Forms.Padding(4);
-            this.grpMessages.Size = new System.Drawing.Size(797, 243);
+            this.grpMessages.Size = new System.Drawing.Size(797, 266);
             this.grpMessages.TabIndex = 121;
             this.grpMessages.TabStop = false;
             this.grpMessages.Text = "Messages";
@@ -1146,7 +1174,7 @@
             this.lstMessages.Margin = new System.Windows.Forms.Padding(4);
             this.lstMessages.Name = "lstMessages";
             this.lstMessages.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstMessages.Size = new System.Drawing.Size(789, 220);
+            this.lstMessages.Size = new System.Drawing.Size(789, 243);
             this.lstMessages.TabIndex = 0;
             // 
             // ctxMessages
@@ -2114,6 +2142,8 @@
         private System.Windows.Forms.ToolStripMenuItem tsmiTimeInfo;
         private System.Windows.Forms.Button btnNonCombatPermRun;
         private System.Windows.Forms.Button btnAdHocPermRun;
+        private System.Windows.Forms.Button btnFightAll;
+        private System.Windows.Forms.Button btnFightOne;
     }
 }
 

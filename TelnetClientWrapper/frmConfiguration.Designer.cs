@@ -519,7 +519,7 @@
             this.txtCommandTimeoutSeconds.Location = new System.Drawing.Point(261, 324);
             this.txtCommandTimeoutSeconds.Margin = new System.Windows.Forms.Padding(4);
             this.txtCommandTimeoutSeconds.Name = "txtCommandTimeoutSeconds";
-            this.txtCommandTimeoutSeconds.Size = new System.Drawing.Size(115, 22);
+            this.txtCommandTimeoutSeconds.Size = new System.Drawing.Size(197, 22);
             this.txtCommandTimeoutSeconds.TabIndex = 165;
             // 
             // lblCommandTimeoutSeconds
@@ -573,7 +573,7 @@
             this.cboConsoleVerbosity.Location = new System.Drawing.Point(262, 354);
             this.cboConsoleVerbosity.Margin = new System.Windows.Forms.Padding(4);
             this.cboConsoleVerbosity.Name = "cboConsoleVerbosity";
-            this.cboConsoleVerbosity.Size = new System.Drawing.Size(115, 24);
+            this.cboConsoleVerbosity.Size = new System.Drawing.Size(196, 24);
             this.cboConsoleVerbosity.TabIndex = 160;
             // 
             // lblConsoleVerbosity
@@ -602,7 +602,7 @@
             this.txtMagicMendWhenDownXHP.Location = new System.Drawing.Point(261, 230);
             this.txtMagicMendWhenDownXHP.Margin = new System.Windows.Forms.Padding(4);
             this.txtMagicMendWhenDownXHP.Name = "txtMagicMendWhenDownXHP";
-            this.txtMagicMendWhenDownXHP.Size = new System.Drawing.Size(115, 22);
+            this.txtMagicMendWhenDownXHP.Size = new System.Drawing.Size(197, 22);
             this.txtMagicMendWhenDownXHP.TabIndex = 152;
             // 
             // chkDisplayStunLength
@@ -642,7 +642,7 @@
             this.txtMagicVigorWhenDownXHP.Location = new System.Drawing.Point(261, 199);
             this.txtMagicVigorWhenDownXHP.Margin = new System.Windows.Forms.Padding(4);
             this.txtMagicVigorWhenDownXHP.Name = "txtMagicVigorWhenDownXHP";
-            this.txtMagicVigorWhenDownXHP.Size = new System.Drawing.Size(115, 22);
+            this.txtMagicVigorWhenDownXHP.Size = new System.Drawing.Size(197, 22);
             this.txtMagicVigorWhenDownXHP.TabIndex = 150;
             // 
             // lblMagicVigorWhenDownXHP
@@ -671,7 +671,7 @@
             this.txtPotionsMendWhenDownXHP.Location = new System.Drawing.Point(261, 294);
             this.txtPotionsMendWhenDownXHP.Margin = new System.Windows.Forms.Padding(4);
             this.txtPotionsMendWhenDownXHP.Name = "txtPotionsMendWhenDownXHP";
-            this.txtPotionsMendWhenDownXHP.Size = new System.Drawing.Size(115, 22);
+            this.txtPotionsMendWhenDownXHP.Size = new System.Drawing.Size(197, 22);
             this.txtPotionsMendWhenDownXHP.TabIndex = 156;
             // 
             // lblPotionsMendWhenDownXHP
@@ -689,7 +689,7 @@
             this.txtPotionsVigorWhenDownXHP.Location = new System.Drawing.Point(261, 263);
             this.txtPotionsVigorWhenDownXHP.Margin = new System.Windows.Forms.Padding(4);
             this.txtPotionsVigorWhenDownXHP.Name = "txtPotionsVigorWhenDownXHP";
-            this.txtPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(115, 22);
+            this.txtPotionsVigorWhenDownXHP.Size = new System.Drawing.Size(197, 22);
             this.txtPotionsVigorWhenDownXHP.TabIndex = 154;
             // 
             // lblPotionsVigorWhenDownXHP

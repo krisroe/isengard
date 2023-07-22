@@ -614,37 +614,42 @@ namespace IsengardClient
 
         private void tsmiAddEntry_Click(object sender, EventArgs e)
         {
-            Strategy s = new Strategy();
-            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithCurrentOverrides()))
-            {
-                if (frm.ShowDialog(this) == DialogResult.OK)
-                {
-                    lstStrategies.Items.Add(s);
-                }
-            }
+            AddOrEditStrategy(new Strategy(), null);
         }
 
         private void tsmiCopyEntry_Click(object sender, EventArgs e)
         {
             Strategy s = new Strategy((Strategy)lstStrategies.Items[lstStrategies.SelectedIndex]);
-            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithCurrentOverrides()))
-            {
-                if (frm.ShowDialog(this) == DialogResult.OK)
-                {
-                    lstStrategies.Items.Add(s);
-                }
-            }
+            s.ID = 0;
+            AddOrEditStrategy(s, null);
         }
 
         private void tsmiEditEntry_Click(object sender, EventArgs e)
         {
             int index = lstStrategies.SelectedIndex;
-            Strategy s = (Strategy)lstStrategies.Items[index];
-            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithCurrentOverrides()))
+            AddOrEditStrategy((Strategy)lstStrategies.Items[index], index);
+        }
+
+        private void AddOrEditStrategy(Strategy input, int? index)
+        {
+            using (frmStrategy frm = new frmStrategy(input, CreateTempSettingsObjectWithCurrentOverrides()))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
-                    lstStrategies.Items[index] = s;
+                    if (index.HasValue)
+                        lstStrategies.Items[index.Value] = input;
+                    else
+                        lstStrategies.Items.Add(input);
+                    if (input.IsDefault) //remove existing default
+                    {
+                        foreach (Strategy nextStrategy in lstStrategies.Items)
+                        {
+                            if (nextStrategy != input)
+                            {
+                                nextStrategy.IsDefault = false;
+                            }
+                        }
+                    }
                 }
             }
         }

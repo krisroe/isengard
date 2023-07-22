@@ -12,6 +12,7 @@ namespace IsengardClient.Backend
 
         public int ID { get; set; }
         public bool IsValid { get; set; }
+        public bool IsDefault { get; set; }
         public string DisplayName { get; set; }
         public AfterKillMonsterAction? AfterKillMonsterAction { get; set; }
         public int ManaPool { get; set; }
@@ -95,6 +96,7 @@ namespace IsengardClient.Backend
             }
 
             TypesWithStepsEnabled = copied.TypesWithStepsEnabled;
+            IsDefault = copied.IsDefault;
         }
 
         public Strategy(Strategy baseStrategy, DynamicMobData dmd) : this(baseStrategy ?? dmd.Strategy)
@@ -108,7 +110,9 @@ namespace IsengardClient.Backend
 
         public override string ToString()
         {
-            return string.IsNullOrEmpty(DisplayName) ? GetToStringForCommandTypes(TypesWithStepsEnabled) : DisplayName;
+            string sRet = string.IsNullOrEmpty(DisplayName) ? GetToStringForCommandTypes(TypesWithStepsEnabled) : DisplayName;
+            if (IsDefault) sRet += " (Default)";
+            return sRet;
         }
 
         public void ApplyStrategyOverrides(StrategyOverrides overrides)

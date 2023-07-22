@@ -387,7 +387,8 @@ namespace IsengardClient.Backend
 
                 List<Strategy> strategiesTemp = new List<Strategy>();
                 Dictionary<int, Strategy> strats = new Dictionary<int, Strategy>();
-                cmd.CommandText = "SELECT ID,DisplayName,AfterKillMonsterAction,ManaPool,FinalMagicAction,FinalMeleeAction,FinalPotionsAction,MagicOnlyWhenStunnedForXMS,MagicLastCommandsToRunIndefinitely,MeleeOnlyWhenStunnedForXMS,MeleeLastCommandsToRunIndefinitely,PotionsOnlyWhenStunnedForXMS,PotionsLastCommandsToRunIndefinitely,TypesWithStepsEnabled,AutoSpellLevelMin,AutoSpellLevelMax,Realms FROM Strategies WHERE UserID = @UserID ORDER BY OrderValue";
+                cmd.CommandText = "SELECT ID,DisplayName,AfterKillMonsterAction,ManaPool,FinalMagicAction,FinalMeleeAction,FinalPotionsAction,MagicOnlyWhenStunnedForXMS,MagicLastCommandsToRunIndefinitely,MeleeOnlyWhenStunnedForXMS,MeleeLastCommandsToRunIndefinitely,PotionsOnlyWhenStunnedForXMS,PotionsLastCommandsToRunIndefinitely,TypesWithStepsEnabled,AutoSpellLevelMin,AutoSpellLevelMax,Realms,IsDefault FROM Strategies WHERE UserID = @UserID ORDER BY OrderValue";
+                bool foundDefault = false;
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -420,6 +421,21 @@ namespace IsengardClient.Backend
                         if (oData != DBNull.Value) s.AutoSpellLevelMax = Convert.ToInt32(oData);
                         oData = reader["Realms"];
                         if (oData != DBNull.Value) s.Realms = (RealmTypeFlags)Convert.ToInt32(oData);
+
+                        bool isDefault = Convert.ToInt32(reader["IsDefault"]) != 0;
+                        if (isDefault)
+                        {
+                            if (foundDefault)
+                            {
+                                errorMessages.Add("Multiple default combat strategies found.");
+                                s.IsValid = false;
+                            }
+                            else
+                            {
+                                foundDefault = true;
+                                s.IsDefault = true;
+                            }
+                        }
 
                         if (!ValidateStrategy(s, errorMessages))
                         {
@@ -938,6 +954,7 @@ namespace IsengardClient.Backend
                 "DisplayName",
                 "AfterKillMonsterAction",
                 "ManaPool",
+                "IsDefault",
                 "FinalMagicAction",
                 "FinalMeleeAction",
                 "FinalPotionsAction",
@@ -979,7 +996,9 @@ namespace IsengardClient.Backend
             }
             string sValue;
             int iValue;
+            bool bValue;
             int? iValueNullable;
+            bool foundDefault = false;
             foreach (XmlNode nextStrategyNode in elem.ChildNodes)
             {
                 XmlElement nextStrategyElem = nextStrategyNode as XmlElement;
@@ -1013,6 +1032,29 @@ namespace IsengardClient.Backend
                     }
                 }
                 s.ManaPool = iValue;
+
+                sValue = GetAttributeValueByName(attributeMapping, "IsDefault");
+                if (!string.IsNullOrEmpty(sValue))
+                {
+                    if (!bool.TryParse(sValue, out bValue))
+                    {
+                        s.IsValid = false;
+                        errorMessages.Add("Invalid strategy is default: " + sValue);
+                    }
+                    if (bValue)
+                    {
+                        if (foundDefault)
+                        {
+                            s.IsValid = false;
+                            errorMessages.Add("Multiple default combat strategies found.");
+                        }
+                        else
+                        {
+                            foundDefault = true;
+                            s.IsDefault = true;
+                        }
+                    }
+                }
 
                 sValue = GetAttributeValueByName(attributeMapping, "AfterKillMonsterAction");
                 if (!string.IsNullOrEmpty(sValue))
@@ -2205,6 +2247,7 @@ namespace IsengardClient.Backend
                     "AutoSpellLevelMin",
                     "AutoSpellLevelMax",
                     "Realms",
+                    "IsDefault",
             };
             string sInsertBaseRecordCommand = GetInsertCommand("Strategies", baseRecordColumns);
             string sUpdateBaseRecordCommand = GetUpdateCommand("Strategies", baseRecordColumns, "ID");
@@ -2235,6 +2278,7 @@ namespace IsengardClient.Backend
                 SQLiteParameter autoSpellLevelMinParam = cmd.Parameters.Add("@AutoSpellLevelMin", DbType.Int32);
                 SQLiteParameter autoSpellLevelMaxParam = cmd.Parameters.Add("@AutoSpellLevelMax", DbType.Int32);
                 SQLiteParameter realmsParam = cmd.Parameters.Add("@Realms", DbType.Int32);
+                SQLiteParameter isDefaultParam = cmd.Parameters.Add("@IsDefault", DbType.Int32);
 
                 string sInsertStrategyStepCommand = "INSERT INTO StrategySteps (StrategyID,CombatType,IndexValue,StepType) VALUES (@StrategyID,@CombatType,@IndexValue,@StepType)";
                 string sUpdateStrategyStepCommand = "UPDATE StrategySteps SET StepType = @StepType WHERE StrategyID = @StrategyID AND CombatType = @CombatType AND IndexValue = @IndexValue";
@@ -2264,6 +2308,7 @@ namespace IsengardClient.Backend
                     autoSpellLevelMinParam.Value = nextRecord.AutoSpellLevelMin > 0 ? (object)nextRecord.AutoSpellLevelMin : DBNull.Value;
                     autoSpellLevelMaxParam.Value = nextRecord.AutoSpellLevelMax > 0 ? (object)nextRecord.AutoSpellLevelMax : DBNull.Value;
                     realmsParam.Value = nextRecord.Realms.HasValue ? (object)Convert.ToInt32(nextRecord.Realms.Value) : DBNull.Value;
+                    isDefaultParam.Value = nextRecord.IsDefault ? 1 : 0;
 
                     int iID = nextRecord.ID;
                     bool isNew = iID == 0;
@@ -3109,6 +3154,7 @@ namespace IsengardClient.Backend
                     if (s.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMin", s.AutoSpellLevelMin.ToString());
                     if (s.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMax", s.AutoSpellLevelMax.ToString());
                     if (s.Realms.HasValue) writer.WriteAttributeString("Realms", StringProcessing.TrimFlagsEnumToString(s.Realms.Value));
+                    if (s.IsDefault) writer.WriteAttributeString("IsDefault", "true");
 
                     if (mobStrategies.TryGetValue(s, out List<MobTypeEnum> mobList))
                     {
@@ -3445,7 +3491,7 @@ namespace IsengardClient.Backend
                 "CREATE TABLE DynamicItemData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, KeepCount INTEGER NULL, SinkCount INTEGER NULL, OverflowAction INTEGER NULL, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE Areas (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NOT NULL, TickRoom INTEGER NULL, PawnShop INTEGER NULL, InventorySinkRoom TEXT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES Areas(ID))",
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
-                "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MagicLastCommandsToRunIndefinitely INTEGER NOT NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, MeleeLastCommandsToRunIndefinitely INTEGER NOT NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, PotionsLastCommandsToRunIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
+                "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MagicLastCommandsToRunIndefinitely INTEGER NOT NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, MeleeLastCommandsToRunIndefinitely INTEGER NOT NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, PotionsLastCommandsToRunIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, IsDefault INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
                 $"CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, RemoveAllEquipment INTEGER NOT NULL, SupportedKeys INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL,{sStrategyOverrideColumns}, ItemsToProcessType INTEGER NOT NULL, LastCompleted INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
                 "CREATE TABLE PermRunToAreas (PermRunID INTEGER NOT NULL, AreaID INTEGER NOT NULL, PRIMARY KEY (PermRunID, AreaID), FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE, FOREIGN KEY(PermRunID) REFERENCES PermRuns(ID) ON DELETE CASCADE)",
