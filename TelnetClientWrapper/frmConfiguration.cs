@@ -328,6 +328,16 @@ namespace IsengardClient
             else
                 _settings.HomeArea = GetAreaFromNode(null, treeAreas.Nodes[0]);
 
+            _settings.DynamicMobData.Clear();
+            foreach (ListViewItem lvi in lvMobs.Items)
+            {
+                DynamicMobData dmd = lvi.Tag as DynamicMobData;
+                if (dmd != null && dmd.HasData())
+                {
+                    _settings.DynamicMobData[dmd.MobType] = dmd;
+                }
+            }
+
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
@@ -1122,7 +1132,7 @@ namespace IsengardClient
                 {
                     lvi.Tag = ((DynamicMobData)lvi.Tag).MobType;
                 }
-                lvi.SubItems[0].Text = "None";
+                lvi.SubItems[1].Text = "None";
             }
         }
 
@@ -1130,14 +1140,16 @@ namespace IsengardClient
         {
             ListViewItem lvi = lvMobs.SelectedItems[0];
             DynamicMobData dmd = lvi.Tag as DynamicMobData;
-            if (dmd == null) dmd = new DynamicMobData();
-
+            if (dmd == null)
+            {
+                dmd = new DynamicMobData();
+                dmd.MobType = (MobTypeEnum)lvi.Tag;
+            }
             List<Strategy> strats = new List<Strategy>();
             foreach (Strategy next in lstStrategies.Items)
             {
                 strats.Add(next);
             }
-
             using (frmMobDynamicData frm = new frmMobDynamicData(dmd, strats, CreateTempSettingsObjectWithCurrentOverrides()))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)

@@ -436,6 +436,11 @@ namespace IsengardClient.Backend
         public MobTypeEnum MobType { get; set; }
         public Strategy Strategy { get; set; }
         public StrategyOverrides StrategyOverrides { get; set; }
+
+        public bool HasData()
+        {
+            return Strategy != null || StrategyOverrides.HasData();
+        }
     }
 
     public class MobEntity : Entity

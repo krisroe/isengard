@@ -56,6 +56,7 @@
             this.lstStrategies = new System.Windows.Forms.ListBox();
             this.ctxListModification = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiAddEntry = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiCopyEntry = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiEditEntry = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiRemoveEntry = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveEntryUp = new System.Windows.Forms.ToolStripMenuItem();
@@ -122,7 +123,6 @@
             this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.tsmiCopyEntry = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.ctxListModification.SuspendLayout();
@@ -392,41 +392,48 @@
             this.tsmiMoveEntryUp,
             this.tsmiMoveEntryDown});
             this.ctxListModification.Name = "ctxStrategies";
-            this.ctxListModification.Size = new System.Drawing.Size(211, 176);
+            this.ctxListModification.Size = new System.Drawing.Size(159, 148);
             this.ctxListModification.Opening += new System.ComponentModel.CancelEventHandler(this.ctxListModification_Opening);
             // 
             // tsmiAddEntry
             // 
             this.tsmiAddEntry.Name = "tsmiAddEntry";
-            this.tsmiAddEntry.Size = new System.Drawing.Size(210, 24);
+            this.tsmiAddEntry.Size = new System.Drawing.Size(158, 24);
             this.tsmiAddEntry.Text = "Add";
             this.tsmiAddEntry.Click += new System.EventHandler(this.tsmiAddEntry_Click);
+            // 
+            // tsmiCopyEntry
+            // 
+            this.tsmiCopyEntry.Name = "tsmiCopyEntry";
+            this.tsmiCopyEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiCopyEntry.Text = "Copy";
+            this.tsmiCopyEntry.Click += new System.EventHandler(this.tsmiCopyEntry_Click);
             // 
             // tsmiEditEntry
             // 
             this.tsmiEditEntry.Name = "tsmiEditEntry";
-            this.tsmiEditEntry.Size = new System.Drawing.Size(210, 24);
+            this.tsmiEditEntry.Size = new System.Drawing.Size(158, 24);
             this.tsmiEditEntry.Text = "Edit";
             this.tsmiEditEntry.Click += new System.EventHandler(this.tsmiEditEntry_Click);
             // 
             // tsmiRemoveEntry
             // 
             this.tsmiRemoveEntry.Name = "tsmiRemoveEntry";
-            this.tsmiRemoveEntry.Size = new System.Drawing.Size(210, 24);
+            this.tsmiRemoveEntry.Size = new System.Drawing.Size(158, 24);
             this.tsmiRemoveEntry.Text = "Remove";
             this.tsmiRemoveEntry.Click += new System.EventHandler(this.tsmiRemoveEntry_Click);
             // 
             // tsmiMoveEntryUp
             // 
             this.tsmiMoveEntryUp.Name = "tsmiMoveEntryUp";
-            this.tsmiMoveEntryUp.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMoveEntryUp.Size = new System.Drawing.Size(158, 24);
             this.tsmiMoveEntryUp.Text = "Move Up";
             this.tsmiMoveEntryUp.Click += new System.EventHandler(this.tsmiMoveEntryUp_Click);
             // 
             // tsmiMoveEntryDown
             // 
             this.tsmiMoveEntryDown.Name = "tsmiMoveEntryDown";
-            this.tsmiMoveEntryDown.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMoveEntryDown.Size = new System.Drawing.Size(158, 24);
             this.tsmiMoveEntryDown.Text = "Move Down";
             this.tsmiMoveEntryDown.Click += new System.EventHandler(this.tsmiMoveEntryDown_Click);
             // 
@@ -943,10 +950,12 @@
             // colMob
             // 
             this.colMob.Text = "Mob";
+            this.colMob.Width = 200;
             // 
             // colStrategy
             // 
             this.colStrategy.Text = "Strategy Info";
+            this.colStrategy.Width = 600;
             // 
             // ctxMobs
             // 
@@ -1062,13 +1071,6 @@
             this.pnlBottom.Name = "pnlBottom";
             this.pnlBottom.Size = new System.Drawing.Size(1099, 54);
             this.pnlBottom.TabIndex = 148;
-            // 
-            // tsmiCopyEntry
-            // 
-            this.tsmiCopyEntry.Name = "tsmiCopyEntry";
-            this.tsmiCopyEntry.Size = new System.Drawing.Size(210, 24);
-            this.tsmiCopyEntry.Text = "Copy";
-            this.tsmiCopyEntry.Click += new System.EventHandler(this.tsmiCopyEntry_Click);
             // 
             // frmConfiguration
             // 

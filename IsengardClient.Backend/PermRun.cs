@@ -514,5 +514,10 @@ namespace IsengardClient.Backend
         public int AutoSpellLevelMin { get; set; }
         public int AutoSpellLevelMax { get; set; }
         public RealmTypeFlags? Realms { get; set; }
+
+        public bool HasData()
+        {
+            return UseMagicCombat.HasValue || UseMeleeCombat.HasValue || UsePotionsCombat.HasValue || AfterKillMonsterAction.HasValue || AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET || Realms.HasValue;
+        }
     }
 }
