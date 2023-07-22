@@ -106,36 +106,36 @@ namespace IsengardClient.Backend
             if (p.Strategy != null)
             {
                 Strategy = new Strategy(p.Strategy);
-                if (p.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && p.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
+                if (p.StrategyOverrides.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && p.StrategyOverrides.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
                 {
-                    Strategy.AutoSpellLevelMin = p.AutoSpellLevelMin;
-                    Strategy.AutoSpellLevelMax = p.AutoSpellLevelMax;
+                    Strategy.AutoSpellLevelMin = p.StrategyOverrides.AutoSpellLevelMin;
+                    Strategy.AutoSpellLevelMax = p.StrategyOverrides.AutoSpellLevelMax;
                 }
-                if (p.Realms.HasValue)
+                if (p.StrategyOverrides.Realms.HasValue)
                 {
-                    Strategy.Realms = p.Realms;
+                    Strategy.Realms = p.StrategyOverrides.Realms;
                 }
-                if (p.AfterKillMonsterAction.HasValue)
+                if (p.StrategyOverrides.AfterKillMonsterAction.HasValue)
                 {
-                    Strategy.AfterKillMonsterAction = p.AfterKillMonsterAction.Value;
+                    Strategy.AfterKillMonsterAction = p.StrategyOverrides.AfterKillMonsterAction.Value;
                 }
-                if (p.UseMagicCombat.HasValue)
+                if (p.StrategyOverrides.UseMagicCombat.HasValue)
                 {
-                    if (p.UseMagicCombat.Value)
+                    if (p.StrategyOverrides.UseMagicCombat.Value)
                         Strategy.TypesWithStepsEnabled |= CommandType.Magic;
                     else
                         Strategy.TypesWithStepsEnabled &= ~CommandType.Magic;
                 }
-                if (p.UseMeleeCombat.HasValue)
+                if (p.StrategyOverrides.UseMeleeCombat.HasValue)
                 {
-                    if (p.UseMeleeCombat.Value)
+                    if (p.StrategyOverrides.UseMeleeCombat.Value)
                         Strategy.TypesWithStepsEnabled |= CommandType.Melee;
                     else
                         Strategy.TypesWithStepsEnabled &= ~CommandType.Melee;
                 }
-                if (p.UsePotionsCombat.HasValue)
+                if (p.StrategyOverrides.UsePotionsCombat.HasValue)
                 {
-                    if (p.UsePotionsCombat.Value)
+                    if (p.StrategyOverrides.UsePotionsCombat.Value)
                         Strategy.TypesWithStepsEnabled |= CommandType.Potions;
                     else
                         Strategy.TypesWithStepsEnabled &= ~CommandType.Potions;

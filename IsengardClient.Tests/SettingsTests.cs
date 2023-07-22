@@ -106,13 +106,26 @@ namespace IsengardClient.Tests
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.CurePoison, PotionsStrategyStep.GenericHeal, PotionsStrategyStep.MendWounds, PotionsStrategyStep.Vigor };
             settings.Strategies.Add(s);
 
+            DynamicMobData dmd = new DynamicMobData();
+            dmd.StrategyOverrides.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoom;
+            dmd.StrategyOverrides.Realms = RealmTypeFlags.Earth | RealmTypeFlags.Wind;
+            dmd.StrategyOverrides.UseMagicCombat = true;
+            dmd.StrategyOverrides.UseMeleeCombat = true;
+            dmd.StrategyOverrides.UsePotionsCombat = false;
+            dmd.Strategy = s;
+            settings.DynamicMobData[MobTypeEnum.Accuser] = dmd;
+
             PermRun p = new PermRun();
             p.Rehome = false;
             p.Areas = new HashSet<Area>() { a };
-            p.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoomOfSameType;
-            p.AutoSpellLevelMin = 3;
-            p.AutoSpellLevelMax = 4;
-            p.Realms = RealmTypeFlags.Fire;
+            p.StrategyOverrides.AfterKillMonsterAction = AfterKillMonsterAction.SelectFirstMonsterInRoomOfSameType;
+            p.StrategyOverrides.AutoSpellLevelMin = 3;
+            p.StrategyOverrides.AutoSpellLevelMax = 4;
+            p.StrategyOverrides.Realms = RealmTypeFlags.Fire;
+            p.StrategyOverrides.UseMagicCombat = true;
+            p.StrategyOverrides.UseMeleeCombat = false;
+            p.StrategyOverrides.UsePotionsCombat = null;
+            p.Strategy = s;
             p.DisplayName = "asfdsdaf";
             p.BeforeFull = FullType.Total;
             p.AfterFull = FullType.Almost;
@@ -124,10 +137,6 @@ namespace IsengardClient.Tests
             p.MobIndex = 2;
             p.MobType = MobTypeEnum.Amlug;
             p.OrderValue = 12;
-            p.UseMagicCombat = true;
-            p.UseMeleeCombat = false;
-            p.UsePotionsCombat = null;
-            p.Strategy = s;
             p.TargetRoomObject = gameMap.HealingRooms[HealingRoom.BreeArena];
             p.TargetRoomIdentifier = p.TargetRoomObject.BackendName;
             p.ThresholdRoomObject = gameMap.HealingRooms[HealingRoom.BreeNortheast];
@@ -199,6 +208,12 @@ namespace IsengardClient.Tests
                 Assert.AreEqual(settings.DynamicItemClassData[next.Key].KeepCount, sets2.DynamicItemClassData[next.Key].KeepCount);
                 Assert.AreEqual(settings.DynamicItemClassData[next.Key].SinkCount, sets2.DynamicItemClassData[next.Key].SinkCount);
                 Assert.AreEqual(settings.DynamicItemClassData[next.Key].OverflowAction, sets2.DynamicItemClassData[next.Key].OverflowAction);
+            }
+            Assert.AreEqual(settings.DynamicMobData.Count, sets2.DynamicMobData.Count);
+            foreach (var next in settings.DynamicMobData)
+            {
+                VerifyStrategiesMatch(settings.DynamicMobData[next.Key].Strategy, sets2.DynamicMobData[next.Key].Strategy, expectIDsPopulated);
+                VerifyStrategyOverridesMatch(settings.DynamicMobData[next.Key].StrategyOverrides, sets2.DynamicMobData[next.Key].StrategyOverrides);
             }
             Assert.AreEqual(settings.HomeArea == null, sets2.HomeArea == null);
             if (settings.HomeArea != null)
@@ -302,16 +317,21 @@ namespace IsengardClient.Tests
             Assert.AreEqual(p1.MobType, p2.MobType);
             Assert.AreEqual(p1.MobText, p2.MobText);
             Assert.AreEqual(p1.MobIndex, p2.MobIndex);
-            Assert.AreEqual(p1.UseMagicCombat, p2.UseMagicCombat);
-            Assert.AreEqual(p1.UseMeleeCombat, p2.UseMeleeCombat);
-            Assert.AreEqual(p1.UsePotionsCombat, p2.UsePotionsCombat);
-            Assert.AreEqual(p1.AfterKillMonsterAction, p2.AfterKillMonsterAction);
-            Assert.AreEqual(p1.AutoSpellLevelMin, p2.AutoSpellLevelMin);
-            Assert.AreEqual(p1.AutoSpellLevelMax, p2.AutoSpellLevelMax);
-            Assert.AreEqual(p1.Realms, p2.Realms);
+            VerifyStrategiesMatch(p1.Strategy, p2.Strategy, expectIDsPopulated);
+            VerifyStrategyOverridesMatch(p1.StrategyOverrides, p2.StrategyOverrides);
             Assert.AreEqual(p1.ItemsToProcessType, p2.ItemsToProcessType);
             Assert.AreEqual(p1.LastCompleted, p2.LastCompleted);
-            VerifyStrategiesMatch(p1.Strategy, p2.Strategy, expectIDsPopulated);
+        }
+
+        internal void VerifyStrategyOverridesMatch(StrategyOverrides s1, StrategyOverrides s2)
+        {
+            Assert.AreEqual(s1.UseMagicCombat, s2.UseMagicCombat);
+            Assert.AreEqual(s1.UseMeleeCombat, s2.UseMeleeCombat);
+            Assert.AreEqual(s1.UsePotionsCombat, s2.UsePotionsCombat);
+            Assert.AreEqual(s1.AfterKillMonsterAction, s2.AfterKillMonsterAction);
+            Assert.AreEqual(s1.AutoSpellLevelMin, s2.AutoSpellLevelMin);
+            Assert.AreEqual(s1.AutoSpellLevelMax, s2.AutoSpellLevelMax);
+            Assert.AreEqual(s1.Realms, s2.Realms);
         }
 
         internal void VerifyStrategiesMatch(Strategy s1, Strategy s2, bool expectIDsPopulated)

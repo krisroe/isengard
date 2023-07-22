@@ -461,6 +461,10 @@
         [Alignment(AlignmentType.DullRed)]
         FarmCat,
 
+        [SingularName("farmer")]
+        [PluralName("farmers")]
+        Farmer,
+
         [SingularName("farm maid")]
         [PluralName("farm maids")]
         FarmMaid,

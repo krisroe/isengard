@@ -8,10 +8,11 @@ namespace IsengardClient.Backend
     {
         public PermRun()
         {
+            StrategyOverrides = new StrategyOverrides();
             Rehome = true;
             LastCompleted = DateTime.MinValue;
         }
-        public PermRun(PermRun copied)
+        public PermRun(PermRun copied) : this()
         {
             ID = copied.ID;
             DisplayName = copied.DisplayName;
@@ -31,16 +32,10 @@ namespace IsengardClient.Backend
             MobType = copied.MobType;
             MobText = copied.MobText;
             MobIndex = copied.MobIndex;
-            UseMagicCombat = copied.UseMagicCombat;
-            UseMeleeCombat = copied.UseMeleeCombat;
-            UsePotionsCombat = copied.UsePotionsCombat;
-            AfterKillMonsterAction = copied.AfterKillMonsterAction;
-            AutoSpellLevelMin = copied.AutoSpellLevelMin;
-            AutoSpellLevelMax = copied.AutoSpellLevelMax;
-            Realms = copied.Realms;
+            Strategy = copied.Strategy;
+            StrategyOverrides = new StrategyOverrides(copied.StrategyOverrides);
             ItemsToProcessType = copied.ItemsToProcessType;
             LastCompleted = copied.LastCompleted;
-            Strategy = copied.Strategy;
         }
         public bool IsValid { get; set; }
         public int ID { get; set; }
@@ -102,14 +97,14 @@ namespace IsengardClient.Backend
         /// mob index for any mob in the room if no mob type/text is specified
         /// </summary>
         public int MobIndex { get; set; }
+        /// <summary>
+        /// strategy
+        /// </summary>
         public Strategy Strategy { get; set; }
-        public bool? UseMagicCombat { get; set; }
-        public bool? UseMeleeCombat { get; set; }
-        public bool? UsePotionsCombat { get; set; }
-        public AfterKillMonsterAction? AfterKillMonsterAction { get; set; }
-        public int AutoSpellLevelMin { get; set; }
-        public int AutoSpellLevelMax { get; set; }
-        public RealmTypeFlags? Realms { get; set; }
+        /// <summary>
+        /// strategy and overrides
+        /// </summary>
+        public StrategyOverrides StrategyOverrides { get; set; }
         public ItemsToProcessType ItemsToProcessType { get; set; }
         /// <summary>
         /// flow used to initiate a perm run. This is not saved.
@@ -442,8 +437,8 @@ namespace IsengardClient.Backend
             bool usePotionsInStrategy = false;
             if (Strategy != null && Strategy.PotionsSteps != null)
             {
-                if (UsePotionsCombat.HasValue)
-                    usePotionsInStrategy = UsePotionsCombat.Value;
+                if (StrategyOverrides.UsePotionsCombat.HasValue)
+                    usePotionsInStrategy = StrategyOverrides.UsePotionsCombat.Value;
                 else
                     usePotionsInStrategy = ((Strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None);
             }
@@ -495,5 +490,29 @@ namespace IsengardClient.Backend
             
             return true;
         }
+    }
+
+    public class StrategyOverrides
+    {
+        public StrategyOverrides()
+        {
+        }
+        public StrategyOverrides(StrategyOverrides copied)
+        {
+            UseMagicCombat = copied.UseMagicCombat;
+            UseMeleeCombat = copied.UseMeleeCombat;
+            UsePotionsCombat = copied.UsePotionsCombat;
+            AfterKillMonsterAction = copied.AfterKillMonsterAction;
+            AutoSpellLevelMin = copied.AutoSpellLevelMin;
+            AutoSpellLevelMax = copied.AutoSpellLevelMax;
+            Realms = copied.Realms;
+        }
+        public bool? UseMagicCombat { get; set; }
+        public bool? UseMeleeCombat { get; set; }
+        public bool? UsePotionsCombat { get; set; }
+        public AfterKillMonsterAction? AfterKillMonsterAction { get; set; }
+        public int AutoSpellLevelMin { get; set; }
+        public int AutoSpellLevelMax { get; set; }
+        public RealmTypeFlags? Realms { get; set; }
     }
 }

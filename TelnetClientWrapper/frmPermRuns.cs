@@ -157,9 +157,9 @@ namespace IsengardClient
             pr.SpellsToPotion = WorkflowSpells.None;
             pr.SkillsToRun = PromptedSkills.PowerAttack;
             pr.SupportedKeys = SupportedKeysFlags.None;
-            pr.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
-            pr.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
-            pr.Realms = null;
+            pr.StrategyOverrides.AutoSpellLevelMin = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+            pr.StrategyOverrides.AutoSpellLevelMax = IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET;
+            pr.StrategyOverrides.Realms = null;
             WorkflowSpells spellsToPotion = _currentEntityInfo.GetAvailableWorkflowSpells(AvailableSpellTypes.All);
             using (frmPermRun frm = new frmPermRun(_gameMap, _settings, skills, keys, currentRoom, _getGraphInputs, _currentEntityInfo, castableSpells, spellsToPotion, pr, PermRunEditFlow.Edit, _currentArea))
             {

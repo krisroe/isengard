@@ -34,6 +34,7 @@ namespace IsengardClient.Backend
         public int PotionsVigorOnlyWhenDownXHP { get; set; }
         public int PotionsMendOnlyWhenDownXHP { get; set; }
         public bool SaveSettingsOnQuit { get; set; }
+        public Dictionary<MobTypeEnum, DynamicMobData> DynamicMobData { get; set; }
         public Dictionary<ItemTypeEnum, DynamicItemData> DynamicItemData { get; set; }
         public Dictionary<DynamicDataItemClass, DynamicItemData> DynamicItemClassData { get; set; }
         public List<LocationNode> Locations { get; set; }
@@ -67,6 +68,7 @@ namespace IsengardClient.Backend
             PermRuns = new List<PermRun>();
             DynamicItemData = new Dictionary<ItemTypeEnum, DynamicItemData>();
             DynamicItemClassData = new Dictionary<DynamicDataItemClass, DynamicItemData>();
+            DynamicMobData = new Dictionary<MobTypeEnum, DynamicMobData>();
             Locations = new List<LocationNode>();
             HomeArea = null;
         }
@@ -102,6 +104,11 @@ namespace IsengardClient.Backend
             foreach (var next in copied.DynamicItemClassData)
             {
                 DynamicItemClassData[next.Key] = new DynamicItemData(next.Value);
+            }
+            DynamicMobData = new Dictionary<MobTypeEnum, DynamicMobData>();
+            foreach (var next in copied.DynamicMobData)
+            {
+                DynamicMobData[next.Key] = new DynamicMobData(next.Value);
             }
             Dictionary<Area, Area> areaMapping = new Dictionary<Area, Area>();
             HomeArea = new Area(copied.HomeArea, null, areaMapping);
@@ -169,7 +176,7 @@ namespace IsengardClient.Backend
                         }
                         else
                         {
-                            errorMessages.Add("Invalid dynamic data key for dynamic data: " + key);
+                            errorMessages.Add("Invalid dynamic item data key for dynamic data: " + key);
                             continue;
                         }
 
@@ -193,6 +200,28 @@ namespace IsengardClient.Backend
                         {
                             throw new InvalidOperationException();
                         }
+                    }
+                }
+
+                List<KeyValuePair<MobTypeEnum, int>> mobStrategyIDs = new List<KeyValuePair<MobTypeEnum, int>>();
+                cmd.CommandText = $"SELECT dmd.Key,dmd.StrategyID,{GetStrategyOverrideColumns("dmd")} FROM DynamicMobData dmd LEFT JOIN Strategies s ON dmd.StrategyID = s.ID AND s.UserID = @UserID WHERE dmd.UserID = @UserID";
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string key = reader["Key"].ToString();
+                        MobTypeEnum mobType;
+                        if (!Enum.TryParse(key, out mobType))
+                        {
+                            errorMessages.Add("Invalid dynamic mob data key for dynamic data: " + key);
+                            continue;
+                        }
+                        DynamicMobData dmd = new DynamicMobData();
+                        dmd.MobType = mobType;
+                        LoadStrategyOverrides(dmd.StrategyOverrides, reader);
+                        oData = reader["StrategyID"];
+                        if (oData != DBNull.Value) mobStrategyIDs.Add(new KeyValuePair<MobTypeEnum, int>(mobType, Convert.ToInt32(oData)));
+                        DynamicMobData[mobType] = dmd;
                     }
                 }
 
@@ -459,12 +488,30 @@ namespace IsengardClient.Backend
                 {
                     ValidateStrategyAfterStepsLoaded(s, errorMessages);
                     if (s.IsValid)
+                    {
                         Strategies.Add(s);
+                        for (int i = mobStrategyIDs.Count - 1; i >= 0; i--)
+                        {
+                            if (mobStrategyIDs[i].Value == s.ID)
+                            {
+                                DynamicMobData[mobStrategyIDs[i].Key].Strategy = s;
+                                mobStrategyIDs.RemoveAt(i);
+                            }
+                        }
+                    }
                     else
+                    {
                         strats.Remove(s.ID);
+                    }
                 }
+
+                foreach (var next in mobStrategyIDs)
+                {
+                    errorMessages.Add("Failed to find mob strategy for " + next.Key + " " + next.Value);
+                }
+
                 Dictionary<int, PermRun> permRunMapping = new Dictionary<int, PermRun>();
-                cmd.CommandText = "SELECT p.ID,p.DisplayName,p.Rehome,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.RemoveAllEquipment,p.SupportedKeys,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,p.UseMeleeCombat,p.UsePotionsCombat,p.AfterKillMonsterAction,p.AutoSpellLevelMin,p.AutoSpellLevelMax,p.Realms,p.ItemsToProcessType,p.LastCompleted FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
+                cmd.CommandText = $"SELECT p.ID,p.DisplayName,p.Rehome,p.BeforeFull,p.AfterFull,p.SpellsToCast,p.SpellsToPotion,p.SkillsToRun,p.RemoveAllEquipment,p.SupportedKeys,p.TargetRoom,p.ThresholdRoom,p.MobText,p.MobIndex,p.StrategyID,p.UseMagicCombat,{GetStrategyOverrideColumns("p")},p.ItemsToProcessType,p.LastCompleted FROM PermRuns p INNER JOIN Strategies s ON p.StrategyID = s.ID WHERE p.UserID = @UserID AND s.UserID = @UserID ORDER BY p.OrderValue";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -554,20 +601,7 @@ namespace IsengardClient.Backend
                             permRun.IsValid = false;
                             errorMessages.Add("Perm run uses invalid strategy " + iStrategyID);
                         }
-                        oData = reader["UseMagicCombat"];
-                        if (oData != DBNull.Value) permRun.UseMagicCombat = Convert.ToInt32(oData) != 0;
-                        oData = reader["UseMeleeCombat"];
-                        if (oData != DBNull.Value) permRun.UseMeleeCombat = Convert.ToInt32(oData) != 0;
-                        oData = reader["UsePotionsCombat"];
-                        if (oData != DBNull.Value) permRun.UsePotionsCombat = Convert.ToInt32(oData) != 0;
-                        oData = reader["AfterKillMonsterAction"];
-                        if (oData != DBNull.Value) permRun.AfterKillMonsterAction = (AfterKillMonsterAction)Convert.ToInt32(oData);
-                        oData = reader["AutoSpellLevelMin"];
-                        if (oData != DBNull.Value) permRun.AutoSpellLevelMin = Convert.ToInt32(oData);
-                        oData = reader["AutoSpellLevelMax"];
-                        if (oData != DBNull.Value) permRun.AutoSpellLevelMax = Convert.ToInt32(oData);
-                        oData = reader["Realms"];
-                        if (oData != DBNull.Value) permRun.Realms = (RealmTypeFlags)Convert.ToInt32(oData);
+                        LoadStrategyOverrides(permRun.StrategyOverrides, reader);
                         permRun.ItemsToProcessType = (ItemsToProcessType)Convert.ToInt32(reader["ItemsToProcessType"]);
                         oData = reader["LastCompleted"];
                         if (oData != DBNull.Value) permRun.LastCompleted = new DateTime(Convert.ToInt64(oData), DateTimeKind.Utc);
@@ -595,6 +629,41 @@ namespace IsengardClient.Backend
                 }
                 ValidateSettings(errorMessages);
             }
+        }
+
+        private void LoadStrategyOverrides(StrategyOverrides so, SQLiteDataReader reader)
+        {
+            object oData = reader["UseMagicCombat"];
+            if (oData != DBNull.Value) so.UseMagicCombat = Convert.ToInt32(oData) != 0;
+            oData = reader["UseMeleeCombat"];
+            if (oData != DBNull.Value) so.UseMeleeCombat = Convert.ToInt32(oData) != 0;
+            oData = reader["UsePotionsCombat"];
+            if (oData != DBNull.Value) so.UsePotionsCombat = Convert.ToInt32(oData) != 0;
+            oData = reader["AfterKillMonsterAction"];
+            if (oData != DBNull.Value) so.AfterKillMonsterAction = (AfterKillMonsterAction)Convert.ToInt32(oData);
+            oData = reader["AutoSpellLevelMin"];
+            if (oData != DBNull.Value) so.AutoSpellLevelMin = Convert.ToInt32(oData);
+            oData = reader["AutoSpellLevelMax"];
+            if (oData != DBNull.Value) so.AutoSpellLevelMax = Convert.ToInt32(oData);
+            oData = reader["Realms"];
+            if (oData != DBNull.Value) so.Realms = (RealmTypeFlags)Convert.ToInt32(oData);
+        }
+
+        private string GetStrategyOverrideColumns(string alias)
+        {
+            StringBuilder sb = new StringBuilder();
+            bool first = true;
+            foreach (string next in GetStrategyOverrideAttributes())
+            {
+                if (first)
+                    first = false;
+                else
+                    sb.Append(",");
+                sb.Append(alias);
+                sb.Append(".");
+                sb.Append(next);
+            }
+            return sb.ToString();
         }
 
         /// <summary>
@@ -708,6 +777,7 @@ namespace IsengardClient.Backend
             {
                 "Settings",
                 "DynamicItemData",
+                "DynamicMobData",
                 "Area",
                 "Locations",
                 "Strategies"
@@ -721,6 +791,8 @@ namespace IsengardClient.Backend
                         HandleSettings(elem, errorMessages);
                     else if (nextStandardElement == "DynamicItemData")
                         HandleDynamicItemData(elem, errorMessages);
+                    else if (nextStandardElement == "DynamicMobData")
+                        HandleDynamicMobData(elem, errorMessages);
                     else if (nextStandardElement == "Area")
                         HomeArea = HandleArea(null, elem, errorMessages, gameMap, areasByName);
                     else if (nextStandardElement == "Locations")
@@ -869,6 +941,7 @@ namespace IsengardClient.Backend
                 "AutoSpellLevelMin",
                 "AutoSpellLevelMax",
                 "Realms",
+                "Mobs",
             };
             HashSet<string> permRunAttributes = new HashSet<string>()
             {
@@ -887,16 +960,13 @@ namespace IsengardClient.Backend
                 "ThresholdRoom",
                 "Mob",
                 "MobIndex",
-                "UseMagicCombat",
-                "UseMeleeCombat",
-                "UsePotionsCombat",
-                "AfterKillMonsterAction",
-                "AutoSpellLevelMin",
-                "AutoSpellLevelMax",
-                "Realms",
                 "ItemsToProcessType",
                 "LastCompleted",
             };
+            foreach (string s in GetStrategyOverrideAttributes())
+            {
+                permRunAttributes.Add(s);
+            }
             string sValue;
             int iValue;
             int? iValueNullable;
@@ -1071,6 +1141,56 @@ namespace IsengardClient.Backend
                 }
                 s.Realms = realms;
 
+                List<DynamicMobData> dmds = new List<DynamicMobData>();
+
+                string sMobs = GetAttributeValueByName(attributeMapping, "Mobs");
+                if (!string.IsNullOrEmpty(sMobs))
+                {
+                    foreach (string sNextMobType in sMobs.Split(new char[] { ',' }))
+                    {
+                        if (Enum.TryParse(sNextMobType, out MobTypeEnum mobType))
+                        {
+                            bool add = false;
+                            if (DynamicMobData.TryGetValue(mobType, out DynamicMobData val))
+                            {
+                                if (val.Strategy != null)
+                                {
+                                    errorMessages.Add("Duplicate strategy mob type for " + sNextMobType);
+                                    s.IsValid = false;
+                                }
+                                else
+                                {
+                                    add = true;
+                                }
+                            }
+                            else
+                            {
+                                val = new DynamicMobData();
+                                val.MobType = mobType;
+                                DynamicMobData[mobType] = val;
+                                add = true;
+                            }
+                            if (add)
+                            {
+                                if (dmds.Contains(val))
+                                {
+                                    errorMessages.Add("Duplicate mob type for strategy for " + sNextMobType);
+                                    s.IsValid = false;
+                                }
+                                else
+                                {
+                                    dmds.Add(val);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            errorMessages.Add("Invalid strategy mob type: " + sNextMobType);
+                            s.IsValid = false;
+                        }
+                    }
+                }
+
                 if (!ValidateStrategy(s, errorMessages))
                 {
                     s.IsValid = false;
@@ -1160,9 +1280,24 @@ namespace IsengardClient.Backend
                 {
                     Strategies.Add(s);
                     PermRuns.AddRange(permRunsForStrategy);
+                    foreach (var next in dmds)
+                    {
+                        next.Strategy = s;
+                    }
                 }
             }
             PermRuns.Sort((a, b) => { return a.OrderValue.CompareTo(b.OrderValue); });
+        }
+
+        private IEnumerable<string> GetStrategyOverrideAttributes()
+        {
+            yield return "UseMagicCombat";
+            yield return "UseMeleeCombat";
+            yield return "UsePotionsCombat";
+            yield return "AfterKillMonsterAction";
+            yield return "AutoSpellLevelMin";
+            yield return "AutoSpellLevelMax";
+            yield return "Realms";
         }
 
         private bool ProcessNonRequiredNonBlankRealmsText(string sRealms, out RealmTypeFlags? realms, List<string> errorMessages, string objectType)
@@ -1477,74 +1612,7 @@ namespace IsengardClient.Backend
                 }
             }
 
-            sValue = GetAttributeValueByName(attributeMapping, "UseMagicCombat");
-            if (!string.IsNullOrEmpty(sValue))
-            {
-                if (bool.TryParse(sValue, out bValue))
-                {
-                    p.UseMagicCombat = bValue;
-                }
-                else
-                {
-                    errorMessages.Add("Invalid perm run use magic combat: " + sValue);
-                    isValid = false;
-                }
-            }
-
-            sValue = GetAttributeValueByName(attributeMapping, "UseMeleeCombat");
-            if (!string.IsNullOrEmpty(sValue))
-            {
-                if (bool.TryParse(sValue, out bValue))
-                {
-                    p.UseMeleeCombat = bValue;
-                }
-                else
-                {
-                    errorMessages.Add("Invalid perm run use melee combat: " + sValue);
-                    isValid = false;
-                }
-            }
-
-            sValue = GetAttributeValueByName(attributeMapping, "UsePotionsCombat");
-            if (!string.IsNullOrEmpty(sValue))
-            {
-                if (bool.TryParse(sValue, out bValue))
-                {
-                    p.UsePotionsCombat = bValue;
-                }
-                else
-                {
-                    errorMessages.Add("Invalid perm run use potions combat: " + sValue);
-                    isValid = false;
-                }
-            }
-
-            sValue = GetAttributeValueByName(attributeMapping, "AfterKillMonsterAction");
-            if (!string.IsNullOrEmpty(sValue))
-            {
-                if (Enum.TryParse(sValue, out AfterKillMonsterAction eAction))
-                {
-                    p.AfterKillMonsterAction = eAction;
-                }
-                else
-                {
-                    errorMessages.Add("Invalid perm run after kill monster action: " + sValue);
-                    isValid = false;
-                }
-            }
-
-            if (!ProcessNonRequiredAutoSpellLevelMinMaxFromText(GetAttributeValueByName(attributeMapping, "AutoSpellLevelMin"), GetAttributeValueByName(attributeMapping, "AutoSpellLevelMax"), out int autoSpellLevelMin, out int autoSpellLevelMax, errorMessages, "perm run"))
-            {
-                isValid = false;
-            }
-            p.AutoSpellLevelMin = autoSpellLevelMin;
-            p.AutoSpellLevelMax = autoSpellLevelMax;
-
-            if (!ProcessNonRequiredNonBlankRealmsText(GetAttributeValueByName(attributeMapping, "Realms"), out RealmTypeFlags? realms, errorMessages, "perm run"))
-            {
-                isValid = false;
-            }
-            p.Realms = realms;
+            HandleStrategyOverrides(p.StrategyOverrides, attributeMapping, errorMessages, ref isValid, "perm run");
 
             sValue = GetAttributeValueByName(attributeMapping, "ItemsToProcessType");
             if (string.IsNullOrEmpty(sValue))
@@ -1577,6 +1645,80 @@ namespace IsengardClient.Backend
 
             p.IsValid = isValid;
             return p;
+        }
+
+        private void HandleStrategyOverrides(StrategyOverrides sao, Dictionary<string, string> attributeMapping, List<string> errorMessages, ref bool isValid, string objectType)
+        {
+            bool bValue;
+
+            string sValue = GetAttributeValueByName(attributeMapping, "UseMagicCombat");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                if (bool.TryParse(sValue, out bValue))
+                {
+                    sao.UseMagicCombat = bValue;
+                }
+                else
+                {
+                    errorMessages.Add($"Invalid {objectType} use magic combat: {sValue}");
+                    isValid = false;
+                }
+            }
+
+            sValue = GetAttributeValueByName(attributeMapping, "UseMeleeCombat");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                if (bool.TryParse(sValue, out bValue))
+                {
+                    sao.UseMeleeCombat = bValue;
+                }
+                else
+                {
+                    errorMessages.Add($"Invalid {objectType} use melee combat: {sValue}");
+                    isValid = false;
+                }
+            }
+
+            sValue = GetAttributeValueByName(attributeMapping, "UsePotionsCombat");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                if (bool.TryParse(sValue, out bValue))
+                {
+                    sao.UsePotionsCombat = bValue;
+                }
+                else
+                {
+                    errorMessages.Add($"Invalid {objectType} use potions combat: {sValue}");
+                    isValid = false;
+                }
+            }
+
+            sValue = GetAttributeValueByName(attributeMapping, "AfterKillMonsterAction");
+            if (!string.IsNullOrEmpty(sValue))
+            {
+                if (Enum.TryParse(sValue, out AfterKillMonsterAction eAction))
+                {
+                    sao.AfterKillMonsterAction = eAction;
+                }
+                else
+                {
+                    errorMessages.Add($"Invalid {objectType} after kill monster action: {sValue}");
+                    isValid = false;
+                }
+            }
+
+            if (!ProcessNonRequiredAutoSpellLevelMinMaxFromText(GetAttributeValueByName(attributeMapping, "AutoSpellLevelMin"), GetAttributeValueByName(attributeMapping, "AutoSpellLevelMax"), out int autoSpellLevelMin, out int autoSpellLevelMax, errorMessages, objectType))
+            {
+                isValid = false;
+            }
+            sao.AutoSpellLevelMin = autoSpellLevelMin;
+            sao.AutoSpellLevelMax = autoSpellLevelMax;
+
+            if (!ProcessNonRequiredNonBlankRealmsText(GetAttributeValueByName(attributeMapping, "Realms"), out RealmTypeFlags? realms, errorMessages, objectType))
+            {
+                isValid = false;
+            }
+            sao.Realms = realms;
         }
 
         private void HandleLocations(XmlElement elem, List<string> errorMessages, LocationNode parent, List<LocationNode> locations, IsengardMap gameMap)
@@ -1726,37 +1868,63 @@ namespace IsengardClient.Backend
                     cmd.ExecuteNonQuery();
                 }
 
-                HashSet<string> existingKeys = new HashSet<string>();
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@UserID", userID);
-                cmd.CommandText = "SELECT Key FROM DynamicItemData WHERE UserID = @UserID";
-                using (SQLiteDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        existingKeys.Add(reader["Key"].ToString());
-                    }
-                }
+                HashSet<string> existingDynamicItemKeys = GetExistingStringIDs(conn, userID, "DynamicItemData");
+                HashSet<string> existingDynamicMobKeys = GetExistingStringIDs(conn, userID, "DynamicMobData");
+
                 SQLiteParameter keyParameter = cmd.Parameters.Add("@Key", DbType.String);
                 foreach (KeyValuePair<ItemTypeEnum, DynamicItemData> nextDID in DynamicItemData)
                 {
-                    SaveDynamicItemDataRow(nextDID.Key.ToString(), nextDID.Value, cmd, keyParameter, existingKeys);
+                    SaveDynamicItemDataRow(nextDID.Key.ToString(), nextDID.Value, cmd, keyParameter, existingDynamicItemKeys);
                 }
                 foreach (KeyValuePair<DynamicDataItemClass, DynamicItemData> nextDID in DynamicItemClassData)
                 {
-                    SaveDynamicItemDataRow(nextDID.Key.ToString(), nextDID.Value, cmd, keyParameter, existingKeys);
-                }
-                foreach (string nextItemName in existingKeys)
-                {
-                    keyParameter.Value = nextItemName;
-                    cmd.CommandText = "DELETE FROM DynamicItemData WHERE UserID = @UserID AND Key = @Key";
-                    cmd.ExecuteNonQuery();
+                    SaveDynamicItemDataRow(nextDID.Key.ToString(), nextDID.Value, cmd, keyParameter, existingDynamicItemKeys);
                 }
 
                 SaveAreasToDatabase(conn, userID);
                 SaveLocationsToDatabase(conn, userID);
                 SaveStrategiesToDatabase(conn, userID);
                 SavePermRunsToDatabase(conn, userID);
+                SaveDynamicMobData(conn, userID, existingDynamicMobKeys);
+
+                DeleteExistingStringKeys(conn, "DynamicItemData", userID, existingDynamicItemKeys);
+                DeleteExistingStringKeys(conn, "DynamicMobData", userID, existingDynamicMobKeys);
+            }
+        }
+
+        private void SaveDynamicMobData(SQLiteConnection conn, int userID, HashSet<string> existingKeys)
+        {
+            List<string> baseColumns = new List<string>() { "StrategyID" };
+            foreach (string s in GetStrategyOverrideAttributes()) baseColumns.Add(s);
+            string sUpdateBaseRecordCommand = GetUpdateCommand("DynamicMobData", baseColumns, "Key");
+            baseColumns.Add("Key");
+            string sInsertBaseRecordCommand = GetInsertCommand("DynamicMobData", baseColumns);
+
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                cmd.Parameters.AddWithValue("@UserID", userID);
+                SQLiteParameter keyParam = cmd.Parameters.Add("@Key", DbType.String);
+                SQLiteParameter strategyIDParam = cmd.Parameters.Add("@StrategyID", DbType.Int32);
+                GetStrategyOverrideParameters(cmd, out SQLiteParameter useMagicCombatParam, out SQLiteParameter useMeleeCombatParam, out SQLiteParameter usePotionsCombatParam, out SQLiteParameter afterKillMonsterActionParam, out SQLiteParameter autoSpellLevelMinParam, out SQLiteParameter autoSpellLevelMaxParam, out SQLiteParameter realmsParam);
+
+                foreach (var nextDMD in DynamicMobData)
+                {
+                    DynamicMobData dmd = nextDMD.Value;
+                    string sNextKey = nextDMD.Key.ToString();
+                    if (existingKeys.Contains(sNextKey))
+                    {
+                        cmd.CommandText = sUpdateBaseRecordCommand;
+                        existingKeys.Remove(sNextKey);
+                    }
+                    else
+                    {
+                        cmd.CommandText = sInsertBaseRecordCommand;
+                    }
+                    keyParam.Value = sNextKey;
+                    strategyIDParam.Value = dmd.Strategy == null ? (object)DBNull.Value : dmd.Strategy.ID;
+                    SetStrategyOverrideParameterValues(dmd.StrategyOverrides, useMagicCombatParam, useMeleeCombatParam, usePotionsCombatParam, afterKillMonsterActionParam, autoSpellLevelMinParam, autoSpellLevelMaxParam, realmsParam);
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -1774,7 +1942,7 @@ namespace IsengardClient.Backend
             string sInsertBaseRecordCommand = GetInsertCommand("Areas", baseRecordColumns);
             string sUpdateBaseRecordCommand = GetUpdateCommand("Areas", baseRecordColumns, "ID");
 
-            HashSet<int> existingIDs = GetExistingIDs(conn, userID, "Areas", "ID");
+            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "Areas", "ID");
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
                 cmd.Parameters.AddWithValue("@UserID", userID);
@@ -1876,7 +2044,7 @@ namespace IsengardClient.Backend
 
             HashSet<string> existingPermRunToAreaRecords = GetExistingIDsForCompoundKey(conn, userID, "SELECT p2a.PermRunID,p2a.AreaID FROM PermRunToAreas p2a INNER JOIN PermRuns p ON p.ID = p2a.PermRunID INNER JOIN Areas a ON a.ID = p2a.AreaID WHERE p.UserID = @UserID AND a.UserID = @UserID", 2);
 
-            HashSet<int> existingIDs = GetExistingIDs(conn, userID, "PermRuns", "ID");
+            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "PermRuns", "ID");
             using (SQLiteCommand cmdSavePermRun = conn.CreateCommand())
             using (SQLiteCommand cmdSavePermRunToArea = conn.CreateCommand())
             {
@@ -1898,13 +2066,7 @@ namespace IsengardClient.Backend
                 SQLiteParameter mobTextParam = cmdSavePermRun.Parameters.Add("@MobText", DbType.String);
                 SQLiteParameter mobIndexParam = cmdSavePermRun.Parameters.Add("@MobIndex", DbType.Int32);
                 SQLiteParameter strategyIDParam = cmdSavePermRun.Parameters.Add("@StrategyID", DbType.Int32);
-                SQLiteParameter useMagicCombatParam = cmdSavePermRun.Parameters.Add("@UseMagicCombat", DbType.Int32);
-                SQLiteParameter useMeleeCombatParam = cmdSavePermRun.Parameters.Add("@UseMeleeCombat", DbType.Int32);
-                SQLiteParameter usePotionsCombatParam = cmdSavePermRun.Parameters.Add("@UsePotionsCombat", DbType.Int32);
-                SQLiteParameter afterKillMonsterActionParam = cmdSavePermRun.Parameters.Add("@AfterKillMonsterAction", DbType.Int32);
-                SQLiteParameter autoSpellLevelMinParam = cmdSavePermRun.Parameters.Add("@AutoSpellLevelMin", DbType.Int32);
-                SQLiteParameter autoSpellLevelMaxParam = cmdSavePermRun.Parameters.Add("@AutoSpellLevelMax", DbType.Int32);
-                SQLiteParameter realmsParam = cmdSavePermRun.Parameters.Add("@Realms", DbType.Int32);
+                GetStrategyOverrideParameters(cmdSavePermRun, out SQLiteParameter useMagicCombatParam, out SQLiteParameter useMeleeCombatParam, out SQLiteParameter usePotionsCombatParam, out SQLiteParameter afterKillMonsterActionParam, out SQLiteParameter autoSpellLevelMinParam, out SQLiteParameter autoSpellLevelMaxParam, out SQLiteParameter realmsParam);
                 SQLiteParameter itemsToProcessTypeParam = cmdSavePermRun.Parameters.Add("@ItemsToProcessType", DbType.Int32);
                 SQLiteParameter lastCompletedParam = cmdSavePermRun.Parameters.Add("@LastCompleted", DbType.Int64);
 
@@ -1944,13 +2106,7 @@ namespace IsengardClient.Backend
                     mobIndexParam.Value = iMobIndex >= iMobIndexThreshold ? (object)iMobIndex : DBNull.Value;
 
                     strategyIDParam.Value = nextRecord.Strategy.ID;
-                    useMagicCombatParam.Value = nextRecord.UseMagicCombat.HasValue ? (object)(nextRecord.UseMagicCombat.Value ? 1 : 0) : DBNull.Value;
-                    useMeleeCombatParam.Value = nextRecord.UseMeleeCombat.HasValue ? (object)(nextRecord.UseMeleeCombat.Value ? 1 : 0) : DBNull.Value;
-                    usePotionsCombatParam.Value = nextRecord.UsePotionsCombat.HasValue ? (object)(nextRecord.UsePotionsCombat.Value ? 1 : 0) : DBNull.Value;
-                    afterKillMonsterActionParam.Value = nextRecord.AfterKillMonsterAction.HasValue ? (object)Convert.ToInt32(nextRecord.AfterKillMonsterAction.Value) : DBNull.Value;
-                    autoSpellLevelMinParam.Value = nextRecord.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET ? (object)nextRecord.AutoSpellLevelMin : DBNull.Value;
-                    autoSpellLevelMaxParam.Value = nextRecord.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET ? (object)nextRecord.AutoSpellLevelMax : DBNull.Value;
-                    realmsParam.Value = nextRecord.Realms.HasValue ? (object)Convert.ToInt32(nextRecord.Realms.Value) : DBNull.Value;
+                    SetStrategyOverrideParameterValues(nextRecord.StrategyOverrides, useMagicCombatParam, useMeleeCombatParam, usePotionsCombatParam, afterKillMonsterActionParam, autoSpellLevelMinParam, autoSpellLevelMaxParam, realmsParam);
                     itemsToProcessTypeParam.Value = Convert.ToInt32(nextRecord.ItemsToProcessType);
                     lastCompletedParam.Value = nextRecord.LastCompleted == DateTime.MinValue ? (object)DBNull.Value : nextRecord.LastCompleted.Ticks;
 
@@ -1989,6 +2145,28 @@ namespace IsengardClient.Backend
             }
         }
 
+        private void GetStrategyOverrideParameters(SQLiteCommand cmd, out SQLiteParameter useMagicCombatParam, out SQLiteParameter useMeleeCombatParam, out SQLiteParameter usePotionsCombatParam, out SQLiteParameter afterKillMonsterActionParam, out SQLiteParameter autoSpellLevelMinParam, out SQLiteParameter autoSpellLevelMaxParam, out SQLiteParameter realmsParam)
+        {
+            useMagicCombatParam = cmd.Parameters.Add("@UseMagicCombat", DbType.Int32);
+            useMeleeCombatParam = cmd.Parameters.Add("@UseMeleeCombat", DbType.Int32);
+            usePotionsCombatParam = cmd.Parameters.Add("@UsePotionsCombat", DbType.Int32);
+            afterKillMonsterActionParam = cmd.Parameters.Add("@AfterKillMonsterAction", DbType.Int32);
+            autoSpellLevelMinParam = cmd.Parameters.Add("@AutoSpellLevelMin", DbType.Int32);
+            autoSpellLevelMaxParam = cmd.Parameters.Add("@AutoSpellLevelMax", DbType.Int32);
+            realmsParam = cmd.Parameters.Add("@Realms", DbType.Int32);
+        }
+
+        private void SetStrategyOverrideParameterValues(StrategyOverrides so, SQLiteParameter useMagicCombatParam, SQLiteParameter useMeleeCombatParam, SQLiteParameter usePotionsCombatParam, SQLiteParameter afterKillMonsterActionParam, SQLiteParameter autoSpellLevelMinParam, SQLiteParameter autoSpellLevelMaxParam, SQLiteParameter realmsParam)
+        {
+            useMagicCombatParam.Value = so.UseMagicCombat.HasValue ? (object)(so.UseMagicCombat.Value ? 1 : 0) : DBNull.Value;
+            useMeleeCombatParam.Value = so.UseMeleeCombat.HasValue ? (object)(so.UseMeleeCombat.Value ? 1 : 0) : DBNull.Value;
+            usePotionsCombatParam.Value = so.UsePotionsCombat.HasValue ? (object)(so.UsePotionsCombat.Value ? 1 : 0) : DBNull.Value;
+            afterKillMonsterActionParam.Value = so.AfterKillMonsterAction.HasValue ? (object)Convert.ToInt32(so.AfterKillMonsterAction.Value) : DBNull.Value;
+            autoSpellLevelMinParam.Value = so.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET ? (object)so.AutoSpellLevelMin : DBNull.Value;
+            autoSpellLevelMaxParam.Value = so.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET ? (object)so.AutoSpellLevelMax : DBNull.Value;
+            realmsParam.Value = so.Realms.HasValue ? (object)Convert.ToInt32(so.Realms.Value) : DBNull.Value;
+        }
+
         private void SaveStrategiesToDatabase(SQLiteConnection conn, int userID)
         {
             List<string> baseRecordColumns = new List<string>()
@@ -2016,7 +2194,7 @@ namespace IsengardClient.Backend
 
             HashSet<string> existingStrategySteps = GetExistingIDsForCompoundKey(conn, userID, "SELECT ss.StrategyID,ss.CombatType,ss.IndexValue FROM StrategySteps ss INNER JOIN Strategies s ON s.ID = ss.StrategyID WHERE s.UserID = @UserID", 3);
 
-            HashSet<int> existingIDs = GetExistingIDs(conn, userID, "Strategies", "ID");
+            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "Strategies", "ID");
             using (SQLiteCommand cmd = conn.CreateCommand())
             using (SQLiteCommand strategyStepCommand = conn.CreateCommand())
             {
@@ -2177,7 +2355,7 @@ namespace IsengardClient.Backend
 
         private void SaveLocationsToDatabase(SQLiteConnection conn, int userID)
         {
-            HashSet<int> existingIDs = GetExistingIDs(conn, userID, "LocationNodes", "ID");
+            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "LocationNodes", "ID");
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
                 cmd.Parameters.AddWithValue("@UserID", userID);
@@ -2303,7 +2481,40 @@ namespace IsengardClient.Backend
             }
         }
 
-        private HashSet<int> GetExistingIDs(SQLiteConnection conn, int userID, string tableName, string idColumnName)
+        private HashSet<string> GetExistingStringIDs(SQLiteConnection conn, int userID, string tableName)
+        {
+            HashSet<string> ret = new HashSet<string>();
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = $"SELECT Key FROM {tableName} WHERE UserID = @UserID";
+                cmd.Parameters.AddWithValue("@UserID", userID);
+                using (SQLiteDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        ret.Add(reader["Key"].ToString());
+                    }
+                }
+            }
+            return ret;
+        }
+
+        private void DeleteExistingStringKeys(SQLiteConnection conn, string tableName, int userID, HashSet<string> keys)
+        {
+            using (SQLiteCommand cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = $"DELETE FROM {tableName} WHERE UserID = @UserID AND Key = @Key";
+                cmd.Parameters.AddWithValue("@UserID", userID);
+                SQLiteParameter keyParameter = cmd.Parameters.Add("@Key", DbType.String);
+                foreach (string next in keys)
+                {
+                    keyParameter.Value = next;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private HashSet<int> GetExistingIntegerIDs(SQLiteConnection conn, int userID, string tableName, string idColumnName)
         {
             HashSet<int> ret = new HashSet<int>();
             using (SQLiteCommand cmd = conn.CreateCommand())
@@ -2457,13 +2668,13 @@ namespace IsengardClient.Backend
             {
                 PermRun p = PermRuns[i];
                 bool isValid = true;
-                if (!ValidateNonRequiredAutoSpellMinMax(p.AutoSpellLevelMin, p.AutoSpellLevelMax, errorMessages, "perm run"))
+                if (!ValidateNonRequiredAutoSpellMinMax(p.StrategyOverrides.AutoSpellLevelMin, p.StrategyOverrides.AutoSpellLevelMax, errorMessages, "perm run"))
                 {
                     isValid = false;
                 }
-                if (p.Realms.HasValue && p.Realms.Value == RealmTypeFlags.None)
+                if (p.StrategyOverrides.Realms.HasValue && p.StrategyOverrides.Realms.Value == RealmTypeFlags.None)
                 {
-                    errorMessages.Add($"Invalid realms: {p.Realms.Value}");
+                    errorMessages.Add($"Invalid realms: {p.StrategyOverrides.Realms.Value}");
                     isValid = false;
                 }
                 if (p.Rehome && p.Areas == null)
@@ -2498,9 +2709,53 @@ namespace IsengardClient.Backend
             return ret;
         }
 
-        private void HandleDynamicItemData(XmlElement dynamicItemData, List<string> errorMessages)
+        private void HandleDynamicMobData(XmlElement topLevelElement, List<string> errorMessages)
         {
-            foreach (XmlNode nextNode in dynamicItemData.ChildNodes)
+            HashSet<string> dynamicMobDataAttributes = new HashSet<string>();
+            dynamicMobDataAttributes.Add("key");
+            foreach (string s in GetStrategyOverrideAttributes())
+            {
+                dynamicMobDataAttributes.Add(s);
+            }
+            foreach (XmlNode nextNode in topLevelElement.ChildNodes)
+            {
+                XmlElement elem = nextNode as XmlElement;
+                if (elem == null) continue;
+                if (elem.Name == "Info")
+                {
+                    bool isValid;
+                    var attributeMapping = GetAttributeMapping(elem, dynamicMobDataAttributes, errorMessages, out isValid);
+                    string sName = GetAttributeValueByName(attributeMapping, "key");
+                    if (string.IsNullOrEmpty(sName))
+                    {
+                        errorMessages.Add("Mob dynamic data element missing key");
+                    }
+                    else
+                    {
+                        DynamicMobData dmd = new DynamicMobData();
+                        HandleStrategyOverrides(dmd.StrategyOverrides, attributeMapping, errorMessages, ref isValid, "mob dynamic data");
+                        if (isValid)
+                        {
+                            if (Enum.TryParse(sName, out MobTypeEnum mobType))
+                            {
+                                if (DynamicMobData.ContainsKey(mobType))
+                                    errorMessages.Add("Duplicate mob dynamic mob element for " + sName);
+                                else
+                                    DynamicMobData[mobType] = dmd;
+                            }
+                            else
+                            {
+                                errorMessages.Add("Mob dynamic data element with invalid name: " + sName);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void HandleDynamicItemData(XmlElement topLevelElement, List<string> errorMessages)
+        {
+            foreach (XmlNode nextNode in topLevelElement.ChildNodes)
             {
                 XmlElement elem = nextNode as XmlElement;
                 if (elem == null) continue;
@@ -2765,6 +3020,7 @@ namespace IsengardClient.Backend
             writer.WriteStartElement("DynamicData");
             WriteSettingsXML(writer);
             WriteDynamicItemDataXML(writer);
+            WriteDynamicMobDataXML(writer);
             if (HomeArea != null) WriteAreaXML(writer, HomeArea);
             WriteLocationsXML(writer);
             WriteStrategiesXML(writer);
@@ -2802,6 +3058,20 @@ namespace IsengardClient.Backend
         {
             if (Strategies.Count > 0)
             {
+                Dictionary<Strategy, List<MobTypeEnum>> mobStrategies = new Dictionary<Strategy, List<MobTypeEnum>>();
+                foreach (var next in DynamicMobData)
+                {
+                    if (next.Value.Strategy != null)
+                    {
+                        if (!mobStrategies.TryGetValue(next.Value.Strategy, out List<MobTypeEnum> lst))
+                        {
+                            lst = new List<MobTypeEnum>();
+                            mobStrategies[next.Value.Strategy] = lst;
+                        }
+                        lst.Add(next.Key);
+                    }
+                }
+
                 writer.WriteStartElement("Strategies");
                 foreach (Strategy s in Strategies)
                 {
@@ -2822,6 +3092,18 @@ namespace IsengardClient.Backend
                     if (s.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMin", s.AutoSpellLevelMin.ToString());
                     if (s.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET) writer.WriteAttributeString("AutoSpellLevelMax", s.AutoSpellLevelMax.ToString());
                     if (s.Realms.HasValue) writer.WriteAttributeString("Realms", StringProcessing.TrimFlagsEnumToString(s.Realms.Value));
+
+                    if (mobStrategies.TryGetValue(s, out List<MobTypeEnum> mobList))
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < mobList.Count; i++)
+                        {
+                            if (i != 0) sb.Append(",");
+                            sb.Append(mobList[i].ToString());
+                        }
+                        writer.WriteAttributeString("Mobs", sb.ToString());
+                    }
+
                     if (s.MagicSteps != null)
                     {
                         foreach (MagicStrategyStep step in s.MagicSteps)
@@ -2934,32 +3216,7 @@ namespace IsengardClient.Backend
                             else
                                 iMobIndexThreshold = 2;
                             if (iMobIndex >= iMobIndexThreshold) writer.WriteAttributeString("MobIndex", iMobIndex.ToString());
-
-                            if (p.UseMagicCombat.HasValue)
-                            {
-                                writer.WriteAttributeString("UseMagicCombat", p.UseMagicCombat.Value.ToString());
-                            }
-                            if (p.UseMeleeCombat.HasValue)
-                            {
-                                writer.WriteAttributeString("UseMeleeCombat", p.UseMeleeCombat.Value.ToString());
-                            }
-                            if (p.UsePotionsCombat.HasValue)
-                            {
-                                writer.WriteAttributeString("UsePotionsCombat", p.UsePotionsCombat.Value.ToString());
-                            }
-                            if (p.AfterKillMonsterAction.HasValue)
-                            {
-                                writer.WriteAttributeString("AfterKillMonsterAction", p.AfterKillMonsterAction.Value.ToString());
-                            }
-                            if (p.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET && p.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET)
-                            {
-                                writer.WriteAttributeString("AutoSpellLevelMin", p.AutoSpellLevelMin.ToString());
-                                writer.WriteAttributeString("AutoSpellLevelMax", p.AutoSpellLevelMax.ToString());
-                            }
-                            if (p.Realms.HasValue)
-                            {
-                                writer.WriteAttributeString("Realms", StringProcessing.TrimFlagsEnumToString(p.Realms.Value));
-                            }
+                            WriteStrategyOverrideAttributes(p.StrategyOverrides, writer);
                             writer.WriteAttributeString("ItemsToProcessType", p.ItemsToProcessType.ToString());
                             if (p.LastCompleted != DateTime.MinValue)
                             {
@@ -2974,7 +3231,36 @@ namespace IsengardClient.Backend
                 writer.WriteEndElement(); //end the strategy list
             }
         }
-        
+
+        private void WriteStrategyOverrideAttributes(StrategyOverrides sao, XmlWriter writer)
+        {
+            if (sao.UseMagicCombat.HasValue)
+            {
+                writer.WriteAttributeString("UseMagicCombat", sao.UseMagicCombat.Value.ToString());
+            }
+            if (sao.UseMeleeCombat.HasValue)
+            {
+                writer.WriteAttributeString("UseMeleeCombat", sao.UseMeleeCombat.Value.ToString());
+            }
+            if (sao.UsePotionsCombat.HasValue)
+            {
+                writer.WriteAttributeString("UsePotionsCombat", sao.UsePotionsCombat.Value.ToString());
+            }
+            if (sao.AfterKillMonsterAction.HasValue)
+            {
+                writer.WriteAttributeString("AfterKillMonsterAction", sao.AfterKillMonsterAction.Value.ToString());
+            }
+            if (sao.AutoSpellLevelMin != AUTO_SPELL_LEVEL_NOT_SET && sao.AutoSpellLevelMax != AUTO_SPELL_LEVEL_NOT_SET)
+            {
+                writer.WriteAttributeString("AutoSpellLevelMin", sao.AutoSpellLevelMin.ToString());
+                writer.WriteAttributeString("AutoSpellLevelMax", sao.AutoSpellLevelMax.ToString());
+            }
+            if (sao.Realms.HasValue)
+            {
+                writer.WriteAttributeString("Realms", StringProcessing.TrimFlagsEnumToString(sao.Realms.Value));
+            }
+        }
+
         private IEnumerable<KeyValuePair<string, string>> GetSettingsToSave()
         {
             if (Weapon.HasValue) yield return new KeyValuePair<string, string>("Weapon", Weapon.Value.ToString());
@@ -3006,6 +3292,27 @@ namespace IsengardClient.Backend
                 writer.WriteStartElement("Setting");
                 writer.WriteAttributeString("name", next.Key);
                 writer.WriteAttributeString("value", next.Value);
+                writer.WriteEndElement();
+            }
+            writer.WriteEndElement();
+        }
+
+        private void WriteDynamicMobDataXML(XmlWriter writer)
+        {
+            List<KeyValuePair<MobTypeEnum, DynamicMobData>> dmdMobList = new List<KeyValuePair<MobTypeEnum, DynamicMobData>>();
+            foreach (MobTypeEnum nextMobType in Enum.GetValues(typeof(MobTypeEnum)))
+            {
+                if (DynamicMobData.TryGetValue(nextMobType, out DynamicMobData dmd))
+                {
+                    dmdMobList.Add(new KeyValuePair<MobTypeEnum, DynamicMobData>(nextMobType, dmd));
+                }
+            }
+            writer.WriteStartElement("DynamicMobData");
+            foreach (KeyValuePair<MobTypeEnum, DynamicMobData> next in dmdMobList)
+            {
+                writer.WriteStartElement("Info");
+                writer.WriteAttributeString("key", next.Key.ToString());
+                WriteStrategyOverrideAttributes(next.Value.StrategyOverrides, writer);
                 writer.WriteEndElement();
             }
             writer.WriteEndElement();
@@ -3113,6 +3420,7 @@ namespace IsengardClient.Backend
 
         public static void CreateNewDatabaseSchema(SQLiteConnection conn)
         {
+            string sStrategyOverrideColumns = "UseMagicCombat INTEGER NULL,UseMeleeCombat INTEGER NULL,UsePotionsCombat INTEGER NULL,AfterKillMonsterAction INTEGER NULL,AutoSpellLevelMin INTEGER NULL,AutoSpellLevelMax INTEGER NULL,Realms INTEGER NULL";
             List<string> tableCreations = new List<string>()
             {
                 "CREATE TABLE Users (ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, UserName TEXT UNIQUE NOT NULL)",
@@ -3122,8 +3430,9 @@ namespace IsengardClient.Backend
                 "CREATE TABLE LocationNodes (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, ParentID INTEGER NULL, DisplayName TEXT NULL, Room TEXT NULL, Expanded INTEGER NOT NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(ParentID) REFERENCES LocationNodes(ID))",
                 "CREATE TABLE Strategies (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, AfterKillMonsterAction INTEGER NOT NULL, ManaPool INTEGER NULL, FinalMagicAction INTEGER NOT NULL, FinalMeleeAction INTEGER NOT NULL, FinalPotionsAction INTEGER NOT NULL, MagicOnlyWhenStunnedForXMS INTEGER NULL, MagicLastCommandsToRunIndefinitely INTEGER NOT NULL, MeleeOnlyWhenStunnedForXMS INTEGER NULL, MeleeLastCommandsToRunIndefinitely INTEGER NOT NULL, PotionsOnlyWhenStunnedForXMS INTEGER NULL, PotionsLastCommandsToRunIndefinitely INTEGER NOT NULL, TypesWithStepsEnabled INTEGER NOT NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID))",
                 "CREATE TABLE StrategySteps (StrategyID INTEGER NOT NULL, CombatType INTEGER NOT NULL, IndexValue INTEGER NOT NULL, StepType INTEGER NOT NULL, PRIMARY KEY (StrategyID, CombatType, IndexValue), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
-                "CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, RemoveAllEquipment INTEGER NOT NULL, SupportedKeys INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL, UseMagicCombat INTEGER NULL, UseMeleeCombat INTEGER NULL, UsePotionsCombat INTEGER NULL, AfterKillMonsterAction INTEGER NULL, AutoSpellLevelMin INTEGER NULL, AutoSpellLevelMax INTEGER NULL, Realms INTEGER NULL, ItemsToProcessType INTEGER NOT NULL, LastCompleted INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
+                $"CREATE TABLE PermRuns (ID INTEGER PRIMARY KEY AUTOINCREMENT, UserID INTEGER NOT NULL, OrderValue INTEGER NOT NULL, DisplayName TEXT NULL, Rehome INTEGER NOT NULL, BeforeFull INTEGER NULL, AfterFull INTEGER NULL, SpellsToCast INTEGER NOT NULL, SpellsToPotion INTEGER NOT NULL, SkillsToRun INTEGER NOT NULL, RemoveAllEquipment INTEGER NOT NULL, SupportedKeys INTEGER NOT NULL, TargetRoom TEXT NOT NULL, ThresholdRoom TEXT NULL, MobText TEXT NULL, MobIndex INTEGER NULL, StrategyID INTEGER NOT NULL,{sStrategyOverrideColumns}, ItemsToProcessType INTEGER NOT NULL, LastCompleted INTEGER NULL, FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE CASCADE)",
                 "CREATE TABLE PermRunToAreas (PermRunID INTEGER NOT NULL, AreaID INTEGER NOT NULL, PRIMARY KEY (PermRunID, AreaID), FOREIGN KEY(AreaID) REFERENCES Areas(ID) ON DELETE CASCADE, FOREIGN KEY(PermRunID) REFERENCES PermRuns(ID) ON DELETE CASCADE)",
+                $"CREATE TABLE DynamicMobData (UserID INTEGER NOT NULL, Key TEXT NOT NULL, StrategyID INTEGER NULL,{sStrategyOverrideColumns}, PRIMARY KEY (UserID, Key), FOREIGN KEY(UserID) REFERENCES Users(UserID), FOREIGN KEY(StrategyID) REFERENCES Strategies(ID) ON DELETE SET NULL)",
             };
             using (SQLiteCommand cmd = conn.CreateCommand())
             {

@@ -1221,8 +1221,9 @@ namespace IsengardClient.Backend
         [ItemClass(ItemClass.Key)]
         DungeonKey,
 
-        [SingularName("dwarven mithril gaiters")] //CSRTODO: plural
+        [SingularName("dwarven mithril gaiters")] //collective plural, verified 7/21/23
         [SingularSelection("dwarven mithril gaiter")]
+        [LookText("You see a shiny pair of long boots, made by the dwarves of Saeros.")]
         [EquipmentType(EquipmentType.Legs)]
         [Weight(4)]
         [Sellable(742)]
@@ -1308,6 +1309,7 @@ namespace IsengardClient.Backend
 
         [SingularName("elven leather whip")]
         [PluralName("elven leather whips")]
+        [LookText("You see a finely crafted bull whip used mostly for crowd control.")]
         [WeaponType(WeaponType.Missile)]
         [Weight(5)]
         [Sellable(148)]
@@ -1609,6 +1611,7 @@ namespace IsengardClient.Backend
         HalfGiantChainMailHood,
 
         [SingularName("half-giant chain mail leggings")]
+        [LookText("You see some long chain mail leggings, made for very large people.")]
         [EquipmentType(EquipmentType.Legs)]
         [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(15)]
@@ -1711,6 +1714,7 @@ namespace IsengardClient.Backend
 
         [SingularName("iron spear")]
         [PluralName("iron spears")]
+        [LookText("You see an iron spear which appears to be glowing faintly.")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(3)]
         [Sellable(203)]
@@ -2136,6 +2140,7 @@ namespace IsengardClient.Backend
 
         [SingularName("pot helm")]
         [PluralName("pot helms")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(7)]
         [ArmorClass(0.3)]
@@ -2462,6 +2467,7 @@ namespace IsengardClient.Backend
 
         [SingularName("small silver chest")]
         [PluralName("small silver chests")]
+        [LookText("You see a small chest made of silver and finely engraved.")]
         [ItemClass(ItemClass.Money)]
         SmallSilverChest,
 
@@ -2505,7 +2511,9 @@ namespace IsengardClient.Backend
         SpriteLeatherLeggings,
 
         [SingularName("splint mail")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Unknown)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(15)]
         [Sellable(3093)]
         SplintMail,
@@ -2668,6 +2676,7 @@ namespace IsengardClient.Backend
 
         [SingularName("torch")]
         [PluralName("torchs")] //verified 6/21/23
+        [LookText("You see nothing special about it.")]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]
         Torch,

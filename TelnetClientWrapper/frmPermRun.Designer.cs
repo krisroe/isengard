@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.flpSkills = new System.Windows.Forms.FlowLayoutPanel();
@@ -38,17 +37,6 @@
             this.lblTargetRoom = new System.Windows.Forms.Label();
             this.btnTargetGraph = new System.Windows.Forms.Button();
             this.btnTargetLocations = new System.Windows.Forms.Button();
-            this.grpStrategyModifications = new System.Windows.Forms.GroupBox();
-            this.pnlStrategyModifications = new System.Windows.Forms.Panel();
-            this.lblCurrentRealmValue = new System.Windows.Forms.Label();
-            this.chkMagic = new System.Windows.Forms.CheckBox();
-            this.ctxToggleStrategyModificationOverride = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.tsmiToggleEnabled = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkMelee = new System.Windows.Forms.CheckBox();
-            this.lblCurrentAutoSpellLevelsValue = new System.Windows.Forms.Label();
-            this.chkPotions = new System.Windows.Forms.CheckBox();
-            this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
-            this.lblOnKillMonster = new System.Windows.Forms.Label();
             this.cboItemsToProcessType = new System.Windows.Forms.ComboBox();
             this.lblItemsToProcessType = new System.Windows.Forms.Label();
             this.lblSpellsCast = new System.Windows.Forms.Label();
@@ -77,9 +65,7 @@
             this.flpKeys = new System.Windows.Forms.FlowLayoutPanel();
             this.lblKeys = new System.Windows.Forms.Label();
             this.chkRemoveAllEquipment = new System.Windows.Forms.CheckBox();
-            this.grpStrategyModifications.SuspendLayout();
-            this.pnlStrategyModifications.SuspendLayout();
-            this.ctxToggleStrategyModificationOverride.SuspendLayout();
+            this.ucStrategyModifications1 = new IsengardClient.ucStrategyModifications();
             this.SuspendLayout();
             // 
             // btnOK
@@ -173,125 +159,6 @@
             this.btnTargetLocations.Text = "Locations";
             this.btnTargetLocations.UseVisualStyleBackColor = true;
             this.btnTargetLocations.Click += new System.EventHandler(this.btnTargetLocations_Click);
-            // 
-            // grpStrategyModifications
-            // 
-            this.grpStrategyModifications.Controls.Add(this.pnlStrategyModifications);
-            this.grpStrategyModifications.Location = new System.Drawing.Point(121, 556);
-            this.grpStrategyModifications.Name = "grpStrategyModifications";
-            this.grpStrategyModifications.Size = new System.Drawing.Size(844, 103);
-            this.grpStrategyModifications.TabIndex = 25;
-            this.grpStrategyModifications.TabStop = false;
-            this.grpStrategyModifications.Text = "Strategy Modifications";
-            // 
-            // pnlStrategyModifications
-            // 
-            this.pnlStrategyModifications.Controls.Add(this.lblCurrentRealmValue);
-            this.pnlStrategyModifications.Controls.Add(this.chkMagic);
-            this.pnlStrategyModifications.Controls.Add(this.chkMelee);
-            this.pnlStrategyModifications.Controls.Add(this.lblCurrentAutoSpellLevelsValue);
-            this.pnlStrategyModifications.Controls.Add(this.chkPotions);
-            this.pnlStrategyModifications.Controls.Add(this.cboOnKillMonster);
-            this.pnlStrategyModifications.Controls.Add(this.lblOnKillMonster);
-            this.pnlStrategyModifications.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlStrategyModifications.Location = new System.Drawing.Point(3, 23);
-            this.pnlStrategyModifications.Name = "pnlStrategyModifications";
-            this.pnlStrategyModifications.Size = new System.Drawing.Size(838, 77);
-            this.pnlStrategyModifications.TabIndex = 151;
-            this.pnlStrategyModifications.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pnlStrategyModifications_MouseUp);
-            // 
-            // lblCurrentRealmValue
-            // 
-            this.lblCurrentRealmValue.BackColor = System.Drawing.Color.White;
-            this.lblCurrentRealmValue.Location = new System.Drawing.Point(423, 37);
-            this.lblCurrentRealmValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblCurrentRealmValue.Name = "lblCurrentRealmValue";
-            this.lblCurrentRealmValue.Size = new System.Drawing.Size(294, 27);
-            this.lblCurrentRealmValue.TabIndex = 149;
-            this.lblCurrentRealmValue.Text = "Realm";
-            this.lblCurrentRealmValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // chkMagic
-            // 
-            this.chkMagic.AutoSize = true;
-            this.chkMagic.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.chkMagic.Location = new System.Drawing.Point(16, 8);
-            this.chkMagic.Name = "chkMagic";
-            this.chkMagic.Size = new System.Drawing.Size(75, 23);
-            this.chkMagic.TabIndex = 0;
-            this.chkMagic.Text = "Magic";
-            this.chkMagic.UseVisualStyleBackColor = true;
-            this.chkMagic.CheckedChanged += new System.EventHandler(this.chkMagic_CheckedChanged);
-            // 
-            // ctxToggleStrategyModificationOverride
-            // 
-            this.ctxToggleStrategyModificationOverride.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ctxToggleStrategyModificationOverride.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiToggleEnabled});
-            this.ctxToggleStrategyModificationOverride.Name = "ctxCombatType";
-            this.ctxToggleStrategyModificationOverride.Size = new System.Drawing.Size(125, 28);
-            this.ctxToggleStrategyModificationOverride.Opening += new System.ComponentModel.CancelEventHandler(this.ctxToggleStrategyModificationOverride_Opening);
-            // 
-            // tsmiToggleEnabled
-            // 
-            this.tsmiToggleEnabled.Name = "tsmiToggleEnabled";
-            this.tsmiToggleEnabled.Size = new System.Drawing.Size(124, 24);
-            this.tsmiToggleEnabled.Text = "Toggle";
-            this.tsmiToggleEnabled.Click += new System.EventHandler(this.tsmiToggleEnabled_Click);
-            // 
-            // chkMelee
-            // 
-            this.chkMelee.AutoSize = true;
-            this.chkMelee.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.chkMelee.Location = new System.Drawing.Point(122, 8);
-            this.chkMelee.Name = "chkMelee";
-            this.chkMelee.Size = new System.Drawing.Size(74, 23);
-            this.chkMelee.TabIndex = 1;
-            this.chkMelee.Text = "Melee";
-            this.chkMelee.UseVisualStyleBackColor = true;
-            this.chkMelee.CheckedChanged += new System.EventHandler(this.chkMelee_CheckedChanged);
-            // 
-            // lblCurrentAutoSpellLevelsValue
-            // 
-            this.lblCurrentAutoSpellLevelsValue.BackColor = System.Drawing.Color.Silver;
-            this.lblCurrentAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
-            this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(423, 3);
-            this.lblCurrentAutoSpellLevelsValue.Name = "lblCurrentAutoSpellLevelsValue";
-            this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(294, 27);
-            this.lblCurrentAutoSpellLevelsValue.TabIndex = 6;
-            this.lblCurrentAutoSpellLevelsValue.Text = "Min:Max";
-            this.lblCurrentAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // chkPotions
-            // 
-            this.chkPotions.AutoSize = true;
-            this.chkPotions.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.chkPotions.Location = new System.Drawing.Point(221, 8);
-            this.chkPotions.Name = "chkPotions";
-            this.chkPotions.Size = new System.Drawing.Size(85, 23);
-            this.chkPotions.TabIndex = 2;
-            this.chkPotions.Text = "Potions";
-            this.chkPotions.UseVisualStyleBackColor = true;
-            this.chkPotions.CheckedChanged += new System.EventHandler(this.chkPotions_CheckedChanged);
-            // 
-            // cboOnKillMonster
-            // 
-            this.cboOnKillMonster.ContextMenuStrip = this.ctxToggleStrategyModificationOverride;
-            this.cboOnKillMonster.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboOnKillMonster.FormattingEnabled = true;
-            this.cboOnKillMonster.Location = new System.Drawing.Point(165, 37);
-            this.cboOnKillMonster.Name = "cboOnKillMonster";
-            this.cboOnKillMonster.Size = new System.Drawing.Size(234, 27);
-            this.cboOnKillMonster.TabIndex = 4;
-            // 
-            // lblOnKillMonster
-            // 
-            this.lblOnKillMonster.AutoSize = true;
-            this.lblOnKillMonster.Location = new System.Drawing.Point(7, 42);
-            this.lblOnKillMonster.Name = "lblOnKillMonster";
-            this.lblOnKillMonster.Size = new System.Drawing.Size(121, 19);
-            this.lblOnKillMonster.TabIndex = 3;
-            this.lblOnKillMonster.Text = "On kill monster:";
             // 
             // cboItemsToProcessType
             // 
@@ -557,12 +424,22 @@
             this.chkRemoveAllEquipment.Text = "Remove all equipment?";
             this.chkRemoveAllEquipment.UseVisualStyleBackColor = true;
             // 
+            // ucStrategyModifications1
+            // 
+            this.ucStrategyModifications1.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ucStrategyModifications1.Location = new System.Drawing.Point(6, 557);
+            this.ucStrategyModifications1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.ucStrategyModifications1.Name = "ucStrategyModifications1";
+            this.ucStrategyModifications1.Size = new System.Drawing.Size(969, 108);
+            this.ucStrategyModifications1.TabIndex = 38;
+            // 
             // frmPermRun
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(981, 737);
             this.ControlBox = false;
+            this.Controls.Add(this.ucStrategyModifications1);
             this.Controls.Add(this.chkRemoveAllEquipment);
             this.Controls.Add(this.flpKeys);
             this.Controls.Add(this.lblKeys);
@@ -592,7 +469,6 @@
             this.Controls.Add(this.lblSpellsCast);
             this.Controls.Add(this.cboItemsToProcessType);
             this.Controls.Add(this.lblItemsToProcessType);
-            this.Controls.Add(this.grpStrategyModifications);
             this.Controls.Add(this.btnTargetLocations);
             this.Controls.Add(this.btnTargetGraph);
             this.Controls.Add(this.cboTargetRoom);
@@ -606,10 +482,6 @@
             this.Name = "frmPermRun";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Perm Run";
-            this.grpStrategyModifications.ResumeLayout(false);
-            this.pnlStrategyModifications.ResumeLayout(false);
-            this.pnlStrategyModifications.PerformLayout();
-            this.ctxToggleStrategyModificationOverride.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -625,12 +497,6 @@
         private System.Windows.Forms.Label lblTargetRoom;
         private System.Windows.Forms.Button btnTargetGraph;
         private System.Windows.Forms.Button btnTargetLocations;
-        private System.Windows.Forms.GroupBox grpStrategyModifications;
-        private System.Windows.Forms.CheckBox chkPotions;
-        private System.Windows.Forms.CheckBox chkMelee;
-        private System.Windows.Forms.CheckBox chkMagic;
-        private System.Windows.Forms.ComboBox cboOnKillMonster;
-        private System.Windows.Forms.Label lblOnKillMonster;
         private System.Windows.Forms.ComboBox cboItemsToProcessType;
         private System.Windows.Forms.Label lblItemsToProcessType;
         private System.Windows.Forms.Label lblSpellsCast;
@@ -638,14 +504,10 @@
         private System.Windows.Forms.FlowLayoutPanel flpSpellsCast;
         private System.Windows.Forms.Label lblStrategy;
         private System.Windows.Forms.ComboBox cboStrategy;
-        private System.Windows.Forms.Label lblCurrentAutoSpellLevelsValue;
         private System.Windows.Forms.FlowLayoutPanel flpSpellsPotions;
         private System.Windows.Forms.Label lblSpellsPotions;
         private System.Windows.Forms.Label lblDisplayName;
         private System.Windows.Forms.TextBox txtDisplayName;
-        private System.Windows.Forms.ContextMenuStrip ctxToggleStrategyModificationOverride;
-        private System.Windows.Forms.ToolStripMenuItem tsmiToggleEnabled;
-        private System.Windows.Forms.Panel pnlStrategyModifications;
         private System.Windows.Forms.Button btnThresholdLocations;
         private System.Windows.Forms.Button btnThresholdGraph;
         private System.Windows.Forms.ComboBox cboThresholdRoom;
@@ -660,9 +522,9 @@
         private System.Windows.Forms.CheckBox chkRehome;
         private System.Windows.Forms.Button btnEditAreas;
         private System.Windows.Forms.TextBox txtArea;
-        private System.Windows.Forms.Label lblCurrentRealmValue;
         private System.Windows.Forms.FlowLayoutPanel flpKeys;
         private System.Windows.Forms.Label lblKeys;
         private System.Windows.Forms.CheckBox chkRemoveAllEquipment;
+        private ucStrategyModifications ucStrategyModifications1;
     }
 }

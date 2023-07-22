@@ -420,6 +420,23 @@ namespace IsengardClient.Backend
             return ret;
         }
     }
+    
+    public class DynamicMobData
+    {
+        public DynamicMobData()
+        {
+            StrategyOverrides = new StrategyOverrides();
+        }
+        public DynamicMobData(DynamicMobData copied)
+        {
+            MobType = copied.MobType;
+            Strategy = copied.Strategy;
+            StrategyOverrides = new StrategyOverrides(copied.StrategyOverrides);
+        }
+        public MobTypeEnum MobType { get; set; }
+        public Strategy Strategy { get; set; }
+        public StrategyOverrides StrategyOverrides { get; set; }
+    }
 
     public class MobEntity : Entity
     {
