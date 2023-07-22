@@ -45,6 +45,7 @@
             this.ctxMagicSteps = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiMagicAdd = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAddStun = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiAddStunWand = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAddOffensiveAuto = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAddOffensiveLevel1 = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAddOffensiveLevel2 = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,6 +56,19 @@
             this.tsmiMagicAddMendWounds = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMagicAddGenericHeal = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMagicAddCurePoison = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicChangeTo = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToStun = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToStunWand = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToOffensiveAuto = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToOffensiveLevel1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToOffensiveLevel2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToOffensiveLevel3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToOffensiveLevel4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToOffensiveLevel5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicChangeToVigor = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicChangeToMendWounds = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicChangeToGenericHeal = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMagicChangeToCurePoison = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMagicRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMagicMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMagicMoveDown = new System.Windows.Forms.ToolStripMenuItem();
@@ -71,6 +85,9 @@
             this.tsmiMeleeAdd = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAddRegularAttack = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiAddPowerAttack = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMeleeChangeTo = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToRegularAttack = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiChangeToPowerAttack = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMeleeRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMeleeMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMeleeMoveDown = new System.Windows.Forms.ToolStripMenuItem();
@@ -89,6 +106,11 @@
             this.tsmiPotionsAddMendWounds = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiPotionsAddGenericHeal = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiPotionsAddCurePoison = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsChangeTo = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsChangeToVigor = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsChangeToMendWounds = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsChangeToGenericHeal = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiPotionsChangeToCurePoison = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiPotionsRemove = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiPotionsMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiPotionsMoveDown = new System.Windows.Forms.ToolStripMenuItem();
@@ -98,7 +120,6 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.lblOnKillMonster = new System.Windows.Forms.Label();
             this.cboOnKillMonster = new System.Windows.Forms.ComboBox();
-            this.tsmiAddStunWand = new System.Windows.Forms.ToolStripMenuItem();
             this.grpMagic.SuspendLayout();
             this.ctxMagicSteps.SuspendLayout();
             this.grpMelee.SuspendLayout();
@@ -257,11 +278,12 @@
             this.ctxMagicSteps.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxMagicSteps.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiMagicAdd,
+            this.tsmiMagicChangeTo,
             this.tsmiMagicRemove,
             this.tsmiMagicMoveUp,
             this.tsmiMagicMoveDown});
             this.ctxMagicSteps.Name = "ctxMagicSteps";
-            this.ctxMagicSteps.Size = new System.Drawing.Size(159, 100);
+            this.ctxMagicSteps.Size = new System.Drawing.Size(159, 124);
             this.ctxMagicSteps.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMagicSteps_Opening);
             this.ctxMagicSteps.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxMagicSteps_ItemClicked);
             // 
@@ -290,6 +312,13 @@
             this.tsmiAddStun.Size = new System.Drawing.Size(241, 26);
             this.tsmiAddStun.Text = "Stun";
             this.tsmiAddStun.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiAddStunWand
+            // 
+            this.tsmiAddStunWand.Name = "tsmiAddStunWand";
+            this.tsmiAddStunWand.Size = new System.Drawing.Size(241, 26);
+            this.tsmiAddStunWand.Text = "Stun Wand";
+            this.tsmiAddStunWand.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
             // 
             // tsmiAddOffensiveAuto
             // 
@@ -360,6 +389,109 @@
             this.tsmiMagicAddCurePoison.Size = new System.Drawing.Size(241, 26);
             this.tsmiMagicAddCurePoison.Text = "Cure-Poison";
             this.tsmiMagicAddCurePoison.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
+            // 
+            // tsmiMagicChangeTo
+            // 
+            this.tsmiMagicChangeTo.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiChangeToStun,
+            this.tsmiChangeToStunWand,
+            this.tsmiChangeToOffensiveAuto,
+            this.tsmiChangeToOffensiveLevel1,
+            this.tsmiChangeToOffensiveLevel2,
+            this.tsmiChangeToOffensiveLevel3,
+            this.tsmiChangeToOffensiveLevel4,
+            this.tsmiChangeToOffensiveLevel5,
+            this.tsmiMagicChangeToVigor,
+            this.tsmiMagicChangeToMendWounds,
+            this.tsmiMagicChangeToGenericHeal,
+            this.tsmiMagicChangeToCurePoison});
+            this.tsmiMagicChangeTo.Name = "tsmiMagicChangeTo";
+            this.tsmiMagicChangeTo.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMagicChangeTo.Text = "Change To";
+            // 
+            // tsmiChangeToStun
+            // 
+            this.tsmiChangeToStun.Name = "tsmiChangeToStun";
+            this.tsmiChangeToStun.Size = new System.Drawing.Size(241, 26);
+            this.tsmiChangeToStun.Text = "Stun";
+            this.tsmiChangeToStun.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiChangeToStunWand
+            // 
+            this.tsmiChangeToStunWand.Name = "tsmiChangeToStunWand";
+            this.tsmiChangeToStunWand.Size = new System.Drawing.Size(241, 26);
+            this.tsmiChangeToStunWand.Text = "Stun Wand";
+            this.tsmiChangeToStunWand.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiChangeToOffensiveAuto
+            // 
+            this.tsmiChangeToOffensiveAuto.Name = "tsmiChangeToOffensiveAuto";
+            this.tsmiChangeToOffensiveAuto.Size = new System.Drawing.Size(241, 26);
+            this.tsmiChangeToOffensiveAuto.Text = "Offensive Spell Auto";
+            this.tsmiChangeToOffensiveAuto.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiChangeToOffensiveLevel1
+            // 
+            this.tsmiChangeToOffensiveLevel1.Name = "tsmiChangeToOffensiveLevel1";
+            this.tsmiChangeToOffensiveLevel1.Size = new System.Drawing.Size(241, 26);
+            this.tsmiChangeToOffensiveLevel1.Text = "Offensive Spell Level 1";
+            this.tsmiChangeToOffensiveLevel1.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiChangeToOffensiveLevel2
+            // 
+            this.tsmiChangeToOffensiveLevel2.Name = "tsmiChangeToOffensiveLevel2";
+            this.tsmiChangeToOffensiveLevel2.Size = new System.Drawing.Size(241, 26);
+            this.tsmiChangeToOffensiveLevel2.Text = "Offensive Spell Level 2";
+            this.tsmiChangeToOffensiveLevel2.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiChangeToOffensiveLevel3
+            // 
+            this.tsmiChangeToOffensiveLevel3.Name = "tsmiChangeToOffensiveLevel3";
+            this.tsmiChangeToOffensiveLevel3.Size = new System.Drawing.Size(241, 26);
+            this.tsmiChangeToOffensiveLevel3.Text = "Offensive Spell Level 3";
+            this.tsmiChangeToOffensiveLevel3.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiChangeToOffensiveLevel4
+            // 
+            this.tsmiChangeToOffensiveLevel4.Name = "tsmiChangeToOffensiveLevel4";
+            this.tsmiChangeToOffensiveLevel4.Size = new System.Drawing.Size(241, 26);
+            this.tsmiChangeToOffensiveLevel4.Text = "Offensive Spell Level 4";
+            this.tsmiChangeToOffensiveLevel4.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiChangeToOffensiveLevel5
+            // 
+            this.tsmiChangeToOffensiveLevel5.Name = "tsmiChangeToOffensiveLevel5";
+            this.tsmiChangeToOffensiveLevel5.Size = new System.Drawing.Size(241, 26);
+            this.tsmiChangeToOffensiveLevel5.Text = "Offensive Spell Level 5";
+            this.tsmiChangeToOffensiveLevel5.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiMagicChangeToVigor
+            // 
+            this.tsmiMagicChangeToVigor.Name = "tsmiMagicChangeToVigor";
+            this.tsmiMagicChangeToVigor.Size = new System.Drawing.Size(241, 26);
+            this.tsmiMagicChangeToVigor.Text = "Vigor";
+            this.tsmiMagicChangeToVigor.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiMagicChangeToMendWounds
+            // 
+            this.tsmiMagicChangeToMendWounds.Name = "tsmiMagicChangeToMendWounds";
+            this.tsmiMagicChangeToMendWounds.Size = new System.Drawing.Size(241, 26);
+            this.tsmiMagicChangeToMendWounds.Text = "Mend-Wounds";
+            this.tsmiMagicChangeToMendWounds.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiMagicChangeToGenericHeal
+            // 
+            this.tsmiMagicChangeToGenericHeal.Name = "tsmiMagicChangeToGenericHeal";
+            this.tsmiMagicChangeToGenericHeal.Size = new System.Drawing.Size(241, 26);
+            this.tsmiMagicChangeToGenericHeal.Text = "Generic Heal";
+            this.tsmiMagicChangeToGenericHeal.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
+            // 
+            // tsmiMagicChangeToCurePoison
+            // 
+            this.tsmiMagicChangeToCurePoison.Name = "tsmiMagicChangeToCurePoison";
+            this.tsmiMagicChangeToCurePoison.Size = new System.Drawing.Size(241, 26);
+            this.tsmiMagicChangeToCurePoison.Text = "Cure-Poison";
+            this.tsmiMagicChangeToCurePoison.Click += new System.EventHandler(this.tsmiMagicChangeTo_Click);
             // 
             // tsmiMagicRemove
             // 
@@ -484,11 +616,12 @@
             this.ctxMeleeSteps.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxMeleeSteps.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiMeleeAdd,
+            this.tsmiMeleeChangeTo,
             this.tsmiMeleeRemove,
             this.tsmiMeleeMoveUp,
             this.tsmiMeleeMoveDown});
             this.ctxMeleeSteps.Name = "ctxMeleeSteps";
-            this.ctxMeleeSteps.Size = new System.Drawing.Size(159, 100);
+            this.ctxMeleeSteps.Size = new System.Drawing.Size(159, 124);
             this.ctxMeleeSteps.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMeleeSteps_Opening);
             this.ctxMeleeSteps.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxMeleeSteps_ItemClicked);
             // 
@@ -498,39 +631,62 @@
             this.tsmiAddRegularAttack,
             this.tsmiAddPowerAttack});
             this.tsmiMeleeAdd.Name = "tsmiMeleeAdd";
-            this.tsmiMeleeAdd.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMeleeAdd.Size = new System.Drawing.Size(210, 24);
             this.tsmiMeleeAdd.Text = "Add";
             // 
             // tsmiAddRegularAttack
             // 
             this.tsmiAddRegularAttack.Name = "tsmiAddRegularAttack";
-            this.tsmiAddRegularAttack.Size = new System.Drawing.Size(189, 26);
+            this.tsmiAddRegularAttack.Size = new System.Drawing.Size(224, 26);
             this.tsmiAddRegularAttack.Text = "Regular Attack";
             this.tsmiAddRegularAttack.Click += new System.EventHandler(this.tsmiMeleeAdd_Click);
             // 
             // tsmiAddPowerAttack
             // 
             this.tsmiAddPowerAttack.Name = "tsmiAddPowerAttack";
-            this.tsmiAddPowerAttack.Size = new System.Drawing.Size(189, 26);
+            this.tsmiAddPowerAttack.Size = new System.Drawing.Size(224, 26);
             this.tsmiAddPowerAttack.Text = "Power Attack";
             this.tsmiAddPowerAttack.Click += new System.EventHandler(this.tsmiMeleeAdd_Click);
+            // 
+            // tsmiMeleeChangeTo
+            // 
+            this.tsmiMeleeChangeTo.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiChangeToRegularAttack,
+            this.tsmiChangeToPowerAttack});
+            this.tsmiMeleeChangeTo.Name = "tsmiMeleeChangeTo";
+            this.tsmiMeleeChangeTo.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMeleeChangeTo.Text = "Change To";
+            // 
+            // tsmiChangeToRegularAttack
+            // 
+            this.tsmiChangeToRegularAttack.Name = "tsmiChangeToRegularAttack";
+            this.tsmiChangeToRegularAttack.Size = new System.Drawing.Size(224, 26);
+            this.tsmiChangeToRegularAttack.Text = "Regular Attack";
+            this.tsmiChangeToRegularAttack.Click += new System.EventHandler(this.tsmiMeleeChangeTo_Click);
+            // 
+            // tsmiChangeToPowerAttack
+            // 
+            this.tsmiChangeToPowerAttack.Name = "tsmiChangeToPowerAttack";
+            this.tsmiChangeToPowerAttack.Size = new System.Drawing.Size(224, 26);
+            this.tsmiChangeToPowerAttack.Text = "Power Attack";
+            this.tsmiChangeToPowerAttack.Click += new System.EventHandler(this.tsmiMeleeChangeTo_Click);
             // 
             // tsmiMeleeRemove
             // 
             this.tsmiMeleeRemove.Name = "tsmiMeleeRemove";
-            this.tsmiMeleeRemove.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMeleeRemove.Size = new System.Drawing.Size(210, 24);
             this.tsmiMeleeRemove.Text = "Remove";
             // 
             // tsmiMeleeMoveUp
             // 
             this.tsmiMeleeMoveUp.Name = "tsmiMeleeMoveUp";
-            this.tsmiMeleeMoveUp.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMeleeMoveUp.Size = new System.Drawing.Size(210, 24);
             this.tsmiMeleeMoveUp.Text = "Move Up";
             // 
             // tsmiMeleeMoveDown
             // 
             this.tsmiMeleeMoveDown.Name = "tsmiMeleeMoveDown";
-            this.tsmiMeleeMoveDown.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMeleeMoveDown.Size = new System.Drawing.Size(210, 24);
             this.tsmiMeleeMoveDown.Text = "Move Down";
             // 
             // grpPotions
@@ -638,11 +794,12 @@
             this.ctxPotionsSteps.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxPotionsSteps.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiPotionsAdd,
+            this.tsmiPotionsChangeTo,
             this.tsmiPotionsRemove,
             this.tsmiPotionsMoveUp,
             this.tsmiPotionsMoveDown});
             this.ctxPotionsSteps.Name = "ctxPotionsSteps";
-            this.ctxPotionsSteps.Size = new System.Drawing.Size(159, 100);
+            this.ctxPotionsSteps.Size = new System.Drawing.Size(159, 124);
             this.ctxPotionsSteps.Opening += new System.ComponentModel.CancelEventHandler(this.ctxPotionsSteps_Opening);
             this.ctxPotionsSteps.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxPotionsSteps_ItemClicked);
             // 
@@ -684,6 +841,45 @@
             this.tsmiPotionsAddCurePoison.Size = new System.Drawing.Size(189, 26);
             this.tsmiPotionsAddCurePoison.Text = "Cure-Poison";
             this.tsmiPotionsAddCurePoison.Click += new System.EventHandler(this.tsmiPotionsAdd_Click);
+            // 
+            // tsmiPotionsChangeTo
+            // 
+            this.tsmiPotionsChangeTo.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiPotionsChangeToVigor,
+            this.tsmiPotionsChangeToMendWounds,
+            this.tsmiPotionsChangeToGenericHeal,
+            this.tsmiPotionsChangeToCurePoison});
+            this.tsmiPotionsChangeTo.Name = "tsmiPotionsChangeTo";
+            this.tsmiPotionsChangeTo.Size = new System.Drawing.Size(210, 24);
+            this.tsmiPotionsChangeTo.Text = "Change To";
+            // 
+            // tsmiPotionsChangeToVigor
+            // 
+            this.tsmiPotionsChangeToVigor.Name = "tsmiPotionsChangeToVigor";
+            this.tsmiPotionsChangeToVigor.Size = new System.Drawing.Size(224, 26);
+            this.tsmiPotionsChangeToVigor.Text = "Vigor";
+            this.tsmiPotionsChangeToVigor.Click += new System.EventHandler(this.tsmiPotionsChangeTo_Click);
+            // 
+            // tsmiPotionsChangeToMendWounds
+            // 
+            this.tsmiPotionsChangeToMendWounds.Name = "tsmiPotionsChangeToMendWounds";
+            this.tsmiPotionsChangeToMendWounds.Size = new System.Drawing.Size(224, 26);
+            this.tsmiPotionsChangeToMendWounds.Text = "Mend-Wounds";
+            this.tsmiPotionsChangeToMendWounds.Click += new System.EventHandler(this.tsmiPotionsChangeTo_Click);
+            // 
+            // tsmiPotionsChangeToGenericHeal
+            // 
+            this.tsmiPotionsChangeToGenericHeal.Name = "tsmiPotionsChangeToGenericHeal";
+            this.tsmiPotionsChangeToGenericHeal.Size = new System.Drawing.Size(224, 26);
+            this.tsmiPotionsChangeToGenericHeal.Text = "Generic Heal";
+            this.tsmiPotionsChangeToGenericHeal.Click += new System.EventHandler(this.tsmiPotionsChangeTo_Click);
+            // 
+            // tsmiPotionsChangeToCurePoison
+            // 
+            this.tsmiPotionsChangeToCurePoison.Name = "tsmiPotionsChangeToCurePoison";
+            this.tsmiPotionsChangeToCurePoison.Size = new System.Drawing.Size(224, 26);
+            this.tsmiPotionsChangeToCurePoison.Text = "Cure-Poison";
+            this.tsmiPotionsChangeToCurePoison.Click += new System.EventHandler(this.tsmiPotionsChangeTo_Click);
             // 
             // tsmiPotionsRemove
             // 
@@ -768,13 +964,6 @@
             this.cboOnKillMonster.Name = "cboOnKillMonster";
             this.cboOnKillMonster.Size = new System.Drawing.Size(200, 24);
             this.cboOnKillMonster.TabIndex = 146;
-            // 
-            // tsmiAddStunWand
-            // 
-            this.tsmiAddStunWand.Name = "tsmiAddStunWand";
-            this.tsmiAddStunWand.Size = new System.Drawing.Size(241, 26);
-            this.tsmiAddStunWand.Text = "Stun Wand";
-            this.tsmiAddStunWand.Click += new System.EventHandler(this.tsmiMagicAdd_Click);
             // 
             // frmStrategy
             // 
@@ -883,5 +1072,26 @@
         private System.Windows.Forms.TextBox txtPotionsLastXStepsRunIndefinitely;
         private System.Windows.Forms.Label lblPotionsLastXStepsRunIndefinitely;
         private System.Windows.Forms.ToolStripMenuItem tsmiAddStunWand;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMeleeChangeTo;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToRegularAttack;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToPowerAttack;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicChangeTo;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToStun;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToStunWand;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToOffensiveAuto;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToOffensiveLevel1;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToOffensiveLevel2;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToOffensiveLevel3;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToOffensiveLevel4;
+        private System.Windows.Forms.ToolStripMenuItem tsmiChangeToOffensiveLevel5;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicChangeToVigor;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicChangeToMendWounds;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicChangeToGenericHeal;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMagicChangeToCurePoison;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsChangeTo;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsChangeToVigor;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsChangeToMendWounds;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsChangeToGenericHeal;
+        private System.Windows.Forms.ToolStripMenuItem tsmiPotionsChangeToCurePoison;
     }
 }

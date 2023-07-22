@@ -43,6 +43,25 @@ namespace IsengardClient
             tsmiPotionsAddGenericHeal.Tag = PotionsStrategyStep.GenericHeal;
             tsmiPotionsAddCurePoison.Tag = PotionsStrategyStep.CurePoison;
 
+            tsmiChangeToOffensiveAuto.Tag = MagicStrategyStep.OffensiveSpellAuto;
+            tsmiChangeToOffensiveLevel1.Tag = MagicStrategyStep.OffensiveSpellLevel1;
+            tsmiChangeToOffensiveLevel2.Tag = MagicStrategyStep.OffensiveSpellLevel2;
+            tsmiChangeToOffensiveLevel3.Tag = MagicStrategyStep.OffensiveSpellLevel3;
+            tsmiChangeToOffensiveLevel4.Tag = MagicStrategyStep.OffensiveSpellLevel4;
+            tsmiChangeToOffensiveLevel5.Tag = MagicStrategyStep.OffensiveSpellLevel5;
+            tsmiChangeToStun.Tag = MagicStrategyStep.Stun;
+            tsmiChangeToStunWand.Tag = MagicStrategyStep.StunWand;
+            tsmiMagicChangeToVigor.Tag = MagicStrategyStep.Vigor;
+            tsmiMagicChangeToMendWounds.Tag = MagicStrategyStep.MendWounds;
+            tsmiMagicChangeToGenericHeal.Tag = MagicStrategyStep.GenericHeal;
+            tsmiMagicChangeToCurePoison.Tag = MagicStrategyStep.CurePoison;
+            tsmiChangeToRegularAttack.Tag = MeleeStrategyStep.RegularAttack;
+            tsmiChangeToPowerAttack.Tag = MeleeStrategyStep.PowerAttack;
+            tsmiPotionsChangeToVigor.Tag = PotionsStrategyStep.Vigor;
+            tsmiPotionsChangeToMendWounds.Tag = PotionsStrategyStep.MendWounds;
+            tsmiPotionsChangeToGenericHeal.Tag = PotionsStrategyStep.GenericHeal;
+            tsmiPotionsChangeToCurePoison.Tag = PotionsStrategyStep.CurePoison;
+
             cboOnKillMonster.SelectedIndex = (int)AfterKillMonsterAction.StopCombat;
 
             foreach (var nextFinalAction in Enum.GetValues(typeof(FinalStepAction)))
@@ -239,23 +258,24 @@ namespace IsengardClient
 
         private void ctxMagicSteps_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            HandleStepsContextMenuOpening(lstMagicSteps, tsmiMagicRemove, tsmiMagicMoveUp, tsmiMagicMoveDown);
+            HandleStepsContextMenuOpening(lstMagicSteps, tsmiMagicChangeTo, tsmiMagicRemove, tsmiMagicMoveUp, tsmiMagicMoveDown);
         }
 
         private void ctxMeleeSteps_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            HandleStepsContextMenuOpening(lstMeleeSteps, tsmiMeleeRemove, tsmiMeleeMoveUp, tsmiMeleeMoveDown);
+            HandleStepsContextMenuOpening(lstMeleeSteps, tsmiMeleeChangeTo, tsmiMeleeRemove, tsmiMeleeMoveUp, tsmiMeleeMoveDown);
         }
 
         private void ctxPotionsSteps_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            HandleStepsContextMenuOpening(lstPotionsSteps, tsmiPotionsRemove, tsmiPotionsMoveUp, tsmiPotionsMoveDown);
+            HandleStepsContextMenuOpening(lstPotionsSteps, tsmiPotionsChangeTo, tsmiPotionsRemove, tsmiPotionsMoveUp, tsmiPotionsMoveDown);
         }
 
-        private void HandleStepsContextMenuOpening(ListBox lst, ToolStripMenuItem remove, ToolStripMenuItem moveUp, ToolStripMenuItem moveDown)
+        private void HandleStepsContextMenuOpening(ListBox lst, ToolStripMenuItem changeTo, ToolStripMenuItem remove, ToolStripMenuItem moveUp, ToolStripMenuItem moveDown)
         {
             int iSelectedIndex = lst.SelectedIndex;
             bool hasSelectedItem = iSelectedIndex >= 0;
+            changeTo.Enabled = hasSelectedItem;
             remove.Enabled = hasSelectedItem;
             moveUp.Enabled = hasSelectedItem && iSelectedIndex > 0;
             moveDown.Enabled = hasSelectedItem && iSelectedIndex < lst.Items.Count - 1;
@@ -311,15 +331,29 @@ namespace IsengardClient
             lstMagicSteps.Items.Add(((ToolStripMenuItem)sender).Tag);
             txtMagicLastXStepsRunIndefinitely.Enabled = true;
         }
+        private void tsmiMagicChangeTo_Click(object sender, EventArgs e)
+        {
+            lstMagicSteps.Items[lstMagicSteps.SelectedIndex] = ((ToolStripMenuItem)sender).Tag;
+        }
+
         private void tsmiMeleeAdd_Click(object sender, EventArgs e)
         {
             lstMeleeSteps.Items.Add(((ToolStripMenuItem)sender).Tag);
             txtMeleeLastXStepsRunIndefinitely.Enabled = true;
         }
+        private void tsmiMeleeChangeTo_Click(object sender, EventArgs e)
+        {
+            lstMeleeSteps.Items[lstMeleeSteps.SelectedIndex] = ((ToolStripMenuItem)sender).Tag;
+        }
+
         private void tsmiPotionsAdd_Click(object sender, EventArgs e)
         {
             lstPotionsSteps.Items.Add(((ToolStripMenuItem)sender).Tag);
             txtPotionsLastXStepsRunIndefinitely.Enabled = true;
+        }
+        private void tsmiPotionsChangeTo_Click(object sender, EventArgs e)
+        {
+            lstPotionsSteps.Items[lstPotionsSteps.SelectedIndex] = ((ToolStripMenuItem)sender).Tag;
         }
     }
 }
