@@ -105,11 +105,6 @@ namespace IsengardClient.Backend
             {
                 DynamicItemClassData[next.Key] = new DynamicItemData(next.Value);
             }
-            DynamicMobData = new Dictionary<MobTypeEnum, DynamicMobData>();
-            foreach (var next in copied.DynamicMobData)
-            {
-                DynamicMobData[next.Key] = new DynamicMobData(next.Value);
-            }
             Dictionary<Area, Area> areaMapping = new Dictionary<Area, Area>();
             HomeArea = new Area(copied.HomeArea, null, areaMapping);
             Locations = new List<LocationNode>();
@@ -139,6 +134,13 @@ namespace IsengardClient.Backend
                     }
                 }
                 PermRuns.Add(copyPermRun);
+            }
+            DynamicMobData = new Dictionary<MobTypeEnum, DynamicMobData>();
+            foreach (var next in copied.DynamicMobData)
+            {
+                DynamicMobData copyDMD = new DynamicMobData(next.Value);
+                if (copyDMD.Strategy != null) copyDMD.Strategy = oStrategyMapping[copyDMD.Strategy];
+                DynamicMobData[next.Key] = copyDMD;
             }
         }
         public IsengardSettingData(SQLiteConnection conn, int UserID, List<string> errorMessages, IsengardMap gameMap) : this()
