@@ -10,7 +10,7 @@ namespace IsengardClient
         private IsengardSettingData _settings;
         private StrategyOverridesUI _strategyOverridesUI;
 
-        private Strategy Strategy { get; set; }
+        private Strategy _strategy { get; set; }
 
         /// <summary>
         /// construvctor
@@ -21,6 +21,7 @@ namespace IsengardClient
         {
             InitializeComponent();
 
+            _strategy = s;
             _settings = settings;
 
             tsmiAddOffensiveAuto.Tag = MagicStrategyStep.OffensiveSpellAuto;
@@ -165,72 +166,72 @@ namespace IsengardClient
 
             if (iMagicStepsCount > 0)
             {
-                Strategy.MagicSteps = new List<MagicStrategyStep>();
+                _strategy.MagicSteps = new List<MagicStrategyStep>();
                 foreach (MagicStrategyStep nextStep in lstMagicSteps.Items)
                 {
-                    Strategy.MagicSteps.Add(nextStep);
+                    _strategy.MagicSteps.Add(nextStep);
                 }
             }
             else
             {
-                Strategy.MagicSteps = null;
+                _strategy.MagicSteps = null;
             }
             if (iMeleeStepsCount > 0)
             {
-                Strategy.MeleeSteps = new List<MeleeStrategyStep>();
+                _strategy.MeleeSteps = new List<MeleeStrategyStep>();
                 foreach (MeleeStrategyStep nextStep in lstMeleeSteps.Items)
                 {
-                    Strategy.MeleeSteps.Add(nextStep);
+                    _strategy.MeleeSteps.Add(nextStep);
                 }
             }
             else
             {
-                Strategy.MeleeSteps = null;
+                _strategy.MeleeSteps = null;
             }
             if (iPotionsStepsCount > 0)
             {
-                Strategy.PotionsSteps = new List<PotionsStrategyStep>();
+                _strategy.PotionsSteps = new List<PotionsStrategyStep>();
                 foreach (PotionsStrategyStep nextStep in lstPotionsSteps.Items)
                 {
-                    Strategy.PotionsSteps.Add(nextStep);
+                    _strategy.PotionsSteps.Add(nextStep);
                 }
             }
             else
             {
-                Strategy.PotionsSteps = null;
+                _strategy.PotionsSteps = null;
             }
 
-            Strategy.DisplayName = txtName.Text;
-            Strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
-            Strategy.AutoSpellLevelMin = _strategyOverridesUI.StrategyAutoSpellLevelMinimum;
-            Strategy.AutoSpellLevelMax = _strategyOverridesUI.StrategyAutoSpellLevelMaximum;
-            Strategy.Realms = _strategyOverridesUI.StrategyRealms;
+            _strategy.DisplayName = txtName.Text;
+            _strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
+            _strategy.AutoSpellLevelMin = _strategyOverridesUI.StrategyAutoSpellLevelMinimum;
+            _strategy.AutoSpellLevelMax = _strategyOverridesUI.StrategyAutoSpellLevelMaximum;
+            _strategy.Realms = _strategyOverridesUI.StrategyRealms;
 
             sInt = txtManaPool.Text;
-            Strategy.ManaPool = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
+            _strategy.ManaPool = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
 
             sInt = txtMagicOnlyWhenStunnedForXMS.Text;
-            Strategy.MagicOnlyWhenStunnedForXMS = string.IsNullOrEmpty(sInt) ? (int?)null : int.Parse(sInt);
+            _strategy.MagicOnlyWhenStunnedForXMS = string.IsNullOrEmpty(sInt) ? (int?)null : int.Parse(sInt);
             sInt = txtMeleeOnlyWhenStunnedForXMS.Text;
-            Strategy.MeleeOnlyWhenStunnedForXMS = string.IsNullOrEmpty(sInt) ? (int?)null : int.Parse(sInt);
+            _strategy.MeleeOnlyWhenStunnedForXMS = string.IsNullOrEmpty(sInt) ? (int?)null : int.Parse(sInt);
             sInt = txtPotionsOnlyWhenStunnedForXMS.Text;
-            Strategy.PotionsOnlyWhenStunnedForXMS = string.IsNullOrEmpty(sInt) ? (int?)null : int.Parse(sInt);
+            _strategy.PotionsOnlyWhenStunnedForXMS = string.IsNullOrEmpty(sInt) ? (int?)null : int.Parse(sInt);
             sInt = txtMagicLastXStepsRunIndefinitely.Text;
-            Strategy.MagicLastCommandsToRunIndefinitely = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
+            _strategy.MagicLastCommandsToRunIndefinitely = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
             sInt = txtMeleeLastXStepsRunIndefinitely.Text;
-            Strategy.MeleeLastCommandsToRunIndefinitely = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
+            _strategy.MeleeLastCommandsToRunIndefinitely = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
             sInt = txtPotionsLastXStepsRunIndefinitely.Text;
-            Strategy.PotionsLastCommandsToRunIndefinitely = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
+            _strategy.PotionsLastCommandsToRunIndefinitely = string.IsNullOrEmpty(sInt) ? 0 : int.Parse(sInt);
 
             CommandType ct = CommandType.None;
             if (chkMagicEnabled.Checked) ct |= CommandType.Magic;
             if (chkMeleeEnabled.Checked) ct |= CommandType.Melee;
             if (chkPotionsEnabled.Checked) ct |= CommandType.Potions;
-            Strategy.TypesWithStepsEnabled = ct;
+            _strategy.TypesWithStepsEnabled = ct;
 
-            Strategy.FinalMagicAction = (FinalStepAction)cboMagicFinalAction.SelectedIndex;
-            Strategy.FinalMeleeAction = (FinalStepAction)cboMeleeFinalAction.SelectedIndex;
-            Strategy.FinalPotionsAction = (FinalStepAction)cboPotionsFinalAction.SelectedIndex;
+            _strategy.FinalMagicAction = (FinalStepAction)cboMagicFinalAction.SelectedIndex;
+            _strategy.FinalMeleeAction = (FinalStepAction)cboMeleeFinalAction.SelectedIndex;
+            _strategy.FinalPotionsAction = (FinalStepAction)cboPotionsFinalAction.SelectedIndex;
 
             DialogResult = DialogResult.OK;
             Close();

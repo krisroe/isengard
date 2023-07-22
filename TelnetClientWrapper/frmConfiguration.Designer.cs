@@ -122,6 +122,7 @@
             this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlBottom = new System.Windows.Forms.Panel();
+            this.tsmiCopyEntry = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.ctxListModification.SuspendLayout();
@@ -385,46 +386,47 @@
             this.ctxListModification.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxListModification.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiAddEntry,
+            this.tsmiCopyEntry,
             this.tsmiEditEntry,
             this.tsmiRemoveEntry,
             this.tsmiMoveEntryUp,
             this.tsmiMoveEntryDown});
             this.ctxListModification.Name = "ctxStrategies";
-            this.ctxListModification.Size = new System.Drawing.Size(159, 124);
+            this.ctxListModification.Size = new System.Drawing.Size(211, 176);
             this.ctxListModification.Opening += new System.ComponentModel.CancelEventHandler(this.ctxListModification_Opening);
             // 
             // tsmiAddEntry
             // 
             this.tsmiAddEntry.Name = "tsmiAddEntry";
-            this.tsmiAddEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiAddEntry.Size = new System.Drawing.Size(210, 24);
             this.tsmiAddEntry.Text = "Add";
             this.tsmiAddEntry.Click += new System.EventHandler(this.tsmiAddEntry_Click);
             // 
             // tsmiEditEntry
             // 
             this.tsmiEditEntry.Name = "tsmiEditEntry";
-            this.tsmiEditEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiEditEntry.Size = new System.Drawing.Size(210, 24);
             this.tsmiEditEntry.Text = "Edit";
             this.tsmiEditEntry.Click += new System.EventHandler(this.tsmiEditEntry_Click);
             // 
             // tsmiRemoveEntry
             // 
             this.tsmiRemoveEntry.Name = "tsmiRemoveEntry";
-            this.tsmiRemoveEntry.Size = new System.Drawing.Size(158, 24);
+            this.tsmiRemoveEntry.Size = new System.Drawing.Size(210, 24);
             this.tsmiRemoveEntry.Text = "Remove";
             this.tsmiRemoveEntry.Click += new System.EventHandler(this.tsmiRemoveEntry_Click);
             // 
             // tsmiMoveEntryUp
             // 
             this.tsmiMoveEntryUp.Name = "tsmiMoveEntryUp";
-            this.tsmiMoveEntryUp.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveEntryUp.Size = new System.Drawing.Size(210, 24);
             this.tsmiMoveEntryUp.Text = "Move Up";
             this.tsmiMoveEntryUp.Click += new System.EventHandler(this.tsmiMoveEntryUp_Click);
             // 
             // tsmiMoveEntryDown
             // 
             this.tsmiMoveEntryDown.Name = "tsmiMoveEntryDown";
-            this.tsmiMoveEntryDown.Size = new System.Drawing.Size(158, 24);
+            this.tsmiMoveEntryDown.Size = new System.Drawing.Size(210, 24);
             this.tsmiMoveEntryDown.Text = "Move Down";
             this.tsmiMoveEntryDown.Click += new System.EventHandler(this.tsmiMoveEntryDown_Click);
             // 
@@ -1061,6 +1063,13 @@
             this.pnlBottom.Size = new System.Drawing.Size(1099, 54);
             this.pnlBottom.TabIndex = 148;
             // 
+            // tsmiCopyEntry
+            // 
+            this.tsmiCopyEntry.Name = "tsmiCopyEntry";
+            this.tsmiCopyEntry.Size = new System.Drawing.Size(210, 24);
+            this.tsmiCopyEntry.Text = "Copy";
+            this.tsmiCopyEntry.Click += new System.EventHandler(this.tsmiCopyEntry_Click);
+            // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1189,5 +1198,6 @@
         private System.Windows.Forms.ContextMenuStrip ctxMobs;
         private System.Windows.Forms.ToolStripMenuItem tsmiClearMob;
         private System.Windows.Forms.ToolStripMenuItem tsmiConfigureMob;
+        private System.Windows.Forms.ToolStripMenuItem tsmiCopyEntry;
     }
 }

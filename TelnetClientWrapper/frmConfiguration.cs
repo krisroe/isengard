@@ -595,6 +595,7 @@ namespace IsengardClient
             bool hasOne = indexes.Count == 1;
             bool hasMultiple = indexes.Count > 1;
             int iFirst = hasOne ? indexes[0] : 0;
+            tsmiCopyEntry.Visible = hasOne;
             tsmiEditEntry.Visible = hasOne;
             tsmiRemoveEntry.Visible = hasOne || hasMultiple;
             tsmiMoveEntryDown.Visible = hasOne && (iFirst < iCount - 1);
@@ -604,6 +605,18 @@ namespace IsengardClient
         private void tsmiAddEntry_Click(object sender, EventArgs e)
         {
             Strategy s = new Strategy();
+            using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithCurrentOverrides()))
+            {
+                if (frm.ShowDialog(this) == DialogResult.OK)
+                {
+                    lstStrategies.Items.Add(s);
+                }
+            }
+        }
+
+        private void tsmiCopyEntry_Click(object sender, EventArgs e)
+        {
+            Strategy s = new Strategy((Strategy)lstStrategies.Items[lstStrategies.SelectedIndex]);
             using (frmStrategy frm = new frmStrategy(s, CreateTempSettingsObjectWithCurrentOverrides()))
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
@@ -1131,7 +1144,7 @@ namespace IsengardClient
                 {
                     frm.SaveMobDynamicData();
                     lvi.Tag = dmd;
-                    lvi.SubItems[0].Text = GetDynamicMobDataStrategyString(dmd);
+                    lvi.SubItems[1].Text = GetDynamicMobDataStrategyString(dmd);
                 }
             }
         }
