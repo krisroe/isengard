@@ -444,7 +444,6 @@ namespace IsengardClient.Backend
     public enum InformationalMessageType
     {
         InitialLogin,
-        Death,
         PleaseWait,
         DayStart,
         NightStart,
@@ -471,10 +470,7 @@ namespace IsengardClient.Backend
         SomethingPoisoned,
         DiseaseDamage,
         SomethingDiseased,
-        FleeWithoutDropWeapon,
-        FleeWithDropWeapon,
         FleeFailed,
-        WordOfRecall,
         BullroarerInMithlond,
         BullroarerInNindamos,
         BullroarerReadyForBoarding,

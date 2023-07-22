@@ -1965,7 +1965,9 @@ namespace IsengardClient.Backend
         MithrilJoStick,
 
         [SingularName("mithril lamella leggings")]
+        [LookText("You see a set of mithril armor for the legs.")]
         [EquipmentType(EquipmentType.Legs)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(5)]
         [Sellable(3217)]
         MithrilLamellaLeggings,
@@ -2630,6 +2632,7 @@ namespace IsengardClient.Backend
         TBone,
 
         [SingularName("thieves' boots")]
+        [LookText("They look rather stealthy.")]
         [EquipmentType(EquipmentType.Feet)]
         [Weight(3)]
         [ArmorClass(0.2)]

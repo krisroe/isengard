@@ -2,6 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System;
+using System.Linq;
+
 namespace IsengardClient.Tests
 {
     [TestClass]
@@ -655,10 +657,16 @@ namespace IsengardClient.Tests
                 addedPlayers = ap;
                 removedPlayers = rp;
             };
+            Action<FeedLineParameters, List<string>, List<string>, List<string>> a2 = (flp, l1, l2, l3) =>
+            {
+            };
 
-            RoomTransitionSequence seq = new RoomTransitionSequence(a);
-            FeedLineParameters flParams = new FeedLineParameters(null);
+            RoomTransitionSequence seq = new RoomTransitionSequence("Despug", a);
+            InformationalMessagesSequence info = new InformationalMessagesSequence("Despug", a2);
+            FeedLineParameters flParams;
 
+            flParams = new FeedLineParameters(null);
+            flParams.PlayerNames = new HashSet<string>();
             flParams.Lines = new List<string>()
             {
                 string.Empty,
@@ -671,7 +679,6 @@ namespace IsengardClient.Tests
                 "You triggered a hidden dart!",
                 "You lost 10 hit points."
             };
-            flParams.PlayerNames = new HashSet<string>();
             oRTI = null;
             iDamage = null;
             trapType = null;
@@ -679,6 +686,40 @@ namespace IsengardClient.Tests
             Assert.IsTrue(oRTI != null);
             Assert.IsTrue(iDamage == 10);
             Assert.IsTrue(trapType.Value == TrapType.PoisonDart);
+
+            flParams = new FeedLineParameters(null);
+            flParams.PlayerNames = new HashSet<string>();
+            flParams.Lines = new List<string>()
+            {
+                string.Empty,
+                "Brethil Forest",
+                string.Empty,
+                "Obvious exits: south, northwest, northeast.",
+                string.Empty,
+                "The greater spider followed you.",
+                "A greater spider just arrived.",
+            };
+            seq.FeedLine(flParams);
+            info.FeedLine(flParams);
+            Assert.IsTrue(flParams.InfoMessages.Any((im) => { return im.MessageType == InformationalMessageType.MobArrived; }));
+
+            oRTI = null;
+            iDamage = null;
+            trapType = null;
+            flParams = new FeedLineParameters(null);
+            flParams.PlayerNames = new HashSet<string>();
+            flParams.Lines = new List<string>()
+            {
+                "You run like a chicken.",
+                string.Empty,
+                "Imladris Main Street",
+                string.Empty,
+                "Obvious exits: east, west, north, south.",
+                string.Empty
+            };
+            seq.FeedLine(flParams);
+            Assert.IsTrue(oRTI != null);
+            Assert.IsTrue(oRTI.TransitionType == RoomTransitionType.FleeWithoutDropWeapon);
         }
 
         [TestMethod]

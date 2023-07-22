@@ -1426,44 +1426,66 @@ namespace IsengardClient.Backend
     public class RoomTransitionSequence : AOutputProcessingSequence
     {
         private const string YOU_SEE_PREFIX = "You see ";
+        private string _deathPrefixMessage;
         private Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> _onSatisfied;
-        public RoomTransitionSequence(Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> onSatisfied)
+        public RoomTransitionSequence(string userName, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
+            _deathPrefixMessage = "### Sadly, " + userName + " ";
         }
         public override void FeedLine(FeedLineParameters flParams)
         {
+            int nextLineIndex = flParams.NextLineIndex;
             List<string> Lines = flParams.Lines;
             TrapType eTrapType = TrapType.None;
             RoomTransitionType rtType = RoomTransitionType.Move;
             int iDamage = 0;
-            foreach (var nextMessage in flParams.InfoMessages)
+            int? iTransitionIndex = null;
+            for (int i = nextLineIndex; i < Lines.Count; i++)
             {
-                InformationalMessageType eType = nextMessage.MessageType;
-                if (eType == InformationalMessageType.FleeWithoutDropWeapon)
+                string sNextLine = Lines[i];
+                if (sNextLine.StartsWith("Scared of going "))
                 {
-                    rtType = RoomTransitionType.FleeWithoutDropWeapon;
+                    //skip
                 }
-                else if (eType == InformationalMessageType.FleeWithDropWeapon)
+                else if (sNextLine == InformationalMessagesSequence.FLEE_WITH_DROP_WEAPON)
                 {
+                    iTransitionIndex = i;
                     rtType = RoomTransitionType.FleeWithDropWeapon;
                 }
-                else if (eType == InformationalMessageType.WordOfRecall)
+                else if (sNextLine == InformationalMessagesSequence.FLEE_WITHOUT_DROP_WEAPON)
                 {
+                    iTransitionIndex = i;
+                    rtType = RoomTransitionType.FleeWithoutDropWeapon;
+                }
+                else if (sNextLine == "You phase in and out of existence.")
+                {
+                    iTransitionIndex = i;
                     rtType = RoomTransitionType.WordOfRecall;
                 }
-                else if (eType == InformationalMessageType.Death)
+                else if (sNextLine.StartsWith(_deathPrefixMessage))
                 {
+                    iTransitionIndex = i;
                     rtType = RoomTransitionType.Death;
                 }
-                else if (eType == InformationalMessageType.FallDamage)
+                else
                 {
-                    eTrapType |= TrapType.Fall;
-                    int iNextDamage = nextMessage.Damage;
-                    if (iNextDamage > 0)
+                    int iFallDamage = FailMovementSequence.ProcessFallDamage(sNextLine);
+                    if (iFallDamage > 0)
                     {
-                        iDamage += iNextDamage;
+                        iTransitionIndex = i;
+                        eTrapType |= TrapType.Fall;
+                        iDamage += iFallDamage;
                     }
+                    else //not pre-room-transition messages
+                    {
+                        break;
+                    }
+                }
+                if (iTransitionIndex.HasValue)
+                {
+                    nextLineIndex = iTransitionIndex.Value + 1;
+                    break;
                 }
             }
 
@@ -1471,7 +1493,6 @@ namespace IsengardClient.Backend
             List<string> addedPlayers = null;
             List<string> removedPlayers = null;
             List<int> linesToRemove = null;
-            int nextLineIndex = flParams.NextLineIndex;
 
             int lineCount = Lines.Count;
 
@@ -1541,10 +1562,10 @@ namespace IsengardClient.Backend
                     foreach (int i in linesToRemove)
                     {
                         Lines.RemoveAt(i);
+                        nextLineIndex--;
                     }
                 }
-
-                flParams.FinishedProcessing = true;
+                flParams.NextLineIndex = nextLineIndex;
             }
         }
 
@@ -2752,13 +2773,11 @@ namespace IsengardClient.Backend
 
         public Action<FeedLineParameters, List<string>, List<string>, List<string>> _onSatisfied;
         private string _userLoginPrefix;
-        private string _deathPrefixMessage;
 
         public InformationalMessagesSequence(string userName, Action<FeedLineParameters, List<string>, List<string>, List<string>> onSatisfied)
         {
             _onSatisfied = onSatisfied;
             _userLoginPrefix = "### " + userName + " the ";
-            _deathPrefixMessage = "### Sadly, " + userName + " ";
         }
 
         public override void FeedLine(FeedLineParameters Parameters)
@@ -2981,35 +3000,15 @@ namespace IsengardClient.Backend
                     haveDataToDisplay = true;
                     im = InformationalMessageType.DiseaseDamage;
                 }
-                else if (sLine == FLEE_WITHOUT_DROP_WEAPON)
-                {
-                    haveDataToDisplay = true;
-                    im = InformationalMessageType.FleeWithoutDropWeapon;
-                }
-                else if (sLine == FLEE_WITH_DROP_WEAPON)
-                {
-                    haveDataToDisplay = true;
-                    im = InformationalMessageType.FleeWithDropWeapon;
-                }
                 else if (sLine == "You are thrown back by an invisible force.")
                 {
                     haveDataToDisplay = true;
                     im = InformationalMessageType.FleeFailed;
                 }
-                else if (sLine == "You phase in and out of existence.")
-                {
-                    haveDataToDisplay = true;
-                    im = InformationalMessageType.WordOfRecall;
-                }
                 else if (sLine == "You receive a vampyric touch!")
                 {
                     haveDataToDisplay = true;
                     im = InformationalMessageType.ReceiveVampyricTouch;
-                }
-                else if (sLine.StartsWith(_deathPrefixMessage))
-                {
-                    haveDataToDisplay = true;
-                    im = InformationalMessageType.Death;
                 }
                 else if (sLine.StartsWith("Stun cast on "))
                 {
@@ -3261,7 +3260,8 @@ namespace IsengardClient.Backend
                             sLine.Contains(" devestates ") ||
                             sLine.Contains(" obliterates ") ||  //CSRTODO: not sure of order
                             sLine.Contains(" annihilates ") ||  //CSRTODO: not sure of order
-                            sLine.Contains(" circles "))
+                            sLine.Contains(" circles ") ||
+                            sLine.EndsWith(" followed you."))
                         {
                             haveDataToDisplay = true;
                             continue;

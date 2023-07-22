@@ -3784,6 +3784,7 @@ namespace IsengardClient
                 new ItemStatusSequence(),
                 new AttackSequence(OnAttack), //goes before informational messages since informational messages can hang off attack results
                 new CastOffensiveSpellSequence(OnCastOffensiveSpell),
+                new RoomTransitionSequence(_username, OnRoomTransition),
                 new InformationalMessagesSequence(_username, OnInformationalMessages),
                 new InitialLoginSequence(OnInitialLogin),
                 new ScoreOutputSequence(_username, OnScore),
@@ -3794,7 +3795,6 @@ namespace IsengardClient
                 new InventorySequence(OnInventory),
                 new EquipmentSequence(OnEquipment),
                 _pleaseWaitSequence,
-                new RoomTransitionSequence(OnRoomTransition),
                 new FailMovementSequence(FailMovement),
                 new EntityAttacksYouSequence(OnEntityAttacksYou),
                 new InventoryEquipmentManagementSequence(OnInventoryManagement),
