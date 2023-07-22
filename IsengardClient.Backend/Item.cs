@@ -762,6 +762,8 @@ namespace IsengardClient.Backend
 
         [SingularName("Ancient Shield of Adalphi")]
         //CSRTODO: plural?
+        [LookText("You see a marvelous shield made by a great wizard.")]
+        [EquipmentType(EquipmentType.Shield)]
         [Weight(5)]
         [ArmorClass(0.2)]
         [Sellable(61)]

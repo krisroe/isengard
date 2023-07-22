@@ -153,7 +153,6 @@ namespace IsengardClient
         private bool _runningHiddenCommand;
         private BackgroundCommandType? _backgroundCommandType;
         private Exit _currentBackgroundExit;
-        private bool _currentBackgroundExitMessageReceived;
 
         private string _currentlyFightingMobText;
         private MobTypeEnum? _currentlyFightingMobType;
@@ -1645,7 +1644,7 @@ namespace IsengardClient
                     foreach (Exit nextExit in newRoom.Exits)
                     {
                         string nextExitText = nextExit.ExitText;
-                        if (nextExit.PresenceType == ExitPresenceType.Periodic || nextExit.WaitForMessage.HasValue)
+                        if (nextExit.BoatExitType != BoatExitType.None)
                         {
                             List<Exit> nextPeriodicExits;
                             if (!periodicExits.TryGetValue(nextExitText, out nextPeriodicExits))
@@ -1782,7 +1781,7 @@ namespace IsengardClient
                         toProcess.Remove(e.ExitText);
                     }
                 }
-                else if (e.PresenceType != ExitPresenceType.Periodic && !e.WaitForMessage.HasValue)
+                else if (e.BoatExitType == BoatExitType.None)
                 {
                     errorMessages.Add("Cannot see visible exit " + sExitText + " for " + sBackendName);
                 }
@@ -2621,12 +2620,6 @@ namespace IsengardClient
             foreach (InformationalMessages next in infoMsgs)
             {
                 InformationalMessageType nextMessage = next.MessageType;
-
-                if (currentBackgroundExit != null && currentBackgroundExit.WaitForMessage.HasValue && currentBackgroundExit.WaitForMessage.Value == nextMessage)
-                {
-                    _currentBackgroundExitMessageReceived = true;
-                }
-
                 switch (nextMessage)
                 {
                     case InformationalMessageType.DayStart:
@@ -2734,10 +2727,10 @@ namespace IsengardClient
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.Bullroarer:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInMithlond, true));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.MithlondExitBullroarer));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerMithlond:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.MithlondEnterBullroarer));
                                         break;
                                 }
                             }
@@ -2752,10 +2745,10 @@ namespace IsengardClient
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.Bullroarer:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForWaitForMessageExit(currentRoom, InformationalMessageType.BullroarerInNindamos, true));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.NindamosExitBullroarer));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerNindamos:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.NindamosEnterBullroarer));
                                         break;
                                 }
                             }
@@ -2770,10 +2763,10 @@ namespace IsengardClient
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.BullroarerMithlond:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.MithlondEnterBullroarer));
                                         break;
                                     case BoatEmbarkOrDisembark.BullroarerNindamos:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.NindamosEnterBullroarer));
                                         break;
                                 }
                             }
@@ -2785,7 +2778,7 @@ namespace IsengardClient
                             Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType == BoatEmbarkOrDisembark.OmaniPrincessMithlondBoat)
                             {
-                                _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.MithlondExitOmaniPrincess));
                             }
                         }
                         break;
@@ -2795,7 +2788,7 @@ namespace IsengardClient
                             Room currentRoom = _currentEntityInfo.CurrentRoom;
                             if (currentRoom != null && currentRoom.BoatLocationType == BoatEmbarkOrDisembark.OmaniPrincessUmbarBoat)
                             {
-                                _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "gangway"));
+                                _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.UmbarExitOmaniPrincess));
                             }
                         }
                         break;
@@ -2808,10 +2801,10 @@ namespace IsengardClient
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.OmaniPrincessMithlondDock:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dhow"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.MithlondEnterOmaniPrincess));
                                         break;
                                     case BoatEmbarkOrDisembark.OmaniPrincessUmbarDock:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dhow"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.UmbarEnterOmaniPrincess));
                                         break;
                                 }
                             }
@@ -2827,11 +2820,11 @@ namespace IsengardClient
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.CelduinExpress:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "dock"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.BreeExitCelduinExpress));
                                         removeMessage = false;
                                         break;
                                     case BoatEmbarkOrDisembark.CelduinExpressBree:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, true, "steamboat"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, true, BoatExitType.BreeEnterCelduinExpress));
                                         removeMessage = false;
                                         break;
                                 }
@@ -2852,10 +2845,10 @@ namespace IsengardClient
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.CelduinExpress:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "dock"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, false, BoatExitType.BreeExitCelduinExpress));
                                         break;
                                     case BoatEmbarkOrDisembark.CelduinExpressBree:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "steamboat"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, false, BoatExitType.BreeEnterCelduinExpress));
                                         break;
                                 }
                             }
@@ -2870,10 +2863,10 @@ namespace IsengardClient
                                 switch (currentRoom.BoatLocationType.Value)
                                 {
                                     case BoatEmbarkOrDisembark.CelduinExpress:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "pier"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, false, BoatExitType.MithlondExitCelduinExpress));
                                         break;
                                     case BoatEmbarkOrDisembark.CelduinExpressMithlond:
-                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, false, "gangway"));
+                                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, false, BoatExitType.MithlondEnterCelduinExpress));
                                         break;
                                 }
                             }
@@ -3115,59 +3108,39 @@ namespace IsengardClient
                 Room currentRoom = _currentEntityInfo.CurrentRoom;
                 if (currentRoom.BoatLocationType.HasValue)
                 {
-                    string sExit = null;
+                    BoatExitType? boatExitType = null;
                     switch (currentRoom.BoatLocationType.Value)
                     {
                         case BoatEmbarkOrDisembark.Harbringer:
-                            sExit = "gangplank";
+                            boatExitType = BoatExitType.MithlondExitHarbringer;
                             break;
                         case BoatEmbarkOrDisembark.HarbringerMithlond:
-                            sExit = "ship";
+                            boatExitType = BoatExitType.MithlondEnterHarbringer;
                             break;
                         case BoatEmbarkOrDisembark.HarbringerTharbad:
-                            sExit = "gangway";
+                            boatExitType = BoatExitType.TharbadEnterHarbringer;
                             break;
                     }
-                    if (sExit != null)
+                    if (boatExitType.HasValue)
                     {
-                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForPeriodicExit(currentRoom, inPort, sExit));
+                        _currentEntityInfo.CurrentEntityChanges.Add(GetAddExitRoomChangeForBoatExitOrEntrance(currentRoom, inPort, boatExitType.Value));
                     }
                 }
             }
         }
 
         /// <summary>
-        /// gets a room change object for a periodic exit
+        /// gets a room change object for a boat entrance/exit
         /// </summary>
         /// <param name="currentRoom">current room</param>
         /// <param name="add">true to add the exit, false to remove the exit</param>
         /// <param name="exitText">exit text</param>
         /// <returns>room change object</returns>
-        private EntityChange GetAddExitRoomChangeForPeriodicExit(Room currentRoom, bool add, string exitText)
+        private EntityChange GetAddExitRoomChangeForBoatExitOrEntrance(Room currentRoom, bool add, BoatExitType boatExitType)
         {
             EntityChange rc = new EntityChange();
             rc.ChangeType = add ? EntityChangeType.AddExit : EntityChangeType.RemoveExit;
-            Exit e = IsengardMap.GetRoomExits(currentRoom, (exit) => { return exit.PresenceType == ExitPresenceType.Periodic && exit.ExitText == exitText; }).First();
-            rc.Exits.Add(e.ExitText);
-            if (add)
-            {
-                rc.MappedExits[e.ExitText] = e;
-            }
-            return rc;
-        }
-
-        /// <summary>
-        /// gets a room change object for a wait for message exit
-        /// </summary>
-        /// <param name="currentRoom">current room</param>
-        /// <param name="messageType">message type</param>
-        /// <param name="add">true to add the exit, false to remove the exit</param>
-        /// <returns>room change object</returns>
-        private EntityChange GetAddExitRoomChangeForWaitForMessageExit(Room currentRoom, InformationalMessageType messageType, bool add)
-        {
-            EntityChange rc = new EntityChange();
-            rc.ChangeType = add ? EntityChangeType.AddExit : EntityChangeType.RemoveExit;
-            Exit e = IsengardMap.GetRoomExits(currentRoom, (exit) => { return exit.WaitForMessage.HasValue && exit.WaitForMessage.Value == messageType; }).First();
+            Exit e = IsengardMap.GetRoomExits(currentRoom, (exit) => { return exit.BoatExitType == boatExitType; }).First();
             rc.Exits.Add(e.ExitText);
             if (add)
             {
@@ -6730,72 +6703,42 @@ BeforeHazy:
                 Room nextExitTarget = nextExit.Target;
                 string exitText = nextExit.ExitText;
                 _currentBackgroundExit = nextExit;
-                _currentBackgroundExitMessageReceived = false;
                 try
                 {
                     //for exits that aren't always present, ensure the exit exists
                     ExitPresenceType presenceType = nextExit.PresenceType;
-                    if (presenceType != ExitPresenceType.Always)
+                    BoatExitType boatExitType = nextExit.BoatExitType;
+                    if (boatExitType != BoatExitType.None) //wait until the exit is available
+                    {
+                        double timeRemainingSeconds = GetTimeRemainingSecondsForExit(boatExitType);
+                        if (timeRemainingSeconds != 0)
+                        {
+                            AddConsoleMessage("Waiting " + timeRemainingSeconds.ToString("N1") + " seconds for boat exit.");
+                            WaitUntilNextCommandTry(Convert.ToInt32((timeRemainingSeconds + 1) * 1000), BackgroundCommandType.Look);
+                            if (abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped);
+                            if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
+                        }
+                    }
+                    else if (presenceType == ExitPresenceType.RequiresSearch) //search until the exit is found
                     {
                         bool foundExit = false;
                         do
                         {
-                            if (presenceType == ExitPresenceType.Periodic)
+                            _foundSearchedExits = null;
+                            backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Search, "search", pms, abortLogic, false);
+                            if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
                             {
-                                backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, abortLogic, false);
-                                if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
+                                if (_foundSearchedExits.Contains(exitText))
                                 {
-                                    if (_currentEntityInfo.CurrentObviousExits.Contains(exitText))
-                                    {
-                                        foundExit = true;
-                                    }
-                                    else
-                                    {
-                                        WaitUntilNextCommandTry(5000, BackgroundCommandType.Look);
-                                        if (abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped);
-                                        if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
-                                    }
-                                }
-                                else //look is not supposed to fail (but could be aborted)
-                                {
-                                    return backgroundCommandResultObject;
-                                }
-                            }
-                            else if (presenceType == ExitPresenceType.RequiresSearch)
-                            {
-                                _foundSearchedExits = null;
-                                backgroundCommandResultObject = RunSingleCommand(BackgroundCommandType.Search, "search", pms, abortLogic, false);
-                                if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
-                                {
-                                    if (_foundSearchedExits.Contains(exitText))
-                                    {
-                                        foundExit = true;
-                                    }
-                                }
-                                else
-                                {
-                                    return backgroundCommandResultObject;
+                                    foundExit = true;
                                 }
                             }
                             else
                             {
-                                throw new InvalidOperationException();
+                                return backgroundCommandResultObject;
                             }
                         }
                         while (!foundExit);
-                    }
-
-                    //for wait for message exits, wait until the message is received
-                    if (nextExit.WaitForMessage.HasValue)
-                    {
-                        while (!_currentBackgroundExitMessageReceived)
-                        {
-                            if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped);
-                            if (_hazying) return new CommandResultObject(CommandResult.CommandEscaped);
-                            if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
-                            Thread.Sleep(50);
-                            RunQueuedCommandWhenBackgroundProcessRunning(pms);
-                        }
                     }
 
                     if (beforeGetToTargetRoom && _fleeing) return new CommandResultObject(CommandResult.CommandEscaped);
@@ -11409,6 +11352,73 @@ BeforeHazy:
                 message = "No time information available.";
             }
             MessageBox.Show(message);
+        }
+
+        private double GetTimeRemainingSecondsForExit(BoatExitType boatExit)
+        {
+            double dRet = 0;
+            if (boatExit != BoatExitType.None)
+            {
+                int cycleLength;
+                List<int> targetCycles = new List<int>();
+                switch (boatExit)
+                {
+                    case BoatExitType.MithlondEnterCelduinExpress:
+                    case BoatExitType.MithlondExitCelduinExpress:
+                    case BoatExitType.MithlondEnterHarbringer:
+                    case BoatExitType.MithlondExitHarbringer:
+                    case BoatExitType.UmbarEnterOmaniPrincess:
+                    case BoatExitType.UmbarExitOmaniPrincess:
+                        cycleLength = 4;
+                        targetCycles.Add(1);
+                        break;
+                    case BoatExitType.BreeEnterCelduinExpress:
+                    case BoatExitType.BreeExitCelduinExpress:
+                    case BoatExitType.TharbadEnterHarbringer:
+                    case BoatExitType.MithlondEnterOmaniPrincess:
+                    case BoatExitType.MithlondExitOmaniPrincess:
+                        cycleLength = 4;
+                        targetCycles.Add(3);
+                        break;
+                    case BoatExitType.NindamosEnterBullroarer:
+                        cycleLength = 8;
+                        targetCycles.Add(3);
+                        break;
+                    case BoatExitType.NindamosExitBullroarer:
+                        cycleLength = 8;
+                        targetCycles.Add(3);
+                        targetCycles.Add(7);
+                        break;
+                    case BoatExitType.MithlondEnterBullroarer:
+                        cycleLength = 8;
+                        targetCycles.Add(7);
+                        break;
+                    case BoatExitType.MithlondExitBullroarer:
+                        cycleLength = 8;
+                        targetCycles.Add(1);
+                        targetCycles.Add(5);
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+                DateTime dtCycle = _serverStartTime;
+                double minutesIntoCycle = (DateTime.UtcNow - dtCycle).TotalMinutes % cycleLength;
+                double minutesIntoCurrentCycle = minutesIntoCycle % 1;
+                int cycleNumber = Convert.ToInt32(minutesIntoCycle - minutesIntoCurrentCycle);
+                if (!targetCycles.Contains(cycleNumber))
+                {
+                    dRet = 60 - (60 * (minutesIntoCycle - cycleNumber));
+                    while (true)
+                    {
+                        cycleNumber = (cycleNumber + 1) % cycleLength;
+                        if (targetCycles.Contains(cycleNumber))
+                            break;
+                        else
+                            dRet += 60;
+                    }
+                }
+            }
+            return dRet;
         }
 
         private void btnFightOne_Click(object sender, EventArgs e)

@@ -207,7 +207,7 @@ namespace IsengardClient.Backend
             foreach (Exit nextExit in GetRoomExits(r, HiddenExitDiscriminator))
             {
                 string exitText = nextExit.ExitText;
-                if (nextExit.PresenceType == ExitPresenceType.Periodic || nextExit.WaitForMessage.HasValue)
+                if (nextExit.BoatExitType != BoatExitType.None)
                 {
                     if (optionalExits == null) optionalExits = new List<string>();
                     if (!optionalExits.Contains(exitText)) optionalExits.Add(exitText);
@@ -552,9 +552,9 @@ namespace IsengardClient.Backend
             AddPermanentMobs(oCelduinExpressSlip, MobTypeEnum.HarborMaster);
             oCelduinExpressSlip.BoatLocationType = BoatEmbarkOrDisembark.CelduinExpressMithlond;
             Exit e = AddExit(boatswain, oCelduinExpressSlip, "pier");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.MithlondExitCelduinExpress;
             e = AddExit(oCelduinExpressSlip, boatswain, "gangway");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.MithlondEnterCelduinExpress;
             mithlondGraph.Rooms[oCelduinExpressSlip] = new PointF(2, 5);
 
             Room oBullroarerSlip = AddRoom("Bullroarer Slip", "Pier - Slip for the Bullroarer");
@@ -663,9 +663,9 @@ namespace IsengardClient.Backend
             AddExit(oMainDeck1, oStem, "bow");
             AddExit(oStem, oMainDeck1, "stern");
             Exit e = AddExit(oOmaniPrincessSlip, oMainDeck1, "dhow");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.MithlondEnterOmaniPrincess;
             e = AddExit(oMainDeck1, oOmaniPrincessSlip, "gangway");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.MithlondExitOmaniPrincess;
             mithlondGraph.Rooms[oMainDeck1] = new PointF(0.5F, 6.5F);
 
             Room oMainDeck2 = AddRoom("Main Deck", "Maindeck of the Omani Princess");
@@ -710,9 +710,9 @@ namespace IsengardClient.Backend
             Room oUmbarPort = AddRoom("Umbar Port", "Umbar Port");
             oUmbarPort.BoatLocationType = BoatEmbarkOrDisembark.OmaniPrincessUmbarDock;
             e = AddExit(oMainDeck2, oUmbarPort, "gangway");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.UmbarExitOmaniPrincess;
             e = AddExit(oUmbarPort, oMainDeck2, "dhow");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.UmbarEnterOmaniPrincess;
             mithlondGraph.Rooms[oUmbarPort] = new PointF(-2.5F, 6.5F);
         }
 
@@ -799,11 +799,11 @@ namespace IsengardClient.Backend
             oHarbringerMithlondEntrance.BoatLocationType = BoatEmbarkOrDisembark.Harbringer;
             AddBidirectionalExits(oHarbringerWest1, oHarbringerMithlondEntrance, BidirectionalExitType.NorthSouth);
             Exit e = AddExit(mithlondEntrance, oHarbringerMithlondEntrance, "ship");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.MithlondEnterHarbringer;
             e = AddExit(oHarbringerMithlondEntrance, mithlondEntrance, "gangplank");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.MithlondExitHarbringer;
             e = AddExit(tharbadDocks, oHarbringerMithlondEntrance, "gangway");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.TharbadEnterHarbringer;
             mithlondGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(4, 6.5F);
             mithlondGraph.Rooms[tharbadDocks] = new PointF(3, 6.5F);
             tharbadGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(0, 9);
@@ -873,13 +873,13 @@ namespace IsengardClient.Backend
             Room bullroarerSE = AddRoom("Bullroarer", "Deck of the Bullroarer");
             bullroarerSE.BoatLocationType = BoatEmbarkOrDisembark.Bullroarer;
             Exit e = AddExit(mithlondEntrance, bullroarerSE, "gangway");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.MithlondEnterBullroarer;
             e = AddExit(nindamosDocks, bullroarerSE, "gangway");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.NindamosEnterBullroarer;
             e = AddExit(bullroarerSE, mithlondEntrance, "plank");
-            e.WaitForMessage = InformationalMessageType.BullroarerInMithlond;
+            e.BoatExitType = BoatExitType.MithlondExitBullroarer;
             e = AddExit(bullroarerSE, nindamosDocks, "plank");
-            e.WaitForMessage = InformationalMessageType.BullroarerInNindamos;
+            e.BoatExitType = BoatExitType.NindamosExitBullroarer;
             nindamosGraph.Rooms[bullroarerSE] = new PointF(15, 6);
             mithlondGraph.Rooms[bullroarerSE] = new PointF(5, 5);
             mithlondGraph.Rooms[nindamosDocks] = new PointF(6, 5);
@@ -1851,9 +1851,9 @@ namespace IsengardClient.Backend
             boatswain.BoatLocationType = BoatEmbarkOrDisembark.CelduinExpress;
             breeStreetsGraph.Rooms[boatswain] = new PointF(9, 9.5F);
             e = AddExit(breeDocks, boatswain, "steamboat");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.BreeEnterCelduinExpress;
             e = AddExit(boatswain, breeDocks, "dock");
-            e.PresenceType = ExitPresenceType.Periodic;
+            e.BoatExitType = BoatExitType.BreeExitCelduinExpress;
             AddMapBoundaryPoint(breeDocks, boatswain, MapType.BreeStreets, MapType.Mithlond);
 
             Room oPearlAlley = AddRoom("Pearl Alley", "Pearl Alley");

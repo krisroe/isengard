@@ -25,9 +25,9 @@ namespace IsengardClient.Backend
         /// </summary>
         public ExitPresenceType PresenceType { get; set; }
         /// <summary>
-        /// wait for a specific message before leaving
+        /// boat exit type
         /// </summary>
-        public InformationalMessageType? WaitForMessage { get; set; }
+        public BoatExitType BoatExitType { get; set; }
         /// <summary>
         /// what type of key is needed to use the exit
         /// </summary>
@@ -109,7 +109,7 @@ namespace IsengardClient.Backend
                 ret = int.MaxValue;
             else if (RequiredClass.HasValue && graphInputs.Class != RequiredClass.Value)
                 ret = int.MaxValue;
-            else if (PresenceType == ExitPresenceType.Periodic) //embark/disembark ship exits
+            else if (BoatExitType != BoatExitType.None) //embark/disembark ship exits
                 ret = 10000;
             else if (PresenceType == ExitPresenceType.RequiresSearch)
                 ret = 2000;

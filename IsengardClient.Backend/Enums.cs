@@ -18,11 +18,6 @@ namespace IsengardClient.Backend
         Always,
 
         /// <summary>
-        /// exits that are sometimes present (e.g. whether boat is present in port)
-        /// </summary>
-        Periodic,
-
-        /// <summary>
         /// hidden exits that require search to be usable. These are assumed to be hidden.
         /// </summary>
         RequiresSearch,
@@ -555,6 +550,26 @@ namespace IsengardClient.Backend
         Poisoned = 1,
         Prone = 2,
         Diseased = 4,
+    }
+
+    public enum BoatExitType
+    {
+        None,
+        BreeEnterCelduinExpress,
+        BreeExitCelduinExpress,
+        MithlondEnterCelduinExpress,
+        MithlondExitCelduinExpress,
+        UmbarEnterOmaniPrincess,
+        UmbarExitOmaniPrincess,
+        MithlondEnterOmaniPrincess,
+        MithlondExitOmaniPrincess,
+        TharbadEnterHarbringer,
+        MithlondEnterHarbringer,
+        MithlondExitHarbringer,
+        NindamosEnterBullroarer,
+        NindamosExitBullroarer,
+        MithlondEnterBullroarer,
+        MithlondExitBullroarer,
     }
 
     public enum BoatEmbarkOrDisembark
