@@ -64,6 +64,8 @@
             this.tcConfiguration = new System.Windows.Forms.TabControl();
             this.tabConfiguration = new System.Windows.Forms.TabPage();
             this.pnlSettings = new System.Windows.Forms.Panel();
+            this.txtCommandTimeoutSeconds = new System.Windows.Forms.TextBox();
+            this.lblCommandTimeoutSeconds = new System.Windows.Forms.Label();
             this.lblAutoSpellLevels = new System.Windows.Forms.Label();
             this.lblAutoEscape = new System.Windows.Forms.Label();
             this.lblRealm = new System.Windows.Forms.Label();
@@ -102,6 +104,13 @@
             this.btnClear = new System.Windows.Forms.Button();
             this.btnKeep = new System.Windows.Forms.Button();
             this.btnIgnore = new System.Windows.Forms.Button();
+            this.tabDynamicMobData = new System.Windows.Forms.TabPage();
+            this.lvMobs = new System.Windows.Forms.ListView();
+            this.colMob = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colStrategy = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ctxMobs = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiClearMob = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiConfigureMob = new System.Windows.Forms.ToolStripMenuItem();
             this.tabAreas = new System.Windows.Forms.TabPage();
             this.treeAreas = new System.Windows.Forms.TreeView();
             this.ctxAreas = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -113,8 +122,6 @@
             this.tsmiMoveUp = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMoveDown = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlBottom = new System.Windows.Forms.Panel();
-            this.txtCommandTimeoutSeconds = new System.Windows.Forms.TextBox();
-            this.lblCommandTimeoutSeconds = new System.Windows.Forms.Label();
             this.ctxAutoEscape.SuspendLayout();
             this.ctxPreferredAlignment.SuspendLayout();
             this.ctxListModification.SuspendLayout();
@@ -125,6 +132,8 @@
             this.tabDynamicItemData.SuspendLayout();
             this.pnlMiddle.SuspendLayout();
             this.pnlItemsTop.SuspendLayout();
+            this.tabDynamicMobData.SuspendLayout();
+            this.ctxMobs.SuspendLayout();
             this.tabAreas.SuspendLayout();
             this.ctxAreas.SuspendLayout();
             this.pnlBottom.SuspendLayout();
@@ -435,6 +444,7 @@
             this.tcConfiguration.Controls.Add(this.tabConfiguration);
             this.tcConfiguration.Controls.Add(this.tabStrategies);
             this.tcConfiguration.Controls.Add(this.tabDynamicItemData);
+            this.tcConfiguration.Controls.Add(this.tabDynamicMobData);
             this.tcConfiguration.Controls.Add(this.tabAreas);
             this.tcConfiguration.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcConfiguration.Location = new System.Drawing.Point(0, 0);
@@ -494,6 +504,24 @@
             this.pnlSettings.Name = "pnlSettings";
             this.pnlSettings.Size = new System.Drawing.Size(1085, 676);
             this.pnlSettings.TabIndex = 150;
+            // 
+            // txtCommandTimeoutSeconds
+            // 
+            this.txtCommandTimeoutSeconds.Location = new System.Drawing.Point(261, 324);
+            this.txtCommandTimeoutSeconds.Margin = new System.Windows.Forms.Padding(4);
+            this.txtCommandTimeoutSeconds.Name = "txtCommandTimeoutSeconds";
+            this.txtCommandTimeoutSeconds.Size = new System.Drawing.Size(115, 22);
+            this.txtCommandTimeoutSeconds.TabIndex = 165;
+            // 
+            // lblCommandTimeoutSeconds
+            // 
+            this.lblCommandTimeoutSeconds.AutoSize = true;
+            this.lblCommandTimeoutSeconds.Location = new System.Drawing.Point(25, 328);
+            this.lblCommandTimeoutSeconds.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblCommandTimeoutSeconds.Name = "lblCommandTimeoutSeconds";
+            this.lblCommandTimeoutSeconds.Size = new System.Drawing.Size(173, 16);
+            this.lblCommandTimeoutSeconds.TabIndex = 164;
+            this.lblCommandTimeoutSeconds.Text = "Command timeout seconds:";
             // 
             // lblAutoSpellLevels
             // 
@@ -739,7 +767,7 @@
             // colOverflowAction
             // 
             this.colOverflowAction.Text = "Overflow Action";
-            this.colOverflowAction.Width = 97;
+            this.colOverflowAction.Width = 142;
             // 
             // ctxItems
             // 
@@ -884,6 +912,64 @@
             this.btnIgnore.UseVisualStyleBackColor = true;
             this.btnIgnore.Click += new System.EventHandler(this.btnIgnore_Click);
             // 
+            // tabDynamicMobData
+            // 
+            this.tabDynamicMobData.Controls.Add(this.lvMobs);
+            this.tabDynamicMobData.Location = new System.Drawing.Point(4, 25);
+            this.tabDynamicMobData.Name = "tabDynamicMobData";
+            this.tabDynamicMobData.Size = new System.Drawing.Size(1091, 680);
+            this.tabDynamicMobData.TabIndex = 4;
+            this.tabDynamicMobData.Text = "Mobs";
+            this.tabDynamicMobData.UseVisualStyleBackColor = true;
+            // 
+            // lvMobs
+            // 
+            this.lvMobs.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colMob,
+            this.colStrategy});
+            this.lvMobs.ContextMenuStrip = this.ctxMobs;
+            this.lvMobs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvMobs.FullRowSelect = true;
+            this.lvMobs.HideSelection = false;
+            this.lvMobs.Location = new System.Drawing.Point(0, 0);
+            this.lvMobs.Name = "lvMobs";
+            this.lvMobs.Size = new System.Drawing.Size(1091, 680);
+            this.lvMobs.TabIndex = 0;
+            this.lvMobs.UseCompatibleStateImageBehavior = false;
+            this.lvMobs.View = System.Windows.Forms.View.Details;
+            // 
+            // colMob
+            // 
+            this.colMob.Text = "Mob";
+            // 
+            // colStrategy
+            // 
+            this.colStrategy.Text = "Strategy Info";
+            // 
+            // ctxMobs
+            // 
+            this.ctxMobs.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxMobs.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiClearMob,
+            this.tsmiConfigureMob});
+            this.ctxMobs.Name = "ctxMobs";
+            this.ctxMobs.Size = new System.Drawing.Size(144, 52);
+            this.ctxMobs.Opening += new System.ComponentModel.CancelEventHandler(this.ctxMobs_Opening);
+            // 
+            // tsmiClearMob
+            // 
+            this.tsmiClearMob.Name = "tsmiClearMob";
+            this.tsmiClearMob.Size = new System.Drawing.Size(143, 24);
+            this.tsmiClearMob.Text = "Clear";
+            this.tsmiClearMob.Click += new System.EventHandler(this.tsmiClearMob_Click);
+            // 
+            // tsmiConfigureMob
+            // 
+            this.tsmiConfigureMob.Name = "tsmiConfigureMob";
+            this.tsmiConfigureMob.Size = new System.Drawing.Size(143, 24);
+            this.tsmiConfigureMob.Text = "Configure";
+            this.tsmiConfigureMob.Click += new System.EventHandler(this.tsmiConfigureMob_Click);
+            // 
             // tabAreas
             // 
             this.tabAreas.Controls.Add(this.treeAreas);
@@ -975,24 +1061,6 @@
             this.pnlBottom.Size = new System.Drawing.Size(1099, 54);
             this.pnlBottom.TabIndex = 148;
             // 
-            // txtCommandTimeoutSeconds
-            // 
-            this.txtCommandTimeoutSeconds.Location = new System.Drawing.Point(261, 324);
-            this.txtCommandTimeoutSeconds.Margin = new System.Windows.Forms.Padding(4);
-            this.txtCommandTimeoutSeconds.Name = "txtCommandTimeoutSeconds";
-            this.txtCommandTimeoutSeconds.Size = new System.Drawing.Size(115, 22);
-            this.txtCommandTimeoutSeconds.TabIndex = 165;
-            // 
-            // lblCommandTimeoutSeconds
-            // 
-            this.lblCommandTimeoutSeconds.AutoSize = true;
-            this.lblCommandTimeoutSeconds.Location = new System.Drawing.Point(25, 328);
-            this.lblCommandTimeoutSeconds.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblCommandTimeoutSeconds.Name = "lblCommandTimeoutSeconds";
-            this.lblCommandTimeoutSeconds.Size = new System.Drawing.Size(216, 20);
-            this.lblCommandTimeoutSeconds.TabIndex = 164;
-            this.lblCommandTimeoutSeconds.Text = "Command timeout seconds:";
-            // 
             // frmConfiguration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1018,6 +1086,8 @@
             this.pnlMiddle.ResumeLayout(false);
             this.pnlItemsTop.ResumeLayout(false);
             this.pnlItemsTop.PerformLayout();
+            this.tabDynamicMobData.ResumeLayout(false);
+            this.ctxMobs.ResumeLayout(false);
             this.tabAreas.ResumeLayout(false);
             this.ctxAreas.ResumeLayout(false);
             this.pnlBottom.ResumeLayout(false);
@@ -1112,5 +1182,12 @@
         private System.Windows.Forms.Label lblRealm;
         private System.Windows.Forms.TextBox txtCommandTimeoutSeconds;
         private System.Windows.Forms.Label lblCommandTimeoutSeconds;
+        private System.Windows.Forms.TabPage tabDynamicMobData;
+        private System.Windows.Forms.ListView lvMobs;
+        private System.Windows.Forms.ColumnHeader colMob;
+        private System.Windows.Forms.ColumnHeader colStrategy;
+        private System.Windows.Forms.ContextMenuStrip ctxMobs;
+        private System.Windows.Forms.ToolStripMenuItem tsmiClearMob;
+        private System.Windows.Forms.ToolStripMenuItem tsmiConfigureMob;
     }
 }

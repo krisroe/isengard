@@ -68,7 +68,7 @@
             this.grpStrategyModifications.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.grpStrategyModifications.Name = "grpStrategyModifications";
             this.grpStrategyModifications.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.grpStrategyModifications.Size = new System.Drawing.Size(999, 100);
+            this.grpStrategyModifications.Size = new System.Drawing.Size(979, 100);
             this.grpStrategyModifications.TabIndex = 26;
             this.grpStrategyModifications.TabStop = false;
             this.grpStrategyModifications.Text = "Strategy Modifications";
@@ -86,7 +86,7 @@
             this.pnlStrategyModifications.Location = new System.Drawing.Point(3, 24);
             this.pnlStrategyModifications.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.pnlStrategyModifications.Name = "pnlStrategyModifications";
-            this.pnlStrategyModifications.Size = new System.Drawing.Size(993, 72);
+            this.pnlStrategyModifications.Size = new System.Drawing.Size(973, 72);
             this.pnlStrategyModifications.TabIndex = 151;
             this.pnlStrategyModifications.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pnlStrategyModifications_MouseUp);
             // 
@@ -96,7 +96,7 @@
             this.lblCurrentRealmValue.Location = new System.Drawing.Point(595, 35);
             this.lblCurrentRealmValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblCurrentRealmValue.Name = "lblCurrentRealmValue";
-            this.lblCurrentRealmValue.Size = new System.Drawing.Size(392, 27);
+            this.lblCurrentRealmValue.Size = new System.Drawing.Size(368, 27);
             this.lblCurrentRealmValue.TabIndex = 149;
             this.lblCurrentRealmValue.Text = "Realm";
             this.lblCurrentRealmValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -133,7 +133,7 @@
             this.lblCurrentAutoSpellLevelsValue.ForeColor = System.Drawing.Color.Black;
             this.lblCurrentAutoSpellLevelsValue.Location = new System.Drawing.Point(595, 5);
             this.lblCurrentAutoSpellLevelsValue.Name = "lblCurrentAutoSpellLevelsValue";
-            this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(392, 30);
+            this.lblCurrentAutoSpellLevelsValue.Size = new System.Drawing.Size(368, 30);
             this.lblCurrentAutoSpellLevelsValue.TabIndex = 6;
             this.lblCurrentAutoSpellLevelsValue.Text = "Min:Max";
             this.lblCurrentAutoSpellLevelsValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;

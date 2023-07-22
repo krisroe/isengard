@@ -430,7 +430,7 @@
             this.ucStrategyModifications1.Location = new System.Drawing.Point(6, 557);
             this.ucStrategyModifications1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.ucStrategyModifications1.Name = "ucStrategyModifications1";
-            this.ucStrategyModifications1.Size = new System.Drawing.Size(969, 108);
+            this.ucStrategyModifications1.Size = new System.Drawing.Size(973, 108);
             this.ucStrategyModifications1.TabIndex = 38;
             // 
             // frmPermRun

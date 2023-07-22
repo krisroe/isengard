@@ -25,20 +25,20 @@ namespace IsengardClient
             }
         }
 
-        public void Initialize(StrategyOverrides strategyAndOverrides, Strategy strategy, bool allowOverrides, IsengardSettingData settingsData, PermRunEditFlow permRunEditFlow, Func<Strategy> getStrategy, Action onCombatTypeCheckedOrUnchecked)
+        public void Initialize(StrategyOverrides strategyOverrides, Strategy strategy, bool allowOverrides, IsengardSettingData settingsData, PermRunEditFlow permRunEditFlow, Func<Strategy> getStrategy, Action onCombatTypeCheckedOrUnchecked)
         {
-            _strategyOverrides = strategyAndOverrides;
+            _strategyOverrides = strategyOverrides;
             _allowOverrides = allowOverrides;
             _permRunEditFlow = permRunEditFlow;
             _getStrategy = getStrategy;
             _onCombatTypeCheckedOrUnchecked = onCombatTypeCheckedOrUnchecked;
-            int autoSpellLevelMin = strategyAndOverrides.AutoSpellLevelMin;
-            int autoSpellLevelMax = strategyAndOverrides.AutoSpellLevelMax;
-            RealmTypeFlags? realms = strategyAndOverrides.Realms;
-            bool? useMagicCombat = strategyAndOverrides.UseMagicCombat;
-            bool? useMeleeCombat = strategyAndOverrides.UseMeleeCombat;
-            bool? usePotionsCombat = strategyAndOverrides.UsePotionsCombat;
-            AfterKillMonsterAction? afterMonsterKillAction = strategyAndOverrides.AfterKillMonsterAction;
+            int autoSpellLevelMin = strategyOverrides.AutoSpellLevelMin;
+            int autoSpellLevelMax = strategyOverrides.AutoSpellLevelMax;
+            RealmTypeFlags? realms = strategyOverrides.Realms;
+            bool? useMagicCombat = strategyOverrides.UseMagicCombat;
+            bool? useMeleeCombat = strategyOverrides.UseMeleeCombat;
+            bool? usePotionsCombat = strategyOverrides.UsePotionsCombat;
+            AfterKillMonsterAction? afterMonsterKillAction = strategyOverrides.AfterKillMonsterAction;
 
             bool useMagicCombatFromStrategy;
             bool useMeleeCombatFromStrategy;

@@ -68,16 +68,19 @@ namespace IsengardClient
             {
                 lstStrategies.Items.Add(s);
             }
-
             foreach (DynamicDataItemClass nextItemClass in Enum.GetValues(typeof(DynamicDataItemClass)))
             {
-                AddNewListEntry(nextItemClass);
+                AddNewItemListEntry(nextItemClass);
             }
             foreach (ItemTypeEnum nextItem in Enum.GetValues(typeof(ItemTypeEnum)))
             {
-                AddNewListEntry(nextItem);
+                AddNewItemListEntry(nextItem);
             }
             RefreshAllItemEntries();
+            foreach (MobTypeEnum nextMob in Enum.GetValues(typeof(MobTypeEnum)))
+            {
+                AddNewMobListEntry(nextMob);
+            }
             PopulateAreaTree();
         }
 
@@ -107,13 +110,75 @@ namespace IsengardClient
             return ret;
         }
 
-        private void AddNewListEntry(object enumValue)
+        private void AddNewMobListEntry(MobTypeEnum enumValue)
+        {
+            ListViewItem lvi = new ListViewItem();
+            lvi.Text = enumValue.ToString();
+            string sStrategy;
+            if (_settings.DynamicMobData.TryGetValue(enumValue, out DynamicMobData dmd))
+            {
+                lvi.Tag = dmd;
+                sStrategy = GetDynamicMobDataStrategyString(dmd);
+            }
+            else
+            {
+                lvi.Tag = enumValue;
+                sStrategy = "None";
+            }
+            lvi.SubItems.Add(sStrategy);
+            lvMobs.Items.Add(lvi);
+        }
+
+        private string GetDynamicMobDataStrategyString(DynamicMobData dmd)
+        {
+            List<string> strategyInfo = new List<string>();
+            if (dmd.Strategy != null)
+            {
+                strategyInfo.Add(dmd.Strategy.ToString());
+            }
+            if (dmd.StrategyOverrides.UseMagicCombat.HasValue)
+            {
+                strategyInfo.Add("Magic=" + dmd.StrategyOverrides.UseMagicCombat.Value);
+            }
+            if (dmd.StrategyOverrides.UseMeleeCombat.HasValue)
+            {
+                strategyInfo.Add("Melee=" + dmd.StrategyOverrides.UseMeleeCombat.Value);
+            }
+            if (dmd.StrategyOverrides.UsePotionsCombat.HasValue)
+            {
+                strategyInfo.Add("Potions=" + dmd.StrategyOverrides.UsePotionsCombat.Value);
+            }
+            if (dmd.StrategyOverrides.AfterKillMonsterAction.HasValue)
+            {
+                strategyInfo.Add(dmd.StrategyOverrides.AfterKillMonsterAction.Value.ToString());
+            }
+            if (dmd.StrategyOverrides.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
+            {
+                strategyInfo.Add(dmd.StrategyOverrides.AutoSpellLevelMin + ":" + dmd.StrategyOverrides.AutoSpellLevelMax);
+            }
+            if (dmd.StrategyOverrides.Realms.HasValue)
+            {
+                strategyInfo.Add(StringProcessing.TrimFlagsEnumToString(dmd.StrategyOverrides.Realms.Value));
+            }
+            string sStrategy;
+            if (strategyInfo.Count == 0)
+            {
+                sStrategy = "None";
+            }
+            else
+            {
+                sStrategy = string.Join(" ", strategyInfo.ToArray());
+            }
+            return sStrategy;
+        }
+
+        private void AddNewItemListEntry(object enumValue)
         {
             ListViewItem lvi = new ListViewItem();
             lvi.Text = enumValue.ToString();
             lvi.Tag = enumValue;
             lvi.SubItems.Add(string.Empty); //keep count
-            lvi.SubItems.Add(string.Empty); //tick count
+            lvi.SubItems.Add(string.Empty); //inv count
             lvi.SubItems.Add(string.Empty); //overflow action
             lvItems.Items.Add(lvi);
         }
@@ -578,6 +643,16 @@ namespace IsengardClient
                     }
                 }
                 if (!isValid) break;
+                foreach (ListViewItem lvi in lvMobs.Items)
+                {
+                    DynamicMobData dmd = lvi.Tag as DynamicMobData;
+                    if (dmd?.Strategy == s)
+                    {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (!isValid) break;
             }
             if (isValid && MessageBox.Show("Are you sure you want to remove these strategy(s)?", "Remove Strategy", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
@@ -589,7 +664,7 @@ namespace IsengardClient
             }
             if (!isValid)
             {
-                MessageBox.Show("Objects associated to perm runs cannot be removed.");
+                MessageBox.Show("Strategies associated to perm runs or mob dynamic data cannot be removed.");
                 return;
             }
         }
@@ -1019,6 +1094,46 @@ namespace IsengardClient
         private void treeAreas_BeforeCollapse(object sender, TreeViewCancelEventArgs e)
         {
             e.Cancel = true;
+        }
+
+        private void ctxMobs_Opening(object sender, CancelEventArgs e)
+        {
+            tsmiConfigureMob.Enabled = lvMobs.SelectedItems.Count == 1;
+        }
+
+        private void tsmiClearMob_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem lvi in lvMobs.SelectedItems)
+            {
+                if (lvi.Tag is DynamicMobData)
+                {
+                    lvi.Tag = ((DynamicMobData)lvi.Tag).MobType;
+                }
+                lvi.SubItems[0].Text = "None";
+            }
+        }
+
+        private void tsmiConfigureMob_Click(object sender, EventArgs e)
+        {
+            ListViewItem lvi = lvMobs.SelectedItems[0];
+            DynamicMobData dmd = lvi.Tag as DynamicMobData;
+            if (dmd == null) dmd = new DynamicMobData();
+
+            List<Strategy> strats = new List<Strategy>();
+            foreach (Strategy next in lstStrategies.Items)
+            {
+                strats.Add(next);
+            }
+
+            using (frmMobDynamicData frm = new frmMobDynamicData(dmd, strats, CreateTempSettingsObjectWithCurrentOverrides()))
+            {
+                if (frm.ShowDialog(this) == DialogResult.OK)
+                {
+                    frm.SaveMobDynamicData();
+                    lvi.Tag = dmd;
+                    lvi.SubItems[0].Text = GetDynamicMobDataStrategyString(dmd);
+                }
+            }
         }
     }
 }
