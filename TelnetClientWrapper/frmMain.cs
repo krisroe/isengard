@@ -4589,7 +4589,7 @@ namespace IsengardClient
 
                 bool failedToEquip = false;
                 bool useManaPool = false;
-                AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.ContinueCombat;
+                AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.StopCombat;
                 int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
                 int usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
                 RealmTypeFlags availableRealms = _settingsData.Realms;
@@ -4605,7 +4605,7 @@ namespace IsengardClient
                     haveMagicStunWandStep = strategy.HasAnyMagicSteps(MagicStrategyStep.StunWand);
                     haveMeleeStrategySteps = strategy.HasAnyMeleeSteps(null);
                     havePotionsStrategySteps = strategy.HasAnyPotionsSteps(null);
-                    onMonsterKilledAction = strategy.AfterKillMonsterAction;
+                    onMonsterKilledAction = strategy.AfterKillMonsterAction.GetValueOrDefault(AfterKillMonsterAction.StopCombat);
                     if (strategy.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && strategy.AutoSpellLevelMax != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
                     {
                         usedAutoSpellMin = strategy.AutoSpellLevelMin;

@@ -13,7 +13,7 @@ namespace IsengardClient.Backend
         public int ID { get; set; }
         public bool IsValid { get; set; }
         public string DisplayName { get; set; }
-        public AfterKillMonsterAction AfterKillMonsterAction { get; set; }
+        public AfterKillMonsterAction? AfterKillMonsterAction { get; set; }
         public int ManaPool { get; set; }
 
         public List<MagicStrategyStep> MagicSteps { get; set; }
@@ -430,7 +430,7 @@ namespace IsengardClient.Backend
             s.FinalMeleeAction = FinalStepAction.FinishCombat;
             s.FinalMagicAction = FinalStepAction.FinishCombat;
             s.FinalPotionsAction = FinalStepAction.FinishCombat;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
+            s.AfterKillMonsterAction = Backend.AfterKillMonsterAction.StopCombat;
             s.TypesWithStepsEnabled = CommandType.None;
             yield return s;
 
@@ -451,7 +451,7 @@ namespace IsengardClient.Backend
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
             s.MagicSteps = new List<MagicStrategyStep>() { MagicStrategyStep.OffensiveSpellAuto };
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
+            s.AfterKillMonsterAction = Backend.AfterKillMonsterAction.StopCombat;
             s.MagicLastCommandsToRunIndefinitely = 1;
             s.MeleeLastCommandsToRunIndefinitely = 1;
             s.PotionsLastCommandsToRunIndefinitely = 1;
@@ -469,7 +469,7 @@ namespace IsengardClient.Backend
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
+            s.AfterKillMonsterAction = Backend.AfterKillMonsterAction.StopCombat;
             s.MagicLastCommandsToRunIndefinitely = 1;
             s.MeleeLastCommandsToRunIndefinitely = 1;
             s.PotionsLastCommandsToRunIndefinitely = 1;
@@ -487,7 +487,7 @@ namespace IsengardClient.Backend
             s.MeleeSteps = new List<MeleeStrategyStep>() { MeleeStrategyStep.RegularAttack };
             s.PotionsSteps = new List<PotionsStrategyStep>() { PotionsStrategyStep.GenericHeal };
             s.MeleeOnlyWhenStunnedForXMS = stunWaitMS;
-            s.AfterKillMonsterAction = AfterKillMonsterAction.StopCombat;
+            s.AfterKillMonsterAction = Backend.AfterKillMonsterAction.StopCombat;
             s.MagicLastCommandsToRunIndefinitely = 2;
             s.MeleeLastCommandsToRunIndefinitely = 1;
             s.PotionsLastCommandsToRunIndefinitely = 1;

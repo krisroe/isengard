@@ -631,20 +631,20 @@
             this.tsmiAddRegularAttack,
             this.tsmiAddPowerAttack});
             this.tsmiMeleeAdd.Name = "tsmiMeleeAdd";
-            this.tsmiMeleeAdd.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMeleeAdd.Size = new System.Drawing.Size(158, 24);
             this.tsmiMeleeAdd.Text = "Add";
             // 
             // tsmiAddRegularAttack
             // 
             this.tsmiAddRegularAttack.Name = "tsmiAddRegularAttack";
-            this.tsmiAddRegularAttack.Size = new System.Drawing.Size(224, 26);
+            this.tsmiAddRegularAttack.Size = new System.Drawing.Size(189, 26);
             this.tsmiAddRegularAttack.Text = "Regular Attack";
             this.tsmiAddRegularAttack.Click += new System.EventHandler(this.tsmiMeleeAdd_Click);
             // 
             // tsmiAddPowerAttack
             // 
             this.tsmiAddPowerAttack.Name = "tsmiAddPowerAttack";
-            this.tsmiAddPowerAttack.Size = new System.Drawing.Size(224, 26);
+            this.tsmiAddPowerAttack.Size = new System.Drawing.Size(189, 26);
             this.tsmiAddPowerAttack.Text = "Power Attack";
             this.tsmiAddPowerAttack.Click += new System.EventHandler(this.tsmiMeleeAdd_Click);
             // 
@@ -654,39 +654,39 @@
             this.tsmiChangeToRegularAttack,
             this.tsmiChangeToPowerAttack});
             this.tsmiMeleeChangeTo.Name = "tsmiMeleeChangeTo";
-            this.tsmiMeleeChangeTo.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMeleeChangeTo.Size = new System.Drawing.Size(158, 24);
             this.tsmiMeleeChangeTo.Text = "Change To";
             // 
             // tsmiChangeToRegularAttack
             // 
             this.tsmiChangeToRegularAttack.Name = "tsmiChangeToRegularAttack";
-            this.tsmiChangeToRegularAttack.Size = new System.Drawing.Size(224, 26);
+            this.tsmiChangeToRegularAttack.Size = new System.Drawing.Size(189, 26);
             this.tsmiChangeToRegularAttack.Text = "Regular Attack";
             this.tsmiChangeToRegularAttack.Click += new System.EventHandler(this.tsmiMeleeChangeTo_Click);
             // 
             // tsmiChangeToPowerAttack
             // 
             this.tsmiChangeToPowerAttack.Name = "tsmiChangeToPowerAttack";
-            this.tsmiChangeToPowerAttack.Size = new System.Drawing.Size(224, 26);
+            this.tsmiChangeToPowerAttack.Size = new System.Drawing.Size(189, 26);
             this.tsmiChangeToPowerAttack.Text = "Power Attack";
             this.tsmiChangeToPowerAttack.Click += new System.EventHandler(this.tsmiMeleeChangeTo_Click);
             // 
             // tsmiMeleeRemove
             // 
             this.tsmiMeleeRemove.Name = "tsmiMeleeRemove";
-            this.tsmiMeleeRemove.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMeleeRemove.Size = new System.Drawing.Size(158, 24);
             this.tsmiMeleeRemove.Text = "Remove";
             // 
             // tsmiMeleeMoveUp
             // 
             this.tsmiMeleeMoveUp.Name = "tsmiMeleeMoveUp";
-            this.tsmiMeleeMoveUp.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMeleeMoveUp.Size = new System.Drawing.Size(158, 24);
             this.tsmiMeleeMoveUp.Text = "Move Up";
             // 
             // tsmiMeleeMoveDown
             // 
             this.tsmiMeleeMoveDown.Name = "tsmiMeleeMoveDown";
-            this.tsmiMeleeMoveDown.Size = new System.Drawing.Size(210, 24);
+            this.tsmiMeleeMoveDown.Size = new System.Drawing.Size(158, 24);
             this.tsmiMeleeMoveDown.Text = "Move Down";
             // 
             // grpPotions
@@ -850,34 +850,34 @@
             this.tsmiPotionsChangeToGenericHeal,
             this.tsmiPotionsChangeToCurePoison});
             this.tsmiPotionsChangeTo.Name = "tsmiPotionsChangeTo";
-            this.tsmiPotionsChangeTo.Size = new System.Drawing.Size(210, 24);
+            this.tsmiPotionsChangeTo.Size = new System.Drawing.Size(158, 24);
             this.tsmiPotionsChangeTo.Text = "Change To";
             // 
             // tsmiPotionsChangeToVigor
             // 
             this.tsmiPotionsChangeToVigor.Name = "tsmiPotionsChangeToVigor";
-            this.tsmiPotionsChangeToVigor.Size = new System.Drawing.Size(224, 26);
+            this.tsmiPotionsChangeToVigor.Size = new System.Drawing.Size(189, 26);
             this.tsmiPotionsChangeToVigor.Text = "Vigor";
             this.tsmiPotionsChangeToVigor.Click += new System.EventHandler(this.tsmiPotionsChangeTo_Click);
             // 
             // tsmiPotionsChangeToMendWounds
             // 
             this.tsmiPotionsChangeToMendWounds.Name = "tsmiPotionsChangeToMendWounds";
-            this.tsmiPotionsChangeToMendWounds.Size = new System.Drawing.Size(224, 26);
+            this.tsmiPotionsChangeToMendWounds.Size = new System.Drawing.Size(189, 26);
             this.tsmiPotionsChangeToMendWounds.Text = "Mend-Wounds";
             this.tsmiPotionsChangeToMendWounds.Click += new System.EventHandler(this.tsmiPotionsChangeTo_Click);
             // 
             // tsmiPotionsChangeToGenericHeal
             // 
             this.tsmiPotionsChangeToGenericHeal.Name = "tsmiPotionsChangeToGenericHeal";
-            this.tsmiPotionsChangeToGenericHeal.Size = new System.Drawing.Size(224, 26);
+            this.tsmiPotionsChangeToGenericHeal.Size = new System.Drawing.Size(189, 26);
             this.tsmiPotionsChangeToGenericHeal.Text = "Generic Heal";
             this.tsmiPotionsChangeToGenericHeal.Click += new System.EventHandler(this.tsmiPotionsChangeTo_Click);
             // 
             // tsmiPotionsChangeToCurePoison
             // 
             this.tsmiPotionsChangeToCurePoison.Name = "tsmiPotionsChangeToCurePoison";
-            this.tsmiPotionsChangeToCurePoison.Size = new System.Drawing.Size(224, 26);
+            this.tsmiPotionsChangeToCurePoison.Size = new System.Drawing.Size(189, 26);
             this.tsmiPotionsChangeToCurePoison.Text = "Cure-Poison";
             this.tsmiPotionsChangeToCurePoison.Click += new System.EventHandler(this.tsmiPotionsChangeTo_Click);
             // 
@@ -954,11 +954,6 @@
             // 
             this.cboOnKillMonster.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboOnKillMonster.FormattingEnabled = true;
-            this.cboOnKillMonster.Items.AddRange(new object[] {
-            "Continue Combat",
-            "Stop Combat",
-            "Fight First Monster",
-            "Fight First Same Monster"});
             this.cboOnKillMonster.Location = new System.Drawing.Point(475, 385);
             this.cboOnKillMonster.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cboOnKillMonster.Name = "cboOnKillMonster";

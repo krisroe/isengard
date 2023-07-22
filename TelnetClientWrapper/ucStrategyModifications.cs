@@ -58,7 +58,7 @@ namespace IsengardClient
                 useMagicCombatFromStrategy = (strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None;
                 useMeleeCombatFromStrategy = (strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None;
                 usePotionsCombatFromStrategy = (strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None;
-                afterSkillMonsterActionFromStrategy = strategy.AfterKillMonsterAction;
+                afterSkillMonsterActionFromStrategy = strategy.AfterKillMonsterAction.GetValueOrDefault(AfterKillMonsterAction.StopCombat);
                 strategyAutoSpellLevelMin = strategy.AutoSpellLevelMin;
                 strategyAutoSpellLevelMax = strategy.AutoSpellLevelMax;
                 strategyRealms = strategy.Realms;
@@ -164,10 +164,10 @@ namespace IsengardClient
             AfterKillMonsterAction action;
             if (!_allowOverrides || !cboOnKillMonster.Enabled)
             {
-                if (Strategy == null)
+                if (Strategy == null || !Strategy.AfterKillMonsterAction.HasValue)
                     action = AfterKillMonsterAction.StopCombat;
                 else
-                    action = Strategy.AfterKillMonsterAction;
+                    action = Strategy.AfterKillMonsterAction.Value;
             }
             else
             {

@@ -1,5 +1,4 @@
 ﻿using IsengardClient.Backend;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -62,7 +61,15 @@ namespace IsengardClient
             tsmiPotionsChangeToGenericHeal.Tag = PotionsStrategyStep.GenericHeal;
             tsmiPotionsChangeToCurePoison.Tag = PotionsStrategyStep.CurePoison;
 
-            cboOnKillMonster.SelectedIndex = (int)AfterKillMonsterAction.StopCombat;
+            cboOnKillMonster.Items.Add(string.Empty);
+            foreach (AfterKillMonsterAction nextAction in Enum.GetValues(typeof(AfterKillMonsterAction)))
+            {
+                cboOnKillMonster.Items.Add(nextAction);
+            }
+            if (s.AfterKillMonsterAction.HasValue)
+                cboOnKillMonster.SelectedItem = s.AfterKillMonsterAction.Value;
+            else
+                cboOnKillMonster.SelectedIndex = 0;
 
             foreach (var nextFinalAction in Enum.GetValues(typeof(FinalStepAction)))
             {
@@ -72,8 +79,6 @@ namespace IsengardClient
             }
 
             txtName.Text = s.DisplayName;
-
-            cboOnKillMonster.SelectedIndex = (int)s.AfterKillMonsterAction;
 
             _strategyOverridesUI = new StrategyOverridesUI(IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET, s.AutoSpellLevelMin, s.AutoSpellLevelMax, lblAutoSpellLevels, null, s.Realms, lblCurrentRealmValue, StrategyOverridesLevel.Strategy, _settings);
 
@@ -221,7 +226,10 @@ namespace IsengardClient
             }
 
             _strategy.DisplayName = txtName.Text;
-            _strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedIndex;
+            if (cboOnKillMonster.SelectedIndex == 0)
+                _strategy.AfterKillMonsterAction = null;
+            else
+                _strategy.AfterKillMonsterAction = (AfterKillMonsterAction)cboOnKillMonster.SelectedItem;
             _strategy.AutoSpellLevelMin = _strategyOverridesUI.StrategyAutoSpellLevelMinimum;
             _strategy.AutoSpellLevelMax = _strategyOverridesUI.StrategyAutoSpellLevelMaximum;
             _strategy.Realms = _strategyOverridesUI.StrategyRealms;
