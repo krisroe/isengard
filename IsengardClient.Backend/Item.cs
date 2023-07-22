@@ -1585,6 +1585,7 @@ namespace IsengardClient.Backend
 
         [SingularName("halberd")]
         [PluralName("halberds")]
+        [LookText("A large pole with a blade afixed to the tip ending in a spear.")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(12)]
         [Sellable(176)]
@@ -2769,9 +2770,11 @@ namespace IsengardClient.Backend
 
         [SingularName("war harness")]
         [PluralName("war harnesses")]
+        [LookText("A durable weapons belt.")]
         [EquipmentType(EquipmentType.Waist)]
         [Weight(3)]
         [ArmorClass(0.4)]
+        [Sellable(SellableEnum.Junk)]
         WarHarness,
 
         [SingularName("War's flaming axe")]

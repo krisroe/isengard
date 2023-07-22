@@ -84,6 +84,44 @@ namespace IsengardClient.Backend
             return string.IsNullOrEmpty(DisplayName) ? GetToStringForCommandTypes(TypesWithStepsEnabled) : DisplayName;
         }
 
+        public void ApplyStrategyOverrides(StrategyOverrides overrides)
+        {
+            if (overrides.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && overrides.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
+            {
+                AutoSpellLevelMin = overrides.AutoSpellLevelMin;
+                AutoSpellLevelMax = overrides.AutoSpellLevelMax;
+            }
+            if (overrides.Realms.HasValue)
+            {
+                Realms = overrides.Realms;
+            }
+            if (overrides.AfterKillMonsterAction.HasValue)
+            {
+                AfterKillMonsterAction = overrides.AfterKillMonsterAction.Value;
+            }
+            if (overrides.UseMagicCombat.HasValue)
+            {
+                if (overrides.UseMagicCombat.Value)
+                    TypesWithStepsEnabled |= CommandType.Magic;
+                else
+                    TypesWithStepsEnabled &= ~CommandType.Magic;
+            }
+            if (overrides.UseMeleeCombat.HasValue)
+            {
+                if (overrides.UseMeleeCombat.Value)
+                    TypesWithStepsEnabled |= CommandType.Melee;
+                else
+                    TypesWithStepsEnabled &= ~CommandType.Melee;
+            }
+            if (overrides.UsePotionsCombat.HasValue)
+            {
+                if (overrides.UsePotionsCombat.Value)
+                    TypesWithStepsEnabled |= CommandType.Potions;
+                else
+                    TypesWithStepsEnabled &= ~CommandType.Potions;
+            }
+        }
+
         public string GetToStringForCommandTypes(CommandType Types)
         {
             StringBuilder sb;

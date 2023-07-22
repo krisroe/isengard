@@ -106,40 +106,7 @@ namespace IsengardClient.Backend
             if (p.Strategy != null)
             {
                 Strategy = new Strategy(p.Strategy);
-                if (p.StrategyOverrides.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && p.StrategyOverrides.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
-                {
-                    Strategy.AutoSpellLevelMin = p.StrategyOverrides.AutoSpellLevelMin;
-                    Strategy.AutoSpellLevelMax = p.StrategyOverrides.AutoSpellLevelMax;
-                }
-                if (p.StrategyOverrides.Realms.HasValue)
-                {
-                    Strategy.Realms = p.StrategyOverrides.Realms;
-                }
-                if (p.StrategyOverrides.AfterKillMonsterAction.HasValue)
-                {
-                    Strategy.AfterKillMonsterAction = p.StrategyOverrides.AfterKillMonsterAction.Value;
-                }
-                if (p.StrategyOverrides.UseMagicCombat.HasValue)
-                {
-                    if (p.StrategyOverrides.UseMagicCombat.Value)
-                        Strategy.TypesWithStepsEnabled |= CommandType.Magic;
-                    else
-                        Strategy.TypesWithStepsEnabled &= ~CommandType.Magic;
-                }
-                if (p.StrategyOverrides.UseMeleeCombat.HasValue)
-                {
-                    if (p.StrategyOverrides.UseMeleeCombat.Value)
-                        Strategy.TypesWithStepsEnabled |= CommandType.Melee;
-                    else
-                        Strategy.TypesWithStepsEnabled &= ~CommandType.Melee;
-                }
-                if (p.StrategyOverrides.UsePotionsCombat.HasValue)
-                {
-                    if (p.StrategyOverrides.UsePotionsCombat.Value)
-                        Strategy.TypesWithStepsEnabled |= CommandType.Potions;
-                    else
-                        Strategy.TypesWithStepsEnabled &= ~CommandType.Potions;
-                }
+                Strategy.ApplyStrategyOverrides(p.StrategyOverrides);
             }
 
             int iMobIndex = p.MobIndex;

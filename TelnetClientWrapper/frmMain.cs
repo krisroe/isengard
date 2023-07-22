@@ -4588,31 +4588,9 @@ namespace IsengardClient
                 }
 
                 bool failedToEquip = false;
-                bool useManaPool = false;
-                AfterKillMonsterAction onMonsterKilledAction = AfterKillMonsterAction.StopCombat;
-                int usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
-                int usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
-                RealmTypeFlags availableRealms = _settingsData.Realms;
-                bool haveMeleeStrategySteps = false;
-                bool haveMagicStrategySteps = false;
-                bool haveMagicStunWandStep = false;
-                bool havePotionsStrategySteps = false;
-                Strategy strategy = pms.Strategy;
-                if (strategy != null)
-                {
-                    useManaPool = strategy.ManaPool > 0;
-                    haveMagicStrategySteps = strategy.HasAnyMagicSteps(null);
-                    haveMagicStunWandStep = strategy.HasAnyMagicSteps(MagicStrategyStep.StunWand);
-                    haveMeleeStrategySteps = strategy.HasAnyMeleeSteps(null);
-                    havePotionsStrategySteps = strategy.HasAnyPotionsSteps(null);
-                    onMonsterKilledAction = strategy.AfterKillMonsterAction.GetValueOrDefault(AfterKillMonsterAction.StopCombat);
-                    if (strategy.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && strategy.AutoSpellLevelMax != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
-                    {
-                        usedAutoSpellMin = strategy.AutoSpellLevelMin;
-                        usedAutoSpellMax = strategy.AutoSpellLevelMax;
-                    }
-                    if (strategy.Realms.HasValue) availableRealms = strategy.Realms.Value;
-                }
+
+                Strategy effectiveStrategy = pms.Strategy;
+                GetInformationFromEffectiveStrategy(effectiveStrategy, out bool useManaPool, out AfterKillMonsterAction onMonsterKilledAction, out int usedAutoSpellMin, out int usedAutoSpellMax, out RealmTypeFlags availableRealms, out bool haveMagicStrategySteps, out bool haveMeleeStrategySteps, out bool haveMagicStunWandStep, out bool havePotionsStrategySteps);
                 List<SelectedInventoryOrEquipmentItem> stunWands = null;
 
                 if (hasMob)
@@ -4646,10 +4624,25 @@ namespace IsengardClient
                 {
                     //verify the mob is present and attackable before activating skills
                     if (_bwBackgroundProcess.CancellationPending) return;
-                    if (!_hazying && !_fleeing && hasMob && !FoundMob(pms))
+                    if (!_hazying && !_fleeing && hasMob)
                     {
-                        AddConsoleMessage("Target mob not present.");
-                        return;
+                        if (FoundMob(pms))
+                        {
+                            if (pms.MobType.HasValue && _settingsData.DynamicMobData.TryGetValue(pms.MobType.Value, out DynamicMobData dmd))
+                            {
+                                if (dmd.HasData() && (pms.Strategy != null || dmd.Strategy != null))
+                                {
+                                    effectiveStrategy = new Strategy(dmd.Strategy ?? pms.Strategy);
+                                    effectiveStrategy.ApplyStrategyOverrides(dmd.StrategyOverrides);
+                                    GetInformationFromEffectiveStrategy(effectiveStrategy, out useManaPool, out onMonsterKilledAction, out usedAutoSpellMin, out usedAutoSpellMax, out availableRealms, out haveMagicStrategySteps, out haveMeleeStrategySteps, out haveMagicStunWandStep, out havePotionsStrategySteps);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            AddConsoleMessage("Target mob not present.");
+                            return;
+                        }
                     }
 
                     if (!_hazying && !_fleeing && pms.InventoryItems != null) //trading
@@ -4724,7 +4717,7 @@ namespace IsengardClient
                     hasInitialQueuedMagicStep = pms.QueuedMagicStep.HasValue;
                     hasInitialQueuedPotionsStep = pms.QueuedPotionsStep.HasValue;
                 }
-                if (_hazying || _fleeing || strategy != null || hasInitialQueuedMagicStep)
+                if (_hazying || _fleeing || effectiveStrategy != null || hasInitialQueuedMagicStep)
                 {
                     try
                     {
@@ -4738,34 +4731,32 @@ namespace IsengardClient
                         _monsterKilled = false;
                         _monsterKilledType = null;
                         _monsterKilledItems.Clear();
-                        if (useManaPool)
-                        {
-                            _currentMana = strategy.ManaPool;
-                        }
                         ItemTypeEnum? weaponItem = _settingsData.Weapon;
                         ItemTypeEnum? heldItem = _settingsData.HeldItem;
                         int? stunWandIndex = stunWands == null ? (int?)null : 0;
                         SelectedInventoryOrEquipmentItem currentWand = stunWands?[0];
+BeginCombat:
+                        if (useManaPool) _currentMana = effectiveStrategy.ManaPool;
                         if (haveMagicStrategySteps || haveMeleeStrategySteps || havePotionsStrategySteps || hasInitialQueuedMagicStep || hasInitialQueuedPotionsStep)
                         {
                             _backgroundProcessPhase = BackgroundProcessPhase.Combat;
                             bool doPowerAttack = false;
                             doPowerAttack = (skillsToRun & PromptedSkills.PowerAttack) == PromptedSkills.PowerAttack;
-                            IEnumerator<MagicStrategyStep> magicSteps = strategy?.GetMagicSteps().GetEnumerator();
-                            IEnumerator<MeleeStrategyStep> meleeSteps = strategy?.GetMeleeSteps(doPowerAttack).GetEnumerator();
-                            IEnumerator<PotionsStrategyStep> potionsSteps = strategy?.GetPotionsSteps().GetEnumerator();
+                            IEnumerator<MagicStrategyStep> magicSteps = effectiveStrategy?.GetMagicSteps().GetEnumerator();
+                            IEnumerator<MeleeStrategyStep> meleeSteps = effectiveStrategy?.GetMeleeSteps(doPowerAttack).GetEnumerator();
+                            IEnumerator<PotionsStrategyStep> potionsSteps = effectiveStrategy?.GetPotionsSteps().GetEnumerator();
                             MagicStrategyStep? nextMagicStep = null;
                             MeleeStrategyStep? nextMeleeStep = null;
                             PotionsStrategyStep? nextPotionsStep = null;
-                            bool magicStepsEnabled = strategy != null && ((strategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None);
-                            bool meleeStepsEnabled = strategy != null && ((strategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None);
-                            bool potionsStepsEnabled = strategy != null && ((strategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None);
+                            bool magicStepsEnabled = effectiveStrategy != null && ((effectiveStrategy.TypesWithStepsEnabled & CommandType.Magic) != CommandType.None);
+                            bool meleeStepsEnabled = effectiveStrategy != null && ((effectiveStrategy.TypesWithStepsEnabled & CommandType.Melee) != CommandType.None);
+                            bool potionsStepsEnabled = effectiveStrategy != null && ((effectiveStrategy.TypesWithStepsEnabled & CommandType.Potions) != CommandType.None);
                             bool magicStepsFinished = magicSteps == null || !magicSteps.MoveNext();
                             bool meleeStepsFinished = meleeSteps == null || !meleeSteps.MoveNext();
                             bool potionsStepsFinished = potionsSteps == null || !potionsSteps.MoveNext();
-                            int? magicOnlyWhenStunnedAfterXMS = strategy?.MagicOnlyWhenStunnedForXMS;
-                            int? meleeOnlyWhenStunnedAfterXMS = strategy?.MeleeOnlyWhenStunnedForXMS;
-                            int? potionsOnlyWhenStunnedAfterXMS = strategy?.PotionsOnlyWhenStunnedForXMS;
+                            int? magicOnlyWhenStunnedAfterXMS = effectiveStrategy?.MagicOnlyWhenStunnedForXMS;
+                            int? meleeOnlyWhenStunnedAfterXMS = effectiveStrategy?.MeleeOnlyWhenStunnedForXMS;
+                            int? potionsOnlyWhenStunnedAfterXMS = effectiveStrategy?.PotionsOnlyWhenStunnedForXMS;
                             if (!magicStepsFinished) nextMagicStep = magicSteps.Current;
                             if (!meleeStepsFinished) nextMeleeStep = meleeSteps.Current;
                             if (!potionsStepsFinished) nextPotionsStep = potionsSteps.Current;
@@ -4775,11 +4766,24 @@ namespace IsengardClient
                             DateTime dtUtcNow;
                             bool allowBasedOnStun;
                             string command;
+                            Strategy resetStrategy;
                             while (true) //combat cycle
                             {
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
-                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
+                                if (SelectMobAfterKillMonster(onMonsterKilledAction, pms, out resetStrategy))
+                                {
+                                    if (resetStrategy != null)
+                                    {
+                                        effectiveStrategy = resetStrategy;
+                                        GetInformationFromEffectiveStrategy(effectiveStrategy, out useManaPool, out onMonsterKilledAction, out usedAutoSpellMin, out usedAutoSpellMax, out availableRealms, out haveMagicStrategySteps, out haveMeleeStrategySteps, out haveMagicStunWandStep, out havePotionsStrategySteps);
+                                        goto BeginCombat;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
 
                                 bool didDamage = false;
 
@@ -4899,14 +4903,26 @@ CastNextOffensiveSpell:
                                     }
                                 }
 
-                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
+                                if (SelectMobAfterKillMonster(onMonsterKilledAction, pms, out resetStrategy))
+                                {
+                                    if (resetStrategy != null)
+                                    {
+                                        effectiveStrategy = resetStrategy;
+                                        GetInformationFromEffectiveStrategy(effectiveStrategy, out useManaPool, out onMonsterKilledAction, out usedAutoSpellMin, out usedAutoSpellMax, out availableRealms, out haveMagicStrategySteps, out haveMeleeStrategySteps, out haveMagicStunWandStep, out havePotionsStrategySteps);
+                                        goto BeginCombat;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (magicStepsFinished) CheckForQueuedMagicStep(pms, ref nextMagicStep);
 
                                 //flee or stop combat once steps complete
                                 if (!nextMagicStep.HasValue && magicStepsFinished && magicStepsEnabled)
                                 {
-                                    FinalStepAction finalAction = strategy.FinalMagicAction;
+                                    FinalStepAction finalAction = effectiveStrategy.FinalMagicAction;
                                     if (finalAction != FinalStepAction.None)
                                     {
                                         if (finalAction == FinalStepAction.Flee)
@@ -4926,7 +4942,19 @@ CastNextOffensiveSpell:
                                 }
 
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
-                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
+                                if (SelectMobAfterKillMonster(onMonsterKilledAction, pms, out resetStrategy))
+                                {
+                                    if (resetStrategy != null)
+                                    {
+                                        effectiveStrategy = resetStrategy;
+                                        GetInformationFromEffectiveStrategy(effectiveStrategy, out useManaPool, out onMonsterKilledAction, out usedAutoSpellMin, out usedAutoSpellMax, out availableRealms, out haveMagicStrategySteps, out haveMeleeStrategySteps, out haveMagicStunWandStep, out havePotionsStrategySteps);
+                                        goto BeginCombat;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
 
                                 dtUtcNow = DateTime.UtcNow;
                                 if (meleeOnlyWhenStunnedAfterXMS.HasValue)
@@ -4983,13 +5011,25 @@ CastNextOffensiveSpell:
                                     }
                                 }
 
-                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
+                                if (SelectMobAfterKillMonster(onMonsterKilledAction, pms, out resetStrategy))
+                                {
+                                    if (resetStrategy != null)
+                                    {
+                                        effectiveStrategy = resetStrategy;
+                                        GetInformationFromEffectiveStrategy(effectiveStrategy, out useManaPool, out onMonsterKilledAction, out usedAutoSpellMin, out usedAutoSpellMax, out availableRealms, out haveMagicStrategySteps, out haveMeleeStrategySteps, out haveMagicStunWandStep, out havePotionsStrategySteps);
+                                        goto BeginCombat;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
 
                                 //flee or stop combat once steps complete
                                 if (!nextMeleeStep.HasValue && meleeStepsFinished && meleeStepsEnabled)
                                 {
-                                    FinalStepAction finalAction = strategy.FinalMeleeAction;
+                                    FinalStepAction finalAction = effectiveStrategy.FinalMeleeAction;
                                     if (finalAction != FinalStepAction.None)
                                     {
                                         if (finalAction == FinalStepAction.Flee)
@@ -5010,7 +5050,19 @@ CastNextOffensiveSpell:
 
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
-                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
+                                if (SelectMobAfterKillMonster(onMonsterKilledAction, pms, out resetStrategy))
+                                {
+                                    if (resetStrategy != null)
+                                    {
+                                        effectiveStrategy = resetStrategy;
+                                        GetInformationFromEffectiveStrategy(effectiveStrategy, out useManaPool, out onMonsterKilledAction, out usedAutoSpellMin, out usedAutoSpellMax, out availableRealms, out haveMagicStrategySteps, out haveMeleeStrategySteps, out haveMagicStunWandStep, out havePotionsStrategySteps);
+                                        goto BeginCombat;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
 
                                 dtUtcNow = DateTime.UtcNow;
                                 if (potionsOnlyWhenStunnedAfterXMS.HasValue)
@@ -5069,14 +5121,26 @@ CastNextOffensiveSpell:
                                     }
                                 }
 
-                                if (!SelectMobAfterKillMonster(onMonsterKilledAction, pms)) break;
+                                if (SelectMobAfterKillMonster(onMonsterKilledAction, pms, out resetStrategy))
+                                {
+                                    if (resetStrategy != null)
+                                    {
+                                        effectiveStrategy = resetStrategy;
+                                        GetInformationFromEffectiveStrategy(effectiveStrategy, out useManaPool, out onMonsterKilledAction, out usedAutoSpellMin, out usedAutoSpellMax, out availableRealms, out haveMagicStrategySteps, out haveMeleeStrategySteps, out haveMagicStunWandStep, out havePotionsStrategySteps);
+                                        goto BeginCombat;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
                                 if (BreakOutOfBackgroundCombat(onMonsterKilledAction)) break;
                                 if (potionsStepsFinished) CheckForQueuedPotionsStep(pms, ref nextPotionsStep);
 
                                 //flee or stop combat once steps complete
                                 if (!nextPotionsStep.HasValue && potionsStepsFinished && potionsStepsEnabled)
                                 {
-                                    FinalStepAction finalAction = strategy.FinalPotionsAction;
+                                    FinalStepAction finalAction = effectiveStrategy.FinalPotionsAction;
                                     if (finalAction != FinalStepAction.None)
                                     {
                                         if (finalAction == FinalStepAction.Flee)
@@ -5361,6 +5425,8 @@ BeforeHazy:
             }
         }
 
+
+
         /// <summary>
         /// runs logic that runs after fulling is finished but before combatstarts
         /// </summary>
@@ -5502,6 +5568,34 @@ BeforeHazy:
             else if (_bwBackgroundProcess.CancellationPending) backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandAborted);
             else backgroundCommandResultObject = new CommandResultObject(CommandResult.CommandSuccessful);
             return backgroundCommandResultObject;
+        }
+
+        private void GetInformationFromEffectiveStrategy(Strategy strategy, out bool useManaPool, out AfterKillMonsterAction onMonsterKilledAction, out int usedAutoSpellMin, out int usedAutoSpellMax, out RealmTypeFlags availableRealms, out bool haveMagicStrategySteps, out bool haveMeleeStrategySteps, out bool haveMagicStunWandStep, out bool havePotionsStrategySteps)
+        {
+            useManaPool = false;
+            onMonsterKilledAction = AfterKillMonsterAction.StopCombat;
+            usedAutoSpellMin = _settingsData.AutoSpellLevelMin;
+            usedAutoSpellMax = _settingsData.AutoSpellLevelMax;
+            availableRealms = _settingsData.Realms;
+            haveMeleeStrategySteps = false;
+            haveMagicStrategySteps = false;
+            haveMagicStunWandStep = false;
+            havePotionsStrategySteps = false;
+            if (strategy != null)
+            {
+                useManaPool = strategy.ManaPool > 0;
+                haveMagicStrategySteps = strategy.HasAnyMagicSteps(null);
+                haveMagicStunWandStep = strategy.HasAnyMagicSteps(MagicStrategyStep.StunWand);
+                haveMeleeStrategySteps = strategy.HasAnyMeleeSteps(null);
+                havePotionsStrategySteps = strategy.HasAnyPotionsSteps(null);
+                onMonsterKilledAction = strategy.AfterKillMonsterAction.GetValueOrDefault(AfterKillMonsterAction.StopCombat);
+                if (strategy.AutoSpellLevelMin != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET && strategy.AutoSpellLevelMax != IsengardSettingData.AUTO_SPELL_LEVEL_NOT_SET)
+                {
+                    usedAutoSpellMin = strategy.AutoSpellLevelMin;
+                    usedAutoSpellMax = strategy.AutoSpellLevelMax;
+                }
+                if (strategy.Realms.HasValue) availableRealms = strategy.Realms.Value;
+            }
         }
 
         private CommandResultObject CheckIfWandOKToUse(SelectedInventoryOrEquipmentItem sioei, BackgroundWorkerParameters pms, Func<bool> abortLogic, out ItemStatus itemStatus)
@@ -7247,8 +7341,9 @@ BeforeHazy:
             return ret;
         }
 
-        private bool SelectMobAfterKillMonster(AfterKillMonsterAction onMonsterKilledAction, BackgroundWorkerParameters bwp)
+        private bool SelectMobAfterKillMonster(AfterKillMonsterAction onMonsterKilledAction, BackgroundWorkerParameters bwp, out Strategy resetStrategy)
         {
+            resetStrategy = null;
             if (_monsterKilled && (onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoom || onMonsterKilledAction == AfterKillMonsterAction.SelectFirstMonsterInRoomOfSameType))
             {
                 bwp.MonsterKilled = true;
@@ -7262,6 +7357,14 @@ BeforeHazy:
                         if (firstAttackableMob.HasValue)
                         {
                             monsterType = firstAttackableMob.Value;
+                            if (_settingsData.DynamicMobData.TryGetValue(monsterType, out DynamicMobData dmd))
+                            {
+                                if (dmd.HasData() && (bwp.Strategy != null || dmd.Strategy != null))
+                                {
+                                    resetStrategy = new Strategy(dmd.Strategy ?? bwp.Strategy);
+                                    resetStrategy.ApplyStrategyOverrides(dmd.StrategyOverrides);
+                                }
+                            }
                         }
                         else
                         {
@@ -7287,6 +7390,8 @@ BeforeHazy:
                     _mob = sMobText;
                     _monsterKilled = false;
                     _monsterKilledType = null;
+                    _currentMonsterStatus = MonsterStatus.None;
+                    _monsterStunnedSince = null;
                 }
             }
             return true;
