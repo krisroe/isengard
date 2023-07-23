@@ -269,6 +269,7 @@
 
         [SingularName("court jester")]
         [PluralName("court jesters")]
+        [Experience(115)]
         CourtJester,
 
         [SingularName("Crabbe the class bully")]
