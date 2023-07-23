@@ -566,6 +566,10 @@ namespace IsengardClient.Backend
             {
                 yield return DynamicDataItemClass.Gem;
             }
+            else if (ic == ItemClass.Instrument)
+            {
+                yield return DynamicDataItemClass.Instrument;
+            }
             else if (ic == ItemClass.HeldItem)
             {
                 yield return DynamicDataItemClass.HeldItem;
@@ -614,6 +618,7 @@ namespace IsengardClient.Backend
         Bag,
         Key,
         Gem,
+        Instrument,
         Coins,
         Money,
         Fixed,
@@ -661,6 +666,7 @@ namespace IsengardClient.Backend
         Fixed,
         Chest,
         Gem,
+        Instrument,
         Coins,
         Money,
         HeldItem,
@@ -2533,6 +2539,7 @@ namespace IsengardClient.Backend
         [SingularName("spruce-top guitar")]
         [PluralName("spruce-top guitars")]
         [LookText("A handsome instument for making music.")]
+        [ItemClass(ItemClass.Instrument)]
         [Weight(17)]
         [Sellable(123)]
         SpruceTopGuitar,
