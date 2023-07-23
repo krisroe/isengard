@@ -4650,6 +4650,10 @@ namespace IsengardClient.Backend
             AddExit(oVillageOfHobbiton2, oMainSquareOfHobbiton, "north");
             westOfBreeMap.Rooms[oVillageOfHobbiton2] = new PointF(2, 1);
 
+            Room arholTheMoneyChanger = AddRoom("Arhol Moneychanger", "Arhol the Money-Changer");
+            AddBidirectionalExits(arholTheMoneyChanger, oVillageOfHobbiton2, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[arholTheMoneyChanger] = new PointF(1, 1);
+
             Room oVillageOfHobbiton3 = AddRoom("Village of Hobbiton", "The Village of Hobbiton");
             AddBidirectionalExits(oVillageOfHobbiton3, oMainSquareOfHobbiton, BidirectionalExitType.NorthSouth);
             westOfBreeMap.Rooms[oVillageOfHobbiton3] = new PointF(2, -1);
@@ -4660,15 +4664,15 @@ namespace IsengardClient.Backend
 
             Room oHobbitonMarketSquare = AddRoom("Market Square", "Market Square");
             AddBidirectionalExits(oHobbitonMarketSquare, oVillageOfHobbiton4, BidirectionalExitType.NorthSouth);
-            westOfBreeMap.Rooms[oHobbitonMarketSquare] = new PointF(1, -1);
+            westOfBreeMap.Rooms[oHobbitonMarketSquare] = new PointF(1, -0.5F);
 
             Room oGatheringOfAddicts = AddRoom("Addict Gathering", "Gathering of Addicts");
             AddBidirectionalExits(oVillageOfHobbiton4, oGatheringOfAddicts, BidirectionalExitType.NorthSouth);
-            westOfBreeMap.Rooms[oGatheringOfAddicts] = new PointF(1, 1);
+            westOfBreeMap.Rooms[oGatheringOfAddicts] = new PointF(1, 0.5F);
 
             Room oWesternRoadWestOfHobbiton = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoadWestOfHobbiton, oVillageOfHobbiton4, BidirectionalExitType.WestEast);
-            westOfBreeMap.Rooms[oVillageOfHobbiton4] = new PointF(0, 0);
+            westOfBreeMap.Rooms[oWesternRoadWestOfHobbiton] = new PointF(0, 0);
 
             Room oWestronRoad = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(oWestronRoad, oVillageOfHobbiton3, BidirectionalExitType.NorthSouth);
