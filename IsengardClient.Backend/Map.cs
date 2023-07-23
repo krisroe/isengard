@@ -6159,6 +6159,7 @@ namespace IsengardClient.Backend
             Room oGreatWesternOcean2 = AddRoom("Ocean", "Great Western Ocean");
             AddBidirectionalExits(oGreatWesternOcean2, oGreatWesternOcean1, BidirectionalExitType.WestEast);
             greatWesternOceanGraph.Rooms[oGreatWesternOcean2] = new PointF(7, 3);
+            //This room shifts. It may or may not have a south exit.
 
             Room oGreatWesternOcean3 = AddRoom("Ocean", "Great Western Ocean");
             AddBidirectionalExits(oGreatWesternOcean3, oGreatWesternOcean2, BidirectionalExitType.WestEast);
@@ -6168,14 +6169,6 @@ namespace IsengardClient.Backend
             AddExit(oGreatWesternOcean3, oIslandOfGiants, "shoal");
             AddExit(oIslandOfGiants, oGreatWesternOcean3, "ocean");
             greatWesternOceanGraph.Rooms[oIslandOfGiants] = new PointF(5, 3);
-
-            Room oGreatWesternOcean4 = AddRoom("Ocean", "Great Western Ocean");
-            AddBidirectionalExits(oGreatWesternOcean2, oGreatWesternOcean4, BidirectionalExitType.NorthSouth);
-            greatWesternOceanGraph.Rooms[oGreatWesternOcean4] = new PointF(7, 4);
-
-            Room oGreatWesternOcean5 = AddRoom("Ocean", "Great Western Ocean");
-            AddBidirectionalExits(oGreatWesternOcean5, oGreatWesternOcean4, BidirectionalExitType.WestEast);
-            greatWesternOceanGraph.Rooms[oGreatWesternOcean5] = new PointF(6, 4);
         }
 
         private void AddArmenelos(Room oArmenelosGatesOutside)

@@ -1744,6 +1744,15 @@ namespace IsengardClient.Backend
         [ItemClass(ItemClass.Key)]
         InvisibleKey,
 
+        [SingularName("iron leggings")]
+        //CSRTODO: plural
+        [LookText("You see some iron leggings from a knight's suit of armor.")]
+        [EquipmentType(EquipmentType.Legs)]
+        [Weight(2)]
+        [ArmorClass(0.4)]
+        [Sellable(123)]
+        IronLeggings,
+
         [SingularName("iron ring")]
         [PluralName("iron rings")]
         [LookText("You see a ring made of wrought iron.")]

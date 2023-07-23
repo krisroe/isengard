@@ -80,6 +80,10 @@
         [PluralName("barbarian guards")]
         BarbarianGuard,
 
+        [SingularName("barbarian raider")]
+        [PluralName("barbarian raiders")]
+        BarbarianRaider,
+
         [SingularName("barmaid")]
         [PluralName("barmaids")]
         Barmaid,
@@ -634,6 +638,10 @@
         [Alignment(AlignmentType.DullBlue)]
         [Experience(75)]
         GrayElf,
+
+        [SingularName("gray shark")]
+        [PluralName("gray sharks")]
+        GrayShark,
 
         [SingularName("greater spider")]
         [PluralName("greater spiders")]
