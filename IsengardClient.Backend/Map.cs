@@ -5081,7 +5081,7 @@ namespace IsengardClient.Backend
             Room theaterMainSeating = AddRoom("Theater Main Seating", "Esgaroth Amphitheater Main Seating");
             AddPermanentMobs(theaterMainSeating, MobTypeEnum.MinstrelOfEsgaroth);
             AddBidirectionalExits(briarFuchsia, theaterMainSeating, BidirectionalExitType.WestEast);
-            AddBidirectionalExits(theaterGrassSeating, theaterMainSeating, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(theaterMainSeating, theaterGrassSeating, BidirectionalExitType.NorthSouth);
             esgarothGraph.Rooms[theaterMainSeating] = new PointF(9, 5);
 
             Room dragonpawFuchsia = AddRoom("Dragonpaw/Fuchsia", "Dragonpaw Lane/Fuchsia Way Intersection");

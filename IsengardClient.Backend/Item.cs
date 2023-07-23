@@ -2080,6 +2080,12 @@ namespace IsengardClient.Backend
         [Sellable(SellableEnum.Junk)]
         MountainBoots,
 
+        [SingularName("musical score")]
+        [PluralName("musical scores")]
+        [Weight(2)]
+        [Sellable(SellableEnum.Junk)]
+        MusicalScore,
+
         [SingularName("nunchukus")]
         [WeaponType(WeaponType.Polearm)]
         //CSRTODO: plural
