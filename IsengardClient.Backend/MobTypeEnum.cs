@@ -673,6 +673,7 @@
 
         [SingularName("Grunkill")]
         //CSRTODO: no plural?
+        [Experience(600)]
         Grunkill,
 
         [SingularName("guard")]

@@ -577,6 +577,7 @@ namespace IsengardClient.Backend
             mithlondGraph.Rooms[oBayOfSomund] = new PointF(2, 9);
 
             Room oHarbringerGangplank = AddRoom("Gangplank", "Gangplank");
+            AddPermanentItems(oHarbringerGangplank, ItemTypeEnum.Sign);
             oHarbringerGangplank.BoatLocationType = BoatEmbarkOrDisembark.HarbringerMithlond;
             AddExit(oHarbringerSlip, oHarbringerGangplank, "gangplank");
             AddExit(oHarbringerGangplank, oHarbringerSlip, "pier");
@@ -596,7 +597,7 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oMithlondPort2, oMithlondPort, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oMithlondPort2] = new PointF(2, 3);
 
-            Room oMusicianSchool = AddRoom("Musician School", "Mithlond Musician School");
+            Room oMusicianSchool = AddHealingRoom("Musician School", "Mithlond Musician School", HealingRoom.Mithlond);
             AddBidirectionalExits(oMithlondPort2, oMusicianSchool, BidirectionalExitType.WestEast);
             mithlondGraph.Rooms[oMusicianSchool] = new PointF(3, 3);
 
@@ -612,7 +613,7 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oDeadEnd, oDarkAlley, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oDeadEnd] = new PointF(1, 1.5F);
 
-            Room oSharkey = AddRoom("Sharkey", "Skarkey's Shippers");
+            Room oSharkey = AddPawnShoppeRoom("Sharkey", "Skarkey's Shippers", PawnShoppe.Mithlond);
             AddPermanentMobs(oSharkey, MobTypeEnum.Sharkey);
             e = AddExit(oDeadEnd, oSharkey, "west");
             e.Hidden = true;
@@ -2397,6 +2398,7 @@ namespace IsengardClient.Backend
             hauntedMansionGraph.Rooms[oDen] = new PointF(1, 1);
 
             Room oSecretAlcove = AddRoom("Secret Alcove", "Secret Alcove");
+            AddPermanentItems(oSecretAlcove, ItemTypeEnum.RustyKey); //hidden
             e = AddExit(oLivingRoom, oSecretAlcove, "alcove");
             e.Hidden = true;
             AddExit(oSecretAlcove, oLivingRoom, "south");
@@ -2413,17 +2415,17 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oWesternBasement, oMustyBasementEntrance, BidirectionalExitType.WestEast);
             hauntedMansionGraph.Rooms[oWesternBasement] = new PointF(4, 2);
 
-            Room oBasementCorner = AddRoom("Basement Corner", "Southwest Corner of the Basement");
+            Room oBasementCorner = AddRoom("Corner", "Southwest Corner of the Basement");
             AddBidirectionalExits(oWesternBasement, oBasementCorner, BidirectionalExitType.NorthSouth);
             hauntedMansionGraph.Rooms[oBasementCorner] = new PointF(4, 3);
 
-            Room oBasementCorner2 = AddRoom("Basement Corner", "Southeastern Corner of the Basement");
+            Room oBasementCorner2 = AddRoom("Corner", "Southeastern Corner of the Basement");
             AddBidirectionalExits(oBasementCorner, oBasementCorner2, BidirectionalExitType.WestEast);
             hauntedMansionGraph.Rooms[oBasementCorner2] = new PointF(4.75F, 3);
 
-            Room oBasementCorner3 = AddRoom("Basement Corner", "Northeastern corner of the Basement");
+            Room oBasementCorner3 = AddRoom("Corner", "Northeastern corner of the Basement");
             AddBidirectionalExits(oBasementCorner3, oWesternBasement, BidirectionalExitType.SouthwestNortheast);
-            hauntedMansionGraph.Rooms[oBasementCorner3] = new PointF(4, 2);
+            hauntedMansionGraph.Rooms[oBasementCorner3] = new PointF(5, 1);
         }
 
         private void AddUnderBree(Room oNorthBridge, Room oOuthouse, Room oSewerPipeExit)
@@ -6052,6 +6054,8 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oSmallDock, nindamosDocks, BidirectionalExitType.WestEast);
             nindamosGraph.Rooms[nindamosDocks] = new PointF(15, 7);
 
+            AddGreatWesternOcean(nindamosDocks);
+
             Room oShoreline9 = AddRoom("Shoreline", "Shoreline");
             AddBidirectionalExits(oShoreline8, oShoreline9, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oSandyBeachSouth, oShoreline9, BidirectionalExitType.WestEast);
@@ -6132,6 +6136,32 @@ namespace IsengardClient.Backend
             AddPermanentMobs(oArmenelosGatesOutside, MobTypeEnum.NumenoreanWarder);
             AddBidirectionalExits(oArmenelosGatesOutside, oPathThroughTheValleyHiddenPath, BidirectionalExitType.NorthSouth);
             nindamosGraph.Rooms[oArmenelosGatesOutside] = new PointF(2, -2);
+        }
+
+        private void AddGreatWesternOcean(Room nindamosDocks)
+        {
+            RoomGraph nindamosGraph = _graphs[MapType.Nindamos];
+            RoomGraph greatWesternOceanGraph = _graphs[MapType.GreatWesternOcean];
+
+            Room oGreatWesternOcean1 = AddRoom("Ocean", "Great Western Ocean");
+            Exit e = AddExit(nindamosDocks, oGreatWesternOcean1, "down");
+            e.Hidden = true;
+            nindamosGraph.Rooms[oGreatWesternOcean1] = new PointF(15, 8);
+            greatWesternOceanGraph.Rooms[oGreatWesternOcean1] = new PointF(8, 3);
+
+            Room oGreatWesternOcean2 = AddRoom("Ocean", "Great Western Ocean");
+            AddBidirectionalExits(oGreatWesternOcean2, oGreatWesternOcean1, BidirectionalExitType.WestEast);
+            greatWesternOceanGraph.Rooms[oGreatWesternOcean2] = new PointF(7, 3);
+
+            Room oGreatWesternOcean3 = AddRoom("Ocean", "Great Western Ocean");
+            AddBidirectionalExits(oGreatWesternOcean3, oGreatWesternOcean2, BidirectionalExitType.WestEast);
+            greatWesternOceanGraph.Rooms[oGreatWesternOcean3] = new PointF(6, 3);
+
+            Room oIslandOfGiants = AddRoom("Giant Island", "Island of Giants");
+            AddExit(oGreatWesternOcean3, oIslandOfGiants, "shoal");
+            AddExit(oIslandOfGiants, oGreatWesternOcean3, "ocean");
+            greatWesternOceanGraph.Rooms[oIslandOfGiants] = new PointF(5, 3);
+
         }
 
         private void AddArmenelos(Room oArmenelosGatesOutside)

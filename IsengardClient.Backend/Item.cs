@@ -1701,6 +1701,13 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Head)]
         HoodOfTheHighPriest,
 
+        [SingularName("horseman's mace")]
+        [PluralName("horseman's maces")]
+        [LookText("You see a large mace made specifically for fighting on horseback.")]
+        [WeaponType(WeaponType.Blunt)]
+        [Sellable(117)]
+        HorsemansMace,
+
         [SingularName("human brain")]
         [PluralName("human brains")]
         HumanBrain,
@@ -2174,6 +2181,7 @@ namespace IsengardClient.Backend
 
         [SingularName("port manifest")]
         [PluralName("port manifests")]
+        [LookTextType(LookTextType.Multiline)]
         [ItemClass(ItemClass.Fixed)]
         PortManifest,
 

@@ -252,6 +252,9 @@ namespace IsengardClient.Backend
         [MapTypeDisplayName("Death Valley")]
         DeathValley,
 
+        [MapTypeDisplayName("Great Western Ocean")]
+        GreatWesternOcean,
+
         [MapTypeDisplayName("Intangible")]
         Intangible,
     }
@@ -518,6 +521,7 @@ namespace IsengardClient.Backend
         Imladris,
         Tharbad,
         Esgaroth,
+        Mithlond,
     }
 
     public enum HealingRoom
@@ -527,6 +531,7 @@ namespace IsengardClient.Backend
         Imladris,
         Tharbad,
         Esgaroth,
+        Mithlond,
         BreeArena,
         SpindrilsCastle,
         Nindamos,
