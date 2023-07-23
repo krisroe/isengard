@@ -6101,7 +6101,15 @@ BeforeHazy:
         /// <returns>result of the operation</returns>
         private CommandResultObject NavigateToTickRoom(BackgroundWorkerParameters pms, bool beforeGetToTargetRoom, PermRun pr)
         {
-            return NavigateToSpecificRoom(_gameMap.HealingRooms[pms.NewArea.TickRoom.Value], pms, beforeGetToTargetRoom, pr);
+            CommandResultObject ret;
+            Room r = _currentEntityInfo.CurrentRoom;
+            if (r == null)
+                ret = new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
+            else if (r.HealingRoom.HasValue)
+                ret = new CommandResultObject(CommandResult.CommandSuccessful);
+            else
+                ret = NavigateToSpecificRoom(_gameMap.HealingRooms[pms.NewArea.TickRoom.Value], pms, beforeGetToTargetRoom, pr);
+            return ret;
         }
 
         private CommandResultObject NavigateToSpecificRoom(Room r, BackgroundWorkerParameters pms, bool beforeGetToTargetRoom, PermRun pr)
