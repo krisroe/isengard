@@ -7792,11 +7792,14 @@ BeforeHazy:
 
         private void WaitUntilNextCommandTry(int remainingMS, BackgroundCommandType commandType)
         {
+            DateTime dtWaitUntilUTC = DateTime.UtcNow.AddMilliseconds(remainingMS);
             bool hazying = commandType == BackgroundCommandType.DrinkHazy;
             bool fleeing = commandType == BackgroundCommandType.Flee;
-            while (remainingMS > 0)
+            DateTime dtUTCCurrent = DateTime.UtcNow;
+            while (dtUTCCurrent < dtWaitUntilUTC)
             {
-                int nextWaitMS = Math.Min(remainingMS, 100);
+                TimeSpan tsRemaining = dtWaitUntilUTC - dtUTCCurrent;
+                int nextWaitMS = Math.Min(Convert.ToInt32(tsRemaining.TotalMilliseconds), 100);
 
                 //check if the wait should be aborted
                 if (hazying)
@@ -7847,6 +7850,7 @@ BeforeHazy:
                     if (_fleeing || _hazying) break;
                 }
                 if (_bwBackgroundProcess.CancellationPending) break;
+                dtUTCCurrent = DateTime.UtcNow;
             }
         }
 
@@ -11330,7 +11334,7 @@ BeforeHazy:
                         sb.AppendLine($"Bullroarer sailing for Nindamos for {secondsRemaining} seconds.");
                         break;
                     case 3:
-                        sb.AppendLine($"Bullroarer in Nindamos for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer in Nindamos, can board in Mithlond for {secondsRemaining} seconds.");
                         break;
                     case 4:
                         sb.AppendLine($"Bullroarer sailing from Nindamos for {secondsRemaining} seconds.");
@@ -11391,6 +11395,7 @@ BeforeHazy:
                         break;
                     case BoatExitType.MithlondEnterBullroarer:
                         cycleLength = 8;
+                        targetCycles.Add(3);
                         targetCycles.Add(7);
                         break;
                     case BoatExitType.MithlondExitBullroarer:

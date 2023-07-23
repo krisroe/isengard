@@ -2338,6 +2338,8 @@ namespace IsengardClient.Backend
 
         [SingularName("sign")]
         [PluralName("signs")]
+        [LookText("Passage to Tharbald.")]
+        [ItemClass(ItemClass.Fixed)]
         Sign,
 
         [SingularName("signet ring")]
