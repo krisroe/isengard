@@ -2082,6 +2082,7 @@ namespace IsengardClient.Backend
 
         [SingularName("musical score")]
         [PluralName("musical scores")]
+        [LookText("These sheets of music could be for a choir but it is hard to tell by looking.")]
         [Weight(2)]
         [Sellable(SellableEnum.Junk)]
         MusicalScore,
