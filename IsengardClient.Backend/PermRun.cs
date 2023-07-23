@@ -159,10 +159,15 @@ namespace IsengardClient.Backend
                 sb.Append(DisplayName);
                 hasText = true;
             }
-            if (Flow == PermRunFlow.AdHocStrategy)
+            if (Flow == PermRunFlow.AdHocCombat)
             {
                 if (hasText) sb.Append(" ");
-                sb.Append("Ad hoc");
+                sb.Append("Ad hoc Combat");
+            }
+            else if (Flow == PermRunFlow.AdHocNonCombat)
+            {
+                if (hasText) sb.Append(" ");
+                sb.Append("Ad hoc Noncombat");
             }
             else if (Flow == PermRunFlow.ChangeAndRun)
             {

@@ -4368,7 +4368,7 @@ namespace IsengardClient
         private void CompletePermRun(PermRun pr)
         {
             _currentPermRun = null;
-            if (pr.PermRunStart != DateTime.MinValue && pr.Flow != PermRunFlow.AdHocStrategy)
+            if (pr.PermRunStart != DateTime.MinValue && pr.Flow != PermRunFlow.AdHocCombat && pr.Flow != PermRunFlow.AdHocNonCombat)
             {
                 TimeSpan permRunTime = DateTime.UtcNow - pr.PermRunStart;
                 int goldDiff = _gold - pr.BeforeGold;
@@ -8782,7 +8782,10 @@ BeforeHazy:
                     return;
                 }
                 p = new PermRun();
-                p.Flow = PermRunFlow.AdHocStrategy;
+                if (permRunEditFlow == PermRunEditFlow.AdHocCombat)
+                    p.Flow = PermRunFlow.AdHocCombat;
+                else if (permRunEditFlow == PermRunEditFlow.AdHocNonCombat)
+                    p.Flow = PermRunFlow.AdHocNonCombat;
                 frm.SaveFormDataToPermRun(p);
             }
             _currentPermRun = null;

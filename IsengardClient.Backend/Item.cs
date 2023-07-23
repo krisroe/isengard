@@ -1204,6 +1204,7 @@ namespace IsengardClient.Backend
 
         [SingularName("dirk")]
         [PluralName("dirks")]
+        [LookText("A small, but very sharp, dagger.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
         [Sellable(163)]
@@ -1502,6 +1503,7 @@ namespace IsengardClient.Backend
 
         [SingularName("golden dagger")]
         [PluralName("golden daggers")]
+        [LookText("You see a dagger made of gold.  It's the weapon of a lamia.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
         [Sellable(278)]
@@ -1820,6 +1822,7 @@ namespace IsengardClient.Backend
 
         [SingularName("lead hammer")]
         [PluralName("lead hammers")]
+        [LookText("The hammer is a large blunt object capable of doing lots of damage.")]
         [WeaponType(WeaponType.Blunt)]
         [Weight(5)]
         [Sellable(643)]

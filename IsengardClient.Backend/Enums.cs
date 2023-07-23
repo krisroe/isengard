@@ -774,7 +774,8 @@ namespace IsengardClient.Backend
 
     public enum PermRunFlow
     {
-        AdHocStrategy,
+        AdHocCombat,
+        AdHocNonCombat,
         ChangeAndRun,
         Run,
     }
