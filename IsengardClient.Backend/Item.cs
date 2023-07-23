@@ -2232,8 +2232,10 @@ namespace IsengardClient.Backend
 
         [SingularName("quartz stone")]
         [PluralName("quartz stones")]
+        [LookText("It glows curiously.")]
         [Weight(5)]
         [Wand(SpellsEnum.restore)] //CSRTODO: is this correct?
+        [Sellable(495)]
         QuartzStone,
 
         [SingularName("rainbow key")]
