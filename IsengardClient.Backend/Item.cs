@@ -941,6 +941,7 @@ namespace IsengardClient.Backend
 
         [SingularName("bo stick")]
         [PluralName("bo sticks")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(4)]
         [Sellable(SellableEnum.Junk)]
@@ -2345,6 +2346,7 @@ namespace IsengardClient.Backend
 
         [SingularName("rusty key")]
         [PluralName("rusty keys")]
+        [LookText("The key is completely rusted over.")]
         [ItemClass(ItemClass.Key)]
         [Weight(1)]
         [Sellable(SellableEnum.Junk)]

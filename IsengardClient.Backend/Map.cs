@@ -2425,6 +2425,7 @@ namespace IsengardClient.Backend
             hauntedMansionGraph.Rooms[oBasementCorner2] = new PointF(4.75F, 3);
 
             Room oBasementCorner3 = AddRoom("Corner", "Northeastern corner of the Basement");
+            AddPermanentMobs(oBasementCorner3, MobTypeEnum.GhostOfEvanNildredge);
             AddBidirectionalExits(oBasementCorner3, oWesternBasement, BidirectionalExitType.SouthwestNortheast);
             hauntedMansionGraph.Rooms[oBasementCorner3] = new PointF(5, 1);
         }

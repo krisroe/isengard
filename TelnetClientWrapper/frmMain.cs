@@ -6759,12 +6759,14 @@ BeforeHazy:
                     SupportedKeysFlags keyType = nextExit.KeyType;
                     if (keyType != SupportedKeysFlags.None || nextExit.IsUnknownKnockableKeyType)
                     {
+                        bool triedPickingUpKey = false;
                         bool exitAvailable = false;
                         backgroundCommandResultObject = null;
                         if (keyType != SupportedKeysFlags.None && pr != null && ((pr.SupportedKeys & keyType) == keyType))
                         {
                             ItemTypeEnum keyItemType = (ItemTypeEnum)Enum.Parse(typeof(ItemTypeEnum), keyType.ToString());
                             RemoveKeyFromHeldSlot(keyItemType, pms, abortLogic); //can't unlock an exit using a key in the held slot, so remove if there
+TryUnlockExit:
                             int numberInInventory;
                             lock (_currentEntityInfo.EntityLock)
                             {
@@ -6793,6 +6795,19 @@ BeforeHazy:
                                     {
                                         break;
                                     }
+                                }
+                            }
+                            if (!exitAvailable && keyType == SupportedKeysFlags.RustyKey && !triedPickingUpKey)
+                            {
+                                triedPickingUpKey = true;
+                                backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.GetItem, "get rusty", pms, abortLogic, false);
+                                if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
+                                {
+                                    goto TryUnlockExit;
+                                }
+                                else if (backgroundCommandResultObject.Result == CommandResult.CommandAborted || backgroundCommandResultObject.Result == CommandResult.CommandTimeout || backgroundCommandResultObject.Result == CommandResult.CommandEscaped)
+                                {
+                                    return backgroundCommandResultObject;
                                 }
                             }
                         }

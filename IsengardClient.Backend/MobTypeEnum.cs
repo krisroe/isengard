@@ -529,6 +529,10 @@
         [Experience(82)]
         GhostlyFencer,
 
+        [SingularName("ghost of Evan Nildredge")]
+        //CSRTODO: no plural
+        GhostOfEvanNildredge,
+
         [SingularName("ghost of Muzgash")]
         //CSRTODO: no plural
         GhostOfMuzgash,

@@ -68,19 +68,17 @@ namespace IsengardClient.Backend
         /// requires no items
         /// </summary>
         public bool RequiresNoItems { get; set; }
-
         /// <summary>
         /// whether go should be forced
         /// </summary>
         public bool ForceGo { get; set; }
-
         /// <summary>
         /// whether the key is required to use the exit (returns false when knockable)
         /// </summary>
         /// <returns>true if the key is required, false otherwise</returns>
         public bool RequiresKey()
         {
-            return KeyType == SupportedKeysFlags.GateKey || KeyType == SupportedKeysFlags.TombKey;
+            return KeyType == SupportedKeysFlags.GateKey || KeyType == SupportedKeysFlags.TombKey || KeyType == SupportedKeysFlags.RustyKey;
         }
 
         public int GetCost(GraphInputs graphInputs)
