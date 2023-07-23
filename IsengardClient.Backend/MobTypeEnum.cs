@@ -329,6 +329,10 @@
         [PluralName("disillusioned drunks")]
         DisillusionedDrunk,
 
+        [SingularName("dolphin")]
+        [PluralName("dolphins")]
+        Dolphin,
+
         [SingularName("door mimic")]
         [PluralName("door mimics")]
         [MobVisibility(MobVisibility.Hidden)]
@@ -551,6 +555,10 @@
         [SingularName("giant rooster")]
         [PluralName("giant roosters")]
         GiantRooster,
+
+        [SingularName("giant stingray")]
+        [PluralName("giant stingrays")]
+        GiantStingray,
 
         [SingularName("giant venus fly-trap")]
         [PluralName("giant venus fly-traps")]

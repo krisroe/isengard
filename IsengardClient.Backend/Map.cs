@@ -6143,11 +6143,18 @@ namespace IsengardClient.Backend
             RoomGraph nindamosGraph = _graphs[MapType.Nindamos];
             RoomGraph greatWesternOceanGraph = _graphs[MapType.GreatWesternOcean];
 
+            greatWesternOceanGraph.Rooms[nindamosDocks] = new PointF(8, 2);
+
             Room oGreatWesternOcean1 = AddRoom("Ocean", "Great Western Ocean");
+            AddPermanentMobs(oGreatWesternOcean1, MobTypeEnum.GiantStingray);
             Exit e = AddExit(nindamosDocks, oGreatWesternOcean1, "down");
+            e.Hidden = true;
+            e = AddExit(oGreatWesternOcean1, nindamosDocks, "dock");
             e.Hidden = true;
             nindamosGraph.Rooms[oGreatWesternOcean1] = new PointF(15, 8);
             greatWesternOceanGraph.Rooms[oGreatWesternOcean1] = new PointF(8, 3);
+
+            AddMapBoundaryPoint(nindamosDocks, oGreatWesternOcean1, MapType.Nindamos, MapType.GreatWesternOcean);
 
             Room oGreatWesternOcean2 = AddRoom("Ocean", "Great Western Ocean");
             AddBidirectionalExits(oGreatWesternOcean2, oGreatWesternOcean1, BidirectionalExitType.WestEast);
@@ -6162,6 +6169,13 @@ namespace IsengardClient.Backend
             AddExit(oIslandOfGiants, oGreatWesternOcean3, "ocean");
             greatWesternOceanGraph.Rooms[oIslandOfGiants] = new PointF(5, 3);
 
+            Room oGreatWesternOcean4 = AddRoom("Ocean", "Great Western Ocean");
+            AddBidirectionalExits(oGreatWesternOcean2, oGreatWesternOcean4, BidirectionalExitType.NorthSouth);
+            greatWesternOceanGraph.Rooms[oGreatWesternOcean4] = new PointF(7, 4);
+
+            Room oGreatWesternOcean5 = AddRoom("Ocean", "Great Western Ocean");
+            AddBidirectionalExits(oGreatWesternOcean5, oGreatWesternOcean4, BidirectionalExitType.WestEast);
+            greatWesternOceanGraph.Rooms[oGreatWesternOcean5] = new PointF(6, 4);
         }
 
         private void AddArmenelos(Room oArmenelosGatesOutside)
