@@ -495,6 +495,7 @@ namespace IsengardClient.Backend
             tharbadWestGraph.Rooms[oOpenBay] = new PointF(4, 0);
 
             Room oNorthLookoutTower = AddRoom("North Lookout Tower", "North Lookout Tower");
+            AddPermanentItems(oNorthLookoutTower, ItemTypeEnum.OldWoodenSign);
             AddExit(oOpenBay, oNorthLookoutTower, "south");
             AddBidirectionalExits(oNorthLookoutTower, oNorthLookoutPoint, BidirectionalExitType.NorthSouth);
             AddExit(oNorthShoreWaters, oNorthLookoutTower, "southwest");

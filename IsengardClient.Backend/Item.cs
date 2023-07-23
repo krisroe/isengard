@@ -2084,9 +2084,9 @@ namespace IsengardClient.Backend
         //CSRTODO: plural
         Nunchukus,
 
-        //CSRTODO: where does this live?
         [SingularName("old wooden sign")]
         [PluralName("old wooden signs")]
+        [LookText("BEWARE... A boat crew died on this spot with their throats ripped out")]
         [ItemClass(ItemClass.Fixed)]
         OldWoodenSign,
 
