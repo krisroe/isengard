@@ -343,15 +343,17 @@ namespace IsengardClient.Backend
 
     public class SelectedInventoryOrEquipmentItem
     {
-        public SelectedInventoryOrEquipmentItem(ItemTypeEnum ItemType, int Counter, bool IsInventory)
+        public SelectedInventoryOrEquipmentItem(ItemEntity ie, ItemTypeEnum ItemType, int Counter, ItemLocationType LocationType)
         {
+            ItemEntity = ie;
             this.ItemType = ItemType;
             this.Counter = Counter;
-            this.IsInventory = IsInventory;
+            this.LocationType = LocationType;
         }
+        public ItemEntity ItemEntity;
         public ItemTypeEnum ItemType;
         public int Counter;
-        public bool IsInventory;
+        public ItemLocationType LocationType;
     }
 
     public class StaticItemData
@@ -688,7 +690,8 @@ namespace IsengardClient.Backend
         KasnarsRedKey = 16,
         TombKey = 32,
         FactoryKey = 64,
-        All = 127,
+        RustyKey = 128,
+        All = 255,
     }
 
     /// <summary>
@@ -767,7 +770,7 @@ namespace IsengardClient.Backend
         AncientLyre,
 
         [SingularName("Ancient Shield of Adalphi")]
-        //CSRTODO: plural?
+        [PluralName("Ancient Shield of Adalphis")] //verified 7/23/23
         [LookText("You see a marvelous shield made by a great wizard.")]
         [EquipmentType(EquipmentType.Shield)]
         [Weight(5)]
@@ -794,6 +797,7 @@ namespace IsengardClient.Backend
 
         [SingularName("assassin's dagger")]
         [PluralName("assassin's daggers")]
+        [LookText("It's a blackened steel blade, perfect for backstabbing.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(3)]
         [Sellable(3168)]
@@ -1013,6 +1017,7 @@ namespace IsengardClient.Backend
         [Sellable(SellableEnum.Junk)]
         CarvedIvoryKey,
 
+        //has a strength requirement
         [SingularName("cat o' nine tails")]
         [PluralName("cat o' nine tailses")] //verified 7/3/23
         [LookText("A whip with nine ends, each with pieces of metal or bone at the end.")]
@@ -1132,6 +1137,7 @@ namespace IsengardClient.Backend
 
         [SingularName("cutlass")]
         [PluralName("cutlasses")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(4)]
         [Sellable(91)]
@@ -1220,6 +1226,13 @@ namespace IsengardClient.Backend
         [LookText("You see a metal band for use around the neck.")]
         [Weight(1)]
         DragonEye,
+
+        //mage training level 15
+        [SingularName("dragon key")]
+        [PluralName("dragon keys")]
+        [LookText("The handle of this key is shaped like a dragon.")]
+        [Weight(1)]
+        DragonKey,
 
         [SingularName("dried seaweed")]
         //CSRTODO: plural?
@@ -1525,6 +1538,7 @@ namespace IsengardClient.Backend
 
         [SingularName("gold sword")]
         [PluralName("gold swords")]
+        [LookText("You see a remarkable gold sword, used mostly for decoration.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(5)]
         [Sellable(1267)]
@@ -1565,6 +1579,14 @@ namespace IsengardClient.Backend
         [Scroll(SpellsEnum.vigor)]
         [Weight(1)]
         GreyScroll,
+
+        [SingularName("grey staff")]
+        //CSRTODO: plural
+        [LookText("It's a tall, grey staff made of gnarled oak wood.")]
+        [Wand(SpellsEnum.vigor)]
+        [Weight(3)]
+        [Sellable(118)]
+        GreyStaff,
 
         [SingularName("guide to the Ituk Glacier")]
         //CSRTODO: plural
@@ -1630,6 +1652,7 @@ namespace IsengardClient.Backend
         HalfGiantChainMailLeggings,
 
         [SingularName("half-giant chain mail sleeves")]
+        [LookText("You see some large chain mail sleeves made specially for half-giants.")]
         [EquipmentType(EquipmentType.Arms)]
         [DisallowedClasses(ClassTypeFlags.Mage)]
         [Weight(15)]
@@ -1894,6 +1917,8 @@ namespace IsengardClient.Backend
         [SingularName("long sword")]
         [PluralName("long swords")]
         [WeaponType(WeaponType.Stab)]
+        [Weight(5)]
+        [Sellable(59)]
         LongSword,
 
         [SingularName("lunch money")]
@@ -2302,8 +2327,10 @@ namespace IsengardClient.Backend
         Ruby,
 
         [SingularName("rusty key")]
-        [PluralName("rusty key")]
+        [PluralName("rusty keys")]
         [ItemClass(ItemClass.Key)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         RustyKey,
 
         [SingularName("sabre")]
@@ -2510,7 +2537,9 @@ namespace IsengardClient.Backend
         [Sellable(198)]
         SpriteBoots,
 
-        [SingularName("sprite leather armor")]
+        //doesn't fit despug
+        [SingularName("sprite leather armor")] //verified collective 7/23/23
+        [LookText("You see some leather armor, fashioned by the sprites for smaller races.")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(7)]
         [Sellable(185)]
@@ -2719,6 +2748,15 @@ namespace IsengardClient.Backend
         [SingularName("translucent sleeves")]
         [EquipmentType(EquipmentType.Arms)]
         TranslucentSleeves,
+
+        //has a strength requirement
+        [SingularName("two-handed sword")]
+        [PluralName("two-handed swords")]
+        [LookText("You see a large sword that requires skill to handle.")]
+        [WeaponType(WeaponType.Slash)]
+        [Weight(12)]
+        [Sellable(693)]
+        TwoHandedSword,
 
         [SingularName("vanishing cream")]
         [PluralName("vanishing creams")]

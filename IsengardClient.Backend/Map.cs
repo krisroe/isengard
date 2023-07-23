@@ -2395,6 +2395,35 @@ namespace IsengardClient.Backend
             e.MustOpen = true;
             AddExit(oDen, oWesternHallway3, "door");
             hauntedMansionGraph.Rooms[oDen] = new PointF(1, 1);
+
+            Room oSecretAlcove = AddRoom("Secret Alcove", "Secret Alcove");
+            e = AddExit(oLivingRoom, oSecretAlcove, "alcove");
+            e.Hidden = true;
+            AddExit(oSecretAlcove, oLivingRoom, "south");
+            hauntedMansionGraph.Rooms[oSecretAlcove] = new PointF(4, 5);
+
+            Room oMustyBasementEntrance = AddRoom("Basement Entrance", "Musty Basement Entrance");
+            e = AddExit(oSecretAlcove, oMustyBasementEntrance, "hatch");
+            e.KeyType = SupportedKeysFlags.RustyKey;
+            e.MustOpen = true;
+            AddExit(oMustyBasementEntrance, oSecretAlcove, "hatch");
+            hauntedMansionGraph.Rooms[oMustyBasementEntrance] = new PointF(6, 2);
+
+            Room oWesternBasement = AddRoom("Western Basement", "Western Basement");
+            AddBidirectionalExits(oWesternBasement, oMustyBasementEntrance, BidirectionalExitType.WestEast);
+            hauntedMansionGraph.Rooms[oWesternBasement] = new PointF(4, 2);
+
+            Room oBasementCorner = AddRoom("Basement Corner", "Southwest Corner of the Basement");
+            AddBidirectionalExits(oWesternBasement, oBasementCorner, BidirectionalExitType.NorthSouth);
+            hauntedMansionGraph.Rooms[oBasementCorner] = new PointF(4, 3);
+
+            Room oBasementCorner2 = AddRoom("Basement Corner", "Southeastern Corner of the Basement");
+            AddBidirectionalExits(oBasementCorner, oBasementCorner2, BidirectionalExitType.WestEast);
+            hauntedMansionGraph.Rooms[oBasementCorner2] = new PointF(4.75F, 3);
+
+            Room oBasementCorner3 = AddRoom("Basement Corner", "Northeastern corner of the Basement");
+            AddBidirectionalExits(oBasementCorner3, oWesternBasement, BidirectionalExitType.SouthwestNortheast);
+            hauntedMansionGraph.Rooms[oBasementCorner3] = new PointF(4, 2);
         }
 
         private void AddUnderBree(Room oNorthBridge, Room oOuthouse, Room oSewerPipeExit)

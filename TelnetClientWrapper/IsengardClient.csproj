@@ -91,11 +91,11 @@
     <Compile Include="frmDisconnected.Designer.cs">
       <DependentUpon>frmDisconnected.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmFerry.cs">
+    <Compile Include="frmItemManagement.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmFerry.Designer.cs">
-      <DependentUpon>frmFerry.cs</DependentUpon>
+    <Compile Include="frmItemManagement.Designer.cs">
+      <DependentUpon>frmItemManagement.cs</DependentUpon>
     </Compile>
     <Compile Include="frmGraph.xaml.cs">
       <DependentUpon>frmGraph.xaml</DependentUpon>
@@ -174,8 +174,8 @@
     <EmbeddedResource Include="frmDisconnected.resx">
       <DependentUpon>frmDisconnected.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmFerry.resx">
-      <DependentUpon>frmFerry.cs</DependentUpon>
+    <EmbeddedResource Include="frmItemManagement.resx">
+      <DependentUpon>frmItemManagement.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmLocationNode.resx">
       <DependentUpon>frmLocationNode.cs</DependentUpon>

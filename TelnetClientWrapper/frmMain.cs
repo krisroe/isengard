@@ -10759,7 +10759,7 @@ BeforeHazy:
                     e.Cancel = true;
                     return;
                 }
-                sioeiList.Add(new SelectedInventoryOrEquipmentItem(itemType, iCounter, isInventory));
+                sioeiList.Add(new SelectedInventoryOrEquipmentItem(ie, itemType, iCounter, isInventory ? ItemLocationType.Inventory : ItemLocationType.Equipment));
             }
             if (sioeiList.Count == 0)
             {
@@ -10905,7 +10905,7 @@ BeforeHazy:
                 }
                 else
                 {
-                    ItemLocationType ilt = sioei.IsInventory ? ItemLocationType.Inventory : ItemLocationType.Equipment;
+                    ItemLocationType ilt = sioei.LocationType;
                     lock (_currentEntityInfo.EntityLock)
                     {
                         bool validateAgainstOtherSources;
@@ -11241,18 +11241,26 @@ BeforeHazy:
             }
         }
 
-        private void tsmiFerry_Click(object sender, EventArgs e)
+        private void tsmiItemManagement_Click(object sender, EventArgs e)
         {
-            BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
-            using (frmFerry frm = new frmFerry(_currentEntityInfo, _gameMap, GetGraphInputs, _settingsData))
+            if (_currentEntityInfo.CurrentRoom != null)
             {
-                if (frm.ShowDialog(this) != DialogResult.OK) return;
-                bwp.InventoryProcessInputType = ItemsToProcessType.ProcessAllItemsInRoom;
-                bwp.InventoryManagementFlow = InventoryManagementWorkflow.Ferry;
-                bwp.TargetRoom = frm.SourceRoom;
-                bwp.InventorySinkRoom = frm.SinkRoom;
+                BackgroundWorkerParameters bwp = new BackgroundWorkerParameters();
+                using (frmItemManagement frm = new frmItemManagement(_currentEntityInfo, _gameMap, GetGraphInputs, _settingsData))
+                {
+                    if (frm.ShowDialog(this) != DialogResult.OK) return;
+                    bwp.InventoryProcessInputType = ItemsToProcessType.ProcessAllItemsInRoom;
+                    bwp.InventoryManagementFlow = InventoryManagementWorkflow.Ferry;
+                    //CSRTODO: finish me!
+                    //bwp.TargetRoom = frm.SourceRoom;
+                    bwp.InventorySinkRoom = frm.SinkRoom;
+                }
+                RunBackgroundProcess(bwp);
             }
-            RunBackgroundProcess(bwp);
+            else
+            {
+                MessageBox.Show("No current room.");
+            }
         }
 
         private void btnRemoveCurrentPermRun_Click(object sender, EventArgs e)

@@ -1980,40 +1980,61 @@ namespace IsengardClient.Backend
             List<SelectedInventoryOrEquipmentItem> ret = new List<SelectedInventoryOrEquipmentItem>();
             ItemTypeEnum? ePrevious = null;
             int iCounter = 0;
-            foreach (ItemEntity ie in EnumerateItems(inventory, equipment))
+            foreach (ItemEntity ie in EnumerateInventoryItems())
             {
-                if (ie.ItemType.HasValue)
+                if (ie.ItemType.HasValue && (classifier == null || classifier(ie)))
                 {
-                    if (classifier == null || classifier(ie))
-                    {
-                        ItemTypeEnum eValue = ie.ItemType.Value;
-                        if (!ePrevious.HasValue || ePrevious != eValue)
-                        {
-                            iCounter = 0;
-                            ePrevious = eValue;
-                        }
-                        iCounter++;
-                        ret.Add(new SelectedInventoryOrEquipmentItem(eValue, iCounter, true));
-                    }
+                    ItemTypeEnum itemTypeValue = ie.ItemType.Value;
+                    if (!ePrevious.HasValue || ePrevious != itemTypeValue) iCounter = 0;
+                    iCounter++;
+                    ePrevious = itemTypeValue;
+                    ret.Add(new SelectedInventoryOrEquipmentItem(ie, itemTypeValue, iCounter, ItemLocationType.Inventory));
+                }
+            }
+            foreach (ItemEntity ie in EnumerateEquipmentItems())
+            {
+                if (ie != null && ie.ItemType.HasValue && (classifier == null || classifier(ie)))
+                {
+                    ItemTypeEnum itemTypeValue = ie.ItemType.Value;
+                    if (!ePrevious.HasValue || ePrevious != itemTypeValue) iCounter = 0;
+                    iCounter++;
+                    ePrevious = itemTypeValue;
+                    ret.Add(new SelectedInventoryOrEquipmentItem(ie, itemTypeValue, iCounter, ItemLocationType.Equipment));
                 }
             }
             return ret;
+        }
+
+        public IEnumerable<ItemEntity> EnumerateInventoryItems()
+        {
+            foreach (ItemEntity next in InventoryItems)
+            {
+                yield return next;
+            }
+        }
+
+        public IEnumerable<ItemEntity> EnumerateEquipmentItems()
+        {
+            foreach (ItemEntity next in Equipment)
+            {
+                if (next != null) yield return next;
+            }
         }
 
         public IEnumerable<ItemEntity> EnumerateItems(bool inventory, bool equipment)
         {
             if (inventory)
             {
-                foreach (ItemEntity next in InventoryItems)
+                foreach (ItemEntity ie in EnumerateInventoryItems())
                 {
-                    yield return next;
+                    yield return ie;
                 }
             }
             if (equipment)
             {
-                foreach (ItemEntity next in Equipment)
+                foreach (ItemEntity ie in EnumerateEquipmentItems())
                 {
-                    if (next != null) yield return next;
+                    yield return ie;
                 }
             }
         }

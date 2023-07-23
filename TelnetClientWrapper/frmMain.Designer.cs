@@ -163,7 +163,7 @@
             this.tsddActions = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsmiSearch = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiHide = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiFerry = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiItemManagement = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiTimeInfo = new System.Windows.Forms.ToolStripMenuItem();
             this.tsddbSettings = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsmiEditSettings = new System.Windows.Forms.ToolStripMenuItem();
@@ -1722,7 +1722,7 @@
             this.tsddActions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiSearch,
             this.tsmiHide,
-            this.tsmiFerry,
+            this.tsmiItemManagement,
             this.tsmiTimeInfo});
             this.tsddActions.Image = ((System.Drawing.Image)(resources.GetObject("tsddActions.Image")));
             this.tsddActions.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -1744,12 +1744,12 @@
             this.tsmiHide.Text = "Hide";
             this.tsmiHide.Click += new System.EventHandler(this.tsmiHide_Click);
             // 
-            // tsmiFerry
+            // tsmiItemManagement
             // 
-            this.tsmiFerry.Name = "tsmiFerry";
-            this.tsmiFerry.Size = new System.Drawing.Size(155, 26);
-            this.tsmiFerry.Text = "Ferry";
-            this.tsmiFerry.Click += new System.EventHandler(this.tsmiFerry_Click);
+            this.tsmiItemManagement.Name = "tsmiItemManagement";
+            this.tsmiItemManagement.Size = new System.Drawing.Size(155, 26);
+            this.tsmiItemManagement.Text = "Ferry";
+            this.tsmiItemManagement.Click += new System.EventHandler(this.tsmiItemManagement_Click);
             // 
             // tsmiTimeInfo
             // 
@@ -2129,7 +2129,7 @@
         private System.Windows.Forms.ToolStripDropDownButton tsddActions;
         private System.Windows.Forms.ToolStripMenuItem tsmiSearch;
         private System.Windows.Forms.ToolStripMenuItem tsmiHide;
-        private System.Windows.Forms.ToolStripMenuItem tsmiFerry;
+        private System.Windows.Forms.ToolStripMenuItem tsmiItemManagement;
         private System.Windows.Forms.GroupBox grpPermRuns;
         private System.Windows.Forms.TextBox txtNextPermRun;
         private System.Windows.Forms.Label lblNextPermRun;

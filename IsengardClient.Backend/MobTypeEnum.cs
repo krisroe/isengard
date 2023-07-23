@@ -1722,6 +1722,10 @@
         [Experience(6)]
         Vagrant,
 
+        [SingularName("vampire")]
+        [PluralName("vampires")]
+        Vampire,
+
         [SingularName("vampire bat")]
         [PluralName("vampire bats")]
         VampireBat,
@@ -1776,6 +1780,7 @@
 
         [SingularName("water turtle")]
         [PluralName("water turtles")]
+        [CannotHarm]
         WaterTurtle,
 
         [SingularName("weaver")]
