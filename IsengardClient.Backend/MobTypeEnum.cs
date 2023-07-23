@@ -1711,8 +1711,11 @@
         [PluralName("traveling minstrels")]
         TravelingMinstrel,
 
+        //resists magic (at least wind/earth) but does not resist stun
         [SingularName("Trakard ogre ranger")]
         [PluralName("Trakard ogre rangers")]
+        [MobVisibility(MobVisibility.Invisible)]
+        [Experience(700)]
         TrakardOgreRanger,
 
         [SingularName("treant")]
