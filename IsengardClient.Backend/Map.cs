@@ -4578,6 +4578,20 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oGrandIntersection, oBreeWestGateOutside, BidirectionalExitType.WestEast);
             westOfBreeMap.Rooms[oGrandIntersection] = new PointF(13, 0);
 
+            Room oLeviathanWay1 = AddRoom("Leviathan Way", "Leviathan Way");
+            AddBidirectionalExits(oGrandIntersection, oLeviathanWay1, BidirectionalExitType.SouthwestNortheast);
+            westOfBreeMap.Rooms[oLeviathanWay1] = new PointF(12, 1);
+
+            Room oLeviathanWay2 = AddRoom("Leviathan Way", "Leviathan Way");
+            AddBidirectionalExits(oLeviathanWay1, oLeviathanWay2, BidirectionalExitType.SouthwestNortheast);
+            westOfBreeMap.Rooms[oLeviathanWay2] = new PointF(11, 2);
+
+            Room oGrassyField = AddRoom("Grassy Field", "Grassy Field");
+            Exit e = AddExit(oGrandIntersection, oGrassyField, "southeast");
+            e.MaximumLevel = 12;
+            AddExit(oGrassyField, oGrandIntersection, "northwest");
+            westOfBreeMap.Rooms[oGrassyField] = new PointF(14, 1);
+
             Room oNorthFork1 = AddRoom("North Fork Road", "North Fork Road");
             AddBidirectionalExits(oNorthFork1, oGrandIntersection, BidirectionalExitType.SoutheastNorthwest);
             westOfBreeMap.Rooms[oNorthFork1] = new PointF(12, -1);
@@ -4645,7 +4659,7 @@ namespace IsengardClient.Backend
             westOfBreeMap.Rooms[oShrapsLaundering] = new PointF(3, -1.25F);
 
             Room oVillageOfHobbiton2 = AddRoom("Village of Hobbiton", "The Village of Hobbiton");
-            Exit e = AddExit(oMainSquareOfHobbiton, oVillageOfHobbiton2, "south");
+            e = AddExit(oMainSquareOfHobbiton, oVillageOfHobbiton2, "south");
             e.MinimumLevel = 4;
             AddExit(oVillageOfHobbiton2, oMainSquareOfHobbiton, "north");
             westOfBreeMap.Rooms[oVillageOfHobbiton2] = new PointF(2, 1);
