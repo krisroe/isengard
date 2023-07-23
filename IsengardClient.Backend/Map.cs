@@ -4654,6 +4654,11 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(arholTheMoneyChanger, oVillageOfHobbiton2, BidirectionalExitType.WestEast);
             westOfBreeMap.Rooms[arholTheMoneyChanger] = new PointF(1, 1);
 
+            Room oHobbitonBuildingComplex = AddRoom("Building Complex", "Hobbiton Building Complex");
+            AddExit(oVillageOfHobbiton2, oHobbitonBuildingComplex, "building");
+            AddExit(oHobbitonBuildingComplex, oVillageOfHobbiton2, "street");
+            westOfBreeMap.Rooms[oHobbitonBuildingComplex] = new PointF(3, 1);
+
             Room oVillageOfHobbiton3 = AddRoom("Village of Hobbiton", "The Village of Hobbiton");
             AddBidirectionalExits(oVillageOfHobbiton3, oMainSquareOfHobbiton, BidirectionalExitType.NorthSouth);
             westOfBreeMap.Rooms[oVillageOfHobbiton3] = new PointF(2, -1);
@@ -4682,6 +4687,10 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oVillageOfHobbiton2, oValleyRoad, BidirectionalExitType.NorthSouth);
             westOfBreeMap.Rooms[oValleyRoad] = new PointF(2, 2);
 
+            Room oThundarrWay = AddRoom("Thundarr Way", "Thundarr Way");
+            AddBidirectionalExits(oThundarrWay, oValleyRoad, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oThundarrWay] = new PointF(1, 2);
+
             Room oHillAtBagEnd = AddRoom("Bag End Hill", "The Hill at Bag End");
             AddBidirectionalExits(oValleyRoad, oHillAtBagEnd, BidirectionalExitType.SoutheastNorthwest);
             westOfBreeMap.Rooms[oHillAtBagEnd] = new PointF(3, 2);
@@ -4690,14 +4699,33 @@ namespace IsengardClient.Backend
             AddBidirectionalExitsWithOut(oHillAtBagEnd, oBilboFrodoHobbitHoleCondo, "down");
             westOfBreeMap.Rooms[oBilboFrodoHobbitHoleCondo] = new PointF(3, 2.25F);
 
+            Room oShortHallway = AddRoom("Short Hallway", "Short Hallway");
+            AddExit(oBilboFrodoHobbitHoleCondo, oShortHallway, "hallway");
+            AddExit(oShortHallway, oBilboFrodoHobbitHoleCondo, "entryway");
+            westOfBreeMap.Rooms[oShortHallway] = new PointF(4, 2.25F);
+
+            Room oStorageRoom = AddRoom("Storage Room", "Storage Room");
+            AddBidirectionalSameNameMustOpenExit(oShortHallway, oStorageRoom, "door");
+            westOfBreeMap.Rooms[oStorageRoom] = new PointF(4, 2);
+
             Room oBilboFrodoCommonArea = AddRoom("Common Area", "Common Area");
             AddBidirectionalSameNameExit(oBilboFrodoHobbitHoleCondo, oBilboFrodoCommonArea, "curtain");
             westOfBreeMap.Rooms[oBilboFrodoCommonArea] = new PointF(3, 2.5F);
+
+            Room oPrivateStudy = AddRoom("Private Study", "Bilbo's Private Study");
+            AddBidirectionalSameNameMustOpenExit(oBilboFrodoCommonArea, oPrivateStudy, "door");
+            westOfBreeMap.Rooms[oPrivateStudy] = new PointF(2, 2.5F);
 
             Room oEastwingHallway = AddRoom("Eastwing Hallway", "Eastwing Hallway");
             AddExit(oBilboFrodoCommonArea, oEastwingHallway, "eastwing");
             AddExit(oEastwingHallway, oBilboFrodoCommonArea, "common");
             westOfBreeMap.Rooms[oEastwingHallway] = new PointF(4, 2.5F);
+
+            Room oBelladonnaTook = AddRoom("Kitchen", "Kitchen");
+            AddPermanentMobs(oBelladonnaTook, MobTypeEnum.BelladonaTook);
+            AddExit(oEastwingHallway, oBelladonnaTook, "doorway");
+            AddExit(oBelladonnaTook, oEastwingHallway, "hallway");
+            westOfBreeMap.Rooms[oBelladonnaTook] = new PointF(5, 2.5F);
 
             Room oSouthwingHallway = AddRoom("Southwing Hallway", "Southwing Hallway");
             AddExit(oEastwingHallway, oSouthwingHallway, "southwing");

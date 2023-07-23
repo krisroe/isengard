@@ -102,6 +102,10 @@
         [PluralName("bears")]
         Bear,
 
+        [SingularName("Belladona Took")]
+        //CSRTODO: no plural
+        BelladonaTook,
+
         [SingularName("Bezanthi")]
         //CSRTODO: no plural
         Bezanthi,
@@ -859,6 +863,10 @@
         [SingularName("Imrahil")]
         //CSRTODO: no plural
         Imrahil,
+
+        [SingularName("incorporeal ghost")]
+        [PluralName("incorporeal ghosts")]
+        IncorporealGhost,
 
         [SingularName("innkeeper")]
         [PluralName("innkeepers")]
