@@ -1213,6 +1213,8 @@
 
         [SingularName("Nathalin the Trader")]
         //CSRTODO: no plural
+        [Alignment(AlignmentType.Grey)]
+        [Experience(200)]
         NathalinTheTrader,
 
         [SingularName("Naugrim")]
@@ -1600,6 +1602,9 @@
         [SingularName("sociopath")]
         [PluralName("sociopaths")]
         Sociopath,
+
+        [SingularName("The Soul of Claudia")]
+        SoulOfClaudia,
 
         [SingularName("spectre")]
         [PluralName("spectres")]

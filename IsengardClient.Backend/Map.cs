@@ -4582,6 +4582,14 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oNorthFork1, oGrandIntersection, BidirectionalExitType.SoutheastNorthwest);
             westOfBreeMap.Rooms[oNorthFork1] = new PointF(12, -1);
 
+            Room oNorthFork2 = AddRoom("North Fork Road", "North Fork Road");
+            AddBidirectionalExits(oNorthFork2, oNorthFork1, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oNorthFork2] = new PointF(11, -2);
+
+            Room oTravelersShrine = AddRoom("Traveler's Shrine", "Traveler's Shrine");
+            AddBidirectionalExitsWithOut(oNorthFork2, oTravelersShrine, "shrine");
+            westOfBreeMap.Rooms[oTravelersShrine] = new PointF(12, -2);
+
             Room oWesternRoad1 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad1, oGrandIntersection, BidirectionalExitType.WestEast);
             westOfBreeMap.Rooms[oWesternRoad1] = new PointF(12, 0);
@@ -4627,11 +4635,28 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oMainSquareOfHobbiton, oVillageOfHobbiton1, BidirectionalExitType.WestEast);
             westOfBreeMap.Rooms[oMainSquareOfHobbiton] = new PointF(2, 0);
 
+            Room oSpreadEagleTavern = AddRoom("Spread Eagle Tavern", "Spread Eagle Tavern");
+            AddBidirectionalExits(oSpreadEagleTavern, oMainSquareOfHobbiton, BidirectionalExitType.SouthwestNortheast);
+            westOfBreeMap.Rooms[oSpreadEagleTavern] = new PointF(3, -1);
+
+            Room oShrapsLaundering = AddRoom("Shrap's Laundering", "Shrap's Laundering");
+            AddPermanentMobs(oShrapsLaundering, MobTypeEnum.SoulOfClaudia);
+            AddBidirectionalExits(oShrapsLaundering, oSpreadEagleTavern, BidirectionalExitType.UpDown);
+            westOfBreeMap.Rooms[oSpreadEagleTavern] = new PointF(3, -1.25F);
+
             Room oVillageOfHobbiton2 = AddRoom("Village of Hobbiton", "The Village of Hobbiton");
             Exit e = AddExit(oMainSquareOfHobbiton, oVillageOfHobbiton2, "south");
             e.MinimumLevel = 4;
             AddExit(oVillageOfHobbiton2, oMainSquareOfHobbiton, "north");
             westOfBreeMap.Rooms[oVillageOfHobbiton2] = new PointF(2, 1);
+
+            Room oVillageOfHobbiton3 = AddRoom("Village of Hobbiton", "The Village of Hobbiton");
+            AddBidirectionalExits(oVillageOfHobbiton3, oMainSquareOfHobbiton, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oVillageOfHobbiton3] = new PointF(2, -1);
+
+            Room oWestronRoad = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad, oVillageOfHobbiton3, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oWestronRoad] = new PointF(2, -2);
 
             Room oValleyRoad = AddRoom("Valley Road", "Valley Road");
             AddBidirectionalExits(oVillageOfHobbiton2, oValleyRoad, BidirectionalExitType.NorthSouth);
