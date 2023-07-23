@@ -11301,52 +11301,25 @@ BeforeHazy:
                         sb.AppendLine($"Celduin Express sailing to Mithlond for {secondsRemaining} seconds.");
                         sb.AppendLine($"Harbringer sailing to Mithlond for {secondsRemaining} seconds.");
                         sb.AppendLine($"Omani Princess sailing to Umbar for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer sailing to Mithlond (glitched) for {secondsRemaining} seconds.");
                         break;
                     case 1:
                         sb.AppendLine($"Celduin Express in Mithlond for {secondsRemaining} seconds.");
                         sb.AppendLine($"Harbringer in Mithlond for {secondsRemaining} seconds.");
                         sb.AppendLine($"Omani Princess in Umbar for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer in Mithlond (but cannot board) for {secondsRemaining} seconds.");
                         break;
                     case 2:
                         sb.AppendLine($"Celduin Express sailing to Bree for {secondsRemaining} seconds.");
                         sb.AppendLine($"Harbringer sailing to Tharbad for {secondsRemaining} seconds.");
                         sb.AppendLine($"Omani Princess sailing to Mithlond for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer sailing to Nindamos (glitched) for {secondsRemaining} seconds.");
                         break;
                     case 3:
                         sb.AppendLine($"Celduin Express in Bree for {secondsRemaining} seconds.");
                         sb.AppendLine($"Harbringer in Tharbad for {secondsRemaining} seconds.");
                         sb.AppendLine($"Omani Princess in Mithlond for {secondsRemaining} seconds.");
-                        break;
-                }
-                minutesIntoCycle = (DateTime.UtcNow - dtCycle).TotalMinutes % 8;
-                minutesIntoCurrentCycle = minutesIntoCycle % 1;
-                cycleNumber = Convert.ToInt32(minutesIntoCycle - minutesIntoCurrentCycle);
-                secondsRemaining = (60 - (60 * (minutesIntoCycle - cycleNumber))).ToString("N1");
-                switch (cycleNumber)
-                {
-                    case 0:
-                        sb.AppendLine($"Bullroarer sailing from Mithlond for {secondsRemaining} seconds.");
-                        break;
-                    case 1:
-                        sb.AppendLine($"Bullroarer can exit to Mithlond for {secondsRemaining} seconds.");
-                        break;
-                    case 2:
-                        sb.AppendLine($"Bullroarer sailing for Nindamos for {secondsRemaining} seconds.");
-                        break;
-                    case 3:
-                        sb.AppendLine($"Bullroarer in Nindamos, can board in Mithlond for {secondsRemaining} seconds.");
-                        break;
-                    case 4:
-                        sb.AppendLine($"Bullroarer sailing from Nindamos for {secondsRemaining} seconds.");
-                        break;
-                    case 5:
-                        sb.AppendLine($"Bullroarer can exit to Mithlond for {secondsRemaining} seconds.");
-                        break;
-                    case 6:
-                        sb.AppendLine($"Bullroarer sailing for Mithlond for {secondsRemaining} seconds.");
-                        break;
-                    case 7:
-                        sb.AppendLine($"Bullroarer can board in Mithlond, exit to Nindamos for {secondsRemaining} seconds.");
+                        sb.AppendLine($"Bullroarer in Nindamos, also can board in Mithlond for {secondsRemaining} seconds.");
                         break;
                 }
             }
@@ -11363,7 +11336,6 @@ BeforeHazy:
             double dRet = 0;
             if (boatExit != BoatExitType.None)
             {
-                int cycleLength;
                 List<int> targetCycles = new List<int>();
                 switch (boatExit)
                 {
@@ -11373,7 +11345,6 @@ BeforeHazy:
                     case BoatExitType.MithlondExitHarbringer:
                     case BoatExitType.UmbarEnterOmaniPrincess:
                     case BoatExitType.UmbarExitOmaniPrincess:
-                        cycleLength = 4;
                         targetCycles.Add(1);
                         break;
                     case BoatExitType.BreeEnterCelduinExpress:
@@ -11381,33 +11352,25 @@ BeforeHazy:
                     case BoatExitType.TharbadEnterHarbringer:
                     case BoatExitType.MithlondEnterOmaniPrincess:
                     case BoatExitType.MithlondExitOmaniPrincess:
-                        cycleLength = 4;
                         targetCycles.Add(3);
                         break;
                     case BoatExitType.NindamosEnterBullroarer:
-                        cycleLength = 8;
                         targetCycles.Add(3);
                         break;
                     case BoatExitType.NindamosExitBullroarer:
-                        cycleLength = 8;
                         targetCycles.Add(3);
-                        targetCycles.Add(7);
                         break;
                     case BoatExitType.MithlondEnterBullroarer:
-                        cycleLength = 8;
                         targetCycles.Add(3);
-                        targetCycles.Add(7);
                         break;
                     case BoatExitType.MithlondExitBullroarer:
-                        cycleLength = 8;
                         targetCycles.Add(1);
-                        targetCycles.Add(5);
                         break;
                     default:
                         throw new InvalidOperationException();
                 }
                 DateTime dtCycle = _serverStartTime;
-                double minutesIntoCycle = (DateTime.UtcNow - dtCycle).TotalMinutes % cycleLength;
+                double minutesIntoCycle = (DateTime.UtcNow - dtCycle).TotalMinutes % 4;
                 double minutesIntoCurrentCycle = minutesIntoCycle % 1;
                 int cycleNumber = Convert.ToInt32(minutesIntoCycle - minutesIntoCurrentCycle);
                 if (!targetCycles.Contains(cycleNumber))
@@ -11415,7 +11378,7 @@ BeforeHazy:
                     dRet = 60 - (60 * (minutesIntoCycle - cycleNumber));
                     while (true)
                     {
-                        cycleNumber = (cycleNumber + 1) % cycleLength;
+                        cycleNumber = (cycleNumber + 1) % 4;
                         if (targetCycles.Contains(cycleNumber))
                             break;
                         else
