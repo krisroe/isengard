@@ -1193,6 +1193,7 @@ namespace IsengardClient.Backend
 
         [SingularName("diamond")]
         [PluralName("diamonds")]
+        [LookText("It's a sparkling diamond of at least 18 carats.")]
         [ItemClass(ItemClass.Gem)]
         [Weight(1)]
         [Sellable(371)]
@@ -1972,8 +1973,10 @@ namespace IsengardClient.Backend
 
         [SingularName("mask of distortion")]
         [PluralName("mask of distortions")] //verified 7/9/23
+        [LookText("You see a strange looking mask that appears to distort your image.")]
         [EquipmentType(EquipmentType.Face)]
         [Weight(3)]
+        [ArmorClass(0.5)]
         [Sellable(308)]
         MaskOfDistortion,
 

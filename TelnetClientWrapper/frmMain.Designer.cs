@@ -1748,7 +1748,7 @@
             // 
             this.tsmiItemManagement.Name = "tsmiItemManagement";
             this.tsmiItemManagement.Size = new System.Drawing.Size(155, 26);
-            this.tsmiItemManagement.Text = "Ferry";
+            this.tsmiItemManagement.Text = "Item Management";
             this.tsmiItemManagement.Click += new System.EventHandler(this.tsmiItemManagement_Click);
             // 
             // tsmiTimeInfo
