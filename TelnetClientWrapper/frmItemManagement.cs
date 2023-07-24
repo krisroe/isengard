@@ -241,7 +241,7 @@ namespace IsengardClient
             Room rSource = _cei.CurrentRoom;
             if (haveTargetItems)
             {
-                if (cboTargetRoom.SelectedIndex == 0)
+                if (cboTargetRoom.SelectedIndex <= 0)
                 {
                     MessageBox.Show("No target room selected.");
                     return;

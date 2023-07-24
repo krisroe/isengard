@@ -800,6 +800,7 @@ namespace IsengardClient.Backend
 
         [SingularName("animal hides")]
         //CSRTODO: plural
+        [LookText("The hide looks as though it could make a decent piece of armor.")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(5)]
         [ArmorClass(0.2)]

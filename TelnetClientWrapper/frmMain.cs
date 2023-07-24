@@ -6081,7 +6081,7 @@ BeforeHazy:
                             if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, siwt.ItemType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
                             {
                                 somethingDone = true;
-                                siwts.RemoveAt(i);
+                                SelectedItemsWithTargets.Remove(siwt);
                             }
                             else
                             {
