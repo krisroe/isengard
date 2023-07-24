@@ -1227,6 +1227,14 @@ namespace IsengardClient.Backend
         [Sellable(148)]
         DiamondLaurelRing,
 
+        [SingularName("diamond-studded stiletto")]
+        //CSRTODO: plural
+        [LookText("It's a beautiful weapon, completely covered in gold and diamonds.")]
+        [WeaponType(WeaponType.Stab)]
+        [Weight(6)]
+        [Sellable(10000)]
+        DiamondStuddedStiletto,
+
         [SingularName("dildo")]
         [PluralName("dildos")]
         Dildo,
