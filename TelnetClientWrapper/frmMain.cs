@@ -6784,6 +6784,7 @@ TryUnlockExit:
                                     backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.UnlockExit, "unlock " + sExitWord + " " + sItemText, pms, abortLogic, false);
                                     if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
                                     {
+                                        pr.SupportedKeys |= keyType;
                                         exitAvailable = true;
                                         break;
                                     }

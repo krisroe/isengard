@@ -4148,6 +4148,18 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oImladrisCircle3, oImladrisCircle2, BidirectionalExitType.SouthwestNortheast);
             imladrisGraph.Rooms[oImladrisCircle3] = new PointF(5, 1);
 
+            Room oElvenTrainingGrounds = AddRoom("Training Grounds", "Elven Training Grounds");
+            AddBidirectionalExits(oImladrisCircle3, oElvenTrainingGrounds, BidirectionalExitType.NorthSouth);
+            imladrisGraph.Rooms[oElvenTrainingGrounds] = new PointF(5, 1.75F);
+
+            Room oHandToHandArena = AddRoom("Hand2Hand Arena", "Hand-To-Hand Combat Arena");
+            AddBidirectionalExits(oElvenTrainingGrounds, oHandToHandArena, BidirectionalExitType.SoutheastNorthwest);
+            imladrisGraph.Rooms[oHandToHandArena] = new PointF(5.5F, 2);
+
+            Room oDragonArena = AddRoom("Dragon Arena", "The Dragon Arena");
+            AddBidirectionalExits(oElvenTrainingGrounds, oDragonArena, BidirectionalExitType.SouthwestNortheast);
+            imladrisGraph.Rooms[oDragonArena] = new PointF(4.5F, 2);
+
             Room oLoreElesStronghold = AddRoom("Lore Ele's Stronghold", "Lore Ele's Stronghold");
             AddPermanentMobs(oLoreElesStronghold, MobTypeEnum.EleHonorGuard, MobTypeEnum.EleHonorGuard);
             AddBidirectionalSameNameExit(oImladrisCircle3, oLoreElesStronghold, "gate");
@@ -4155,7 +4167,7 @@ namespace IsengardClient.Backend
 
             Room oImladrisCircle4 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(oImladrisCircle3, oImladrisCircle4, BidirectionalExitType.SoutheastNorthwest);
-            p = new PointF(5 + (4F / 3), 1 + (4F / 3));
+            p = new PointF(6 + (4F / 3), 1 + (4F / 3));
             imladrisGraph.Rooms[oImladrisCircle4] = p;
 
             Room oSmithy = AddRoom("Smithy", "Axel's Repair Shoppe");
@@ -4164,7 +4176,7 @@ namespace IsengardClient.Backend
 
             Room oImladrisCircle5 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(oImladrisCircle4, oImladrisCircle5, BidirectionalExitType.SoutheastNorthwest);
-            imladrisGraph.Rooms[oImladrisCircle5] = new PointF(5 + (8F / 3), 1 + (8F / 3));
+            imladrisGraph.Rooms[oImladrisCircle5] = new PointF(6 + (8F / 3), 1 + (8F / 3));
 
             Room oImladrisMainStreet1 = AddRoom("Main", "Imladris Main Street");
             AddBidirectionalExits(imladrisWestGateInside, oImladrisMainStreet1, BidirectionalExitType.WestEast);
@@ -4236,22 +4248,22 @@ namespace IsengardClient.Backend
             oEastGateOfImladrisInside = AddRoom("East Gate Inside", "East Gate of Imladris");
             AddBidirectionalExits(oImladrisCircle5, oEastGateOfImladrisInside, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oImladrisMainStreet6, oEastGateOfImladrisInside, BidirectionalExitType.WestEast);
-            imladrisGraph.Rooms[oEastGateOfImladrisInside] = new PointF(9, 5);
+            imladrisGraph.Rooms[oEastGateOfImladrisInside] = new PointF(10, 5);
 
             oEastGateOfImladrisOutside = AddRoom("East Gate Outside", "Gates of Imladris");
             e = AddExit(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, "gate");
             e.MinimumLevel = 3;
             AddExit(oEastGateOfImladrisOutside, oEastGateOfImladrisInside, "gate");
-            imladrisGraph.Rooms[oEastGateOfImladrisOutside] = new PointF(10, 5);
+            imladrisGraph.Rooms[oEastGateOfImladrisOutside] = new PointF(11, 5);
             AddMapBoundaryPoint(oEastGateOfImladrisInside, oEastGateOfImladrisOutside, MapType.Imladris, MapType.EastOfImladris);
 
             Room oImladrisCircle6 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(oEastGateOfImladrisInside, oImladrisCircle6, BidirectionalExitType.SouthwestNortheast);
-            imladrisGraph.Rooms[oImladrisCircle6] = new PointF(9 - (4F / 3), 5 + (4F / 3));
+            imladrisGraph.Rooms[oImladrisCircle6] = new PointF(10 - (4F / 3), 5 + (4F / 3));
 
             Room oImladrisCircle7 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(oImladrisCircle6, oImladrisCircle7, BidirectionalExitType.SouthwestNortheast);
-            imladrisGraph.Rooms[oImladrisCircle7] = new PointF(9 - (8F / 3), 5 + (8F / 3));
+            imladrisGraph.Rooms[oImladrisCircle7] = new PointF(10 - (8F / 3), 5 + (8F / 3));
 
             Room oImladrisCircle10 = AddRoom("Circle", "Imladris Circle");
             AddBidirectionalExits(imladrisWestGateInside, oImladrisCircle10, BidirectionalExitType.SoutheastNorthwest);

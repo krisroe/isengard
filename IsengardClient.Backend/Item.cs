@@ -356,6 +356,26 @@ namespace IsengardClient.Backend
         public ItemLocationType LocationType;
     }
 
+    public enum ColumnType
+    {
+        None,
+        Source,
+        Target,
+        SellOrJunk,
+        Tick,
+        Inventory,
+        Equipment,
+    }
+
+    public class SelectedItemWithTarget
+    {
+        public ItemEntity ItemEntity;
+        public ItemTypeEnum ItemType;
+        public int Counter;
+        public ItemLocationType LocationType;
+        public ColumnType Target;
+    }
+
     public class StaticItemData
     {
         public bool IsCurrency()

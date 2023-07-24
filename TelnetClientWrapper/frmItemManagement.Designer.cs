@@ -182,7 +182,6 @@
             this.colSource.HeaderText = "Source";
             this.colSource.MinimumWidth = 6;
             this.colSource.Name = "colSource";
-            this.colSource.ReadOnly = true;
             this.colSource.Width = 125;
             // 
             // colTarget
@@ -190,7 +189,6 @@
             this.colTarget.HeaderText = "Target";
             this.colTarget.MinimumWidth = 6;
             this.colTarget.Name = "colTarget";
-            this.colTarget.ReadOnly = true;
             this.colTarget.Width = 125;
             // 
             // colTick
@@ -198,7 +196,6 @@
             this.colTick.HeaderText = "Tick";
             this.colTick.MinimumWidth = 6;
             this.colTick.Name = "colTick";
-            this.colTick.ReadOnly = true;
             this.colTick.Width = 125;
             // 
             // colSellOrJunk
@@ -206,7 +203,6 @@
             this.colSellOrJunk.HeaderText = "Sell/Junk";
             this.colSellOrJunk.MinimumWidth = 6;
             this.colSellOrJunk.Name = "colSellOrJunk";
-            this.colSellOrJunk.ReadOnly = true;
             this.colSellOrJunk.Width = 125;
             // 
             // colInventory
@@ -214,7 +210,6 @@
             this.colInventory.HeaderText = "Inventory";
             this.colInventory.MinimumWidth = 6;
             this.colInventory.Name = "colInventory";
-            this.colInventory.ReadOnly = true;
             this.colInventory.Width = 125;
             // 
             // colEquipment
@@ -222,10 +217,9 @@
             this.colEquipment.HeaderText = "Equipment";
             this.colEquipment.MinimumWidth = 6;
             this.colEquipment.Name = "colEquipment";
-            this.colEquipment.ReadOnly = true;
             this.colEquipment.Width = 125;
             // 
-            // frmFerry
+            // frmItemManagement
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -236,7 +230,7 @@
             this.Font = new System.Drawing.Font("Arial", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MinimizeBox = false;
-            this.Name = "frmFerry";
+            this.Name = "frmItemManagement";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Item Management";

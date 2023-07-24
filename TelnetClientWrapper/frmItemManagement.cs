@@ -19,9 +19,17 @@ namespace IsengardClient
             }
         }
 
+        public List<SelectedItemWithTarget> ItemsToChange
+        {
+            get;
+            set;
+        }
+
         public frmItemManagement(CurrentEntityInfo cei, IsengardMap gameMap, Func<GraphInputs> GraphInputs, IsengardSettingData settings)
         {
             InitializeComponent();
+
+            dgvItems.AlternatingRowsDefaultCellStyle = UIShared.GetAlternatingDataGridViewCellStyle();
 
             _cei = cei;
             _gameMap = gameMap;
@@ -94,41 +102,110 @@ namespace IsengardClient
             bool isEquipment = sioei.LocationType == ItemLocationType.Equipment;
             int iIndex = dgvItems.Rows.Add(sid.SingularName, sioei.LocationType.ToString(), isSource, false, false, false, isInventory, isEquipment);
             DataGridViewRow dgvr = dgvItems.Rows[iIndex];
+            int iColIndex;
+            if (isSource)
+                iColIndex = colSource.Index;
+            else if (isInventory)
+                iColIndex = colInventory.Index;
+            else if (isEquipment)
+                iColIndex = colEquipment.Index;
+            else
+                throw new InvalidOperationException();
+            dgvr.Cells[iColIndex].ReadOnly = true;
             dgvr.Tag = sioei;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (cboTargetRoom.SelectedIndex == 0)
+            bool haveTargetItems = false;
+            ItemsToChange = new List<SelectedItemWithTarget>();
+            foreach (DataGridViewRow dgvr in dgvItems.Rows)
             {
-                MessageBox.Show("No target room selected.");
-                return;
-            }
-            
-            Room rSource = _cei.CurrentRoom;
-            Room rSink = ((RoomEntry)cboTargetRoom.SelectedItem).Room;
-            if (rSource == rSink)
-            {
-                MessageBox.Show("Source room cannot be the same as the target room.");
-                return;
+                SelectedInventoryOrEquipmentItem sioei = (SelectedInventoryOrEquipmentItem)dgvr.Tag;
+                ColumnType ct = ColumnType.None;
+                ColumnType ctCheck = ColumnType.None;
+                switch (sioei.LocationType)
+                {
+                    case ItemLocationType.Room:
+                        ctCheck = ColumnType.Source;
+                        break;
+                    case ItemLocationType.Inventory:
+                        ctCheck = ColumnType.Inventory;
+                        break;
+                    case ItemLocationType.Equipment:
+                        ctCheck = ColumnType.Equipment;
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+                if (Convert.ToBoolean(dgvr.Cells[colTarget.Index].Value))
+                {
+                    ct = ColumnType.Target;
+                    haveTargetItems = true;
+                }
+                else if (Convert.ToBoolean(dgvr.Cells[colSource.Index].Value))
+                {
+                    ct = ColumnType.Source;
+                }
+                else if (Convert.ToBoolean(dgvr.Cells[colSellOrJunk.Index].Value))
+                {
+                    ct = ColumnType.SellOrJunk;
+                }
+                else if (Convert.ToBoolean(dgvr.Cells[colTick.Index].Value))
+                {
+                    ct = ColumnType.Tick;
+                }
+                else if (Convert.ToBoolean(dgvr.Cells[colInventory.Index].Value))
+                {
+                    ct = ColumnType.Inventory;
+                }
+                else if (Convert.ToBoolean(dgvr.Cells[colEquipment.Index].Value))
+                {
+                    ct = ColumnType.Inventory;
+                }
+                if (ct != ColumnType.None && ct != ctCheck)
+                {
+                    SelectedItemWithTarget siwt = new SelectedItemWithTarget();
+                    siwt.ItemEntity = sioei.ItemEntity;
+                    siwt.ItemType = sioei.ItemType;
+                    siwt.LocationType = sioei.LocationType;
+                    siwt.Target = ct;
+                    ItemsToChange.Add(siwt);
+                }
             }
 
-            GraphInputs gi = _GraphInputs();
-            if (_currentRoom != rSource &&  MapComputation.ComputeLowestCostPath(_currentRoom, rSource, gi) == null)
+            Room rSource = _cei.CurrentRoom;
+            if (haveTargetItems)
             {
-                MessageBox.Show("Cannot find path to source room.");
-                return;
+                if (cboTargetRoom.SelectedIndex == 0)
+                {
+                    MessageBox.Show("No target room selected.");
+                    return;
+                }
+                Room rSink = ((RoomEntry)cboTargetRoom.SelectedItem).Room;
+                if (rSource == rSink)
+                {
+                    MessageBox.Show("Source room cannot be the same as the target room.");
+                    return;
+                }
+                GraphInputs gi = _GraphInputs();
+                if (_currentRoom != rSource && MapComputation.ComputeLowestCostPath(_currentRoom, rSource, gi) == null)
+                {
+                    MessageBox.Show("Cannot find path to source room.");
+                    return;
+                }
+                if (MapComputation.ComputeLowestCostPath(rSource, rSink, gi) == null)
+                {
+                    MessageBox.Show("Cannot find path from source room to target room.");
+                    return;
+                }
+                if (MapComputation.ComputeLowestCostPath(rSink, rSource, gi) == null)
+                {
+                    MessageBox.Show("Cannot find path from target room to source room.");
+                    return;
+                }
             }
-            if (MapComputation.ComputeLowestCostPath(rSource, rSink, gi) == null)
-            {
-                MessageBox.Show("Cannot find path from source room to target room.");
-                return;
-            }
-            if (MapComputation.ComputeLowestCostPath(rSink, rSource, gi) == null)
-            {
-                MessageBox.Show("Cannot find path from target room to source room.");
-                return;
-            }
+
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -227,24 +304,73 @@ namespace IsengardClient
 
         private void dgvItems_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            int iColIndex = e.ColumnIndex;
-            if (iColIndex == colTarget.Index ||
-                iColIndex == colSource.Index ||
-                iColIndex == colSellOrJunk.Index ||
-                iColIndex == colTick.Index ||
-                iColIndex == colInventory.Index ||
-                iColIndex == colEquipment.Index)
+            int iRowIndex = e.RowIndex;
+            if (iRowIndex >= 0)
             {
-                DataGridViewRow dgvr = dgvItems.Rows[e.RowIndex];
-                DataGridViewCheckBoxCell cell = (DataGridViewCheckBoxCell)dgvr.Cells[iColIndex];
-                if (Convert.ToBoolean(cell.Value))
+                int iColIndex = e.ColumnIndex;
+                if (iColIndex == colTarget.Index ||
+                    iColIndex == colSource.Index ||
+                    iColIndex == colSellOrJunk.Index ||
+                    iColIndex == colTick.Index ||
+                    iColIndex == colInventory.Index ||
+                    iColIndex == colEquipment.Index)
                 {
-                    if (iColIndex != colTarget.Index) dgvr.Cells[colTarget.Index].Value = false;
-                    if (iColIndex != colSource.Index) dgvr.Cells[colSource.Index].Value = false;
-                    if (iColIndex != colSellOrJunk.Index) dgvr.Cells[colSellOrJunk.Index].Value = false;
-                    if (iColIndex != colTick.Index) dgvr.Cells[colTick.Index].Value = false;
-                    if (iColIndex != colInventory.Index) dgvr.Cells[colInventory.Index].Value = false;
-                    if (iColIndex != colEquipment.Index) dgvr.Cells[colEquipment.Index].Value = false;
+                    DataGridViewRow dgvr = dgvItems.Rows[e.RowIndex];
+                    SelectedInventoryOrEquipmentItem sioei = (SelectedInventoryOrEquipmentItem)dgvr.Tag;
+                    DataGridViewCheckBoxCell cell = (DataGridViewCheckBoxCell)dgvr.Cells[iColIndex];
+                    if (Convert.ToBoolean(cell.Value))
+                    {
+                        if (iColIndex != colTarget.Index) dgvr.Cells[colTarget.Index].Value = false;
+                        if (iColIndex != colSource.Index)
+                        {
+                            dgvr.Cells[colSource.Index].ReadOnly = false;
+                            dgvr.Cells[colSource.Index].Value = false;
+                        }
+                        else
+                        {
+                            dgvr.Cells[colSource.Index].ReadOnly = true;
+                        }
+                        if (iColIndex != colSellOrJunk.Index) dgvr.Cells[colSellOrJunk.Index].Value = false;
+                        if (iColIndex != colTick.Index) dgvr.Cells[colTick.Index].Value = false;
+                        if (iColIndex != colInventory.Index)
+                        {
+                            dgvr.Cells[colInventory.Index].ReadOnly = false;
+                            dgvr.Cells[colInventory.Index].Value = false;
+                        }
+                        else
+                        {
+                            dgvr.Cells[colInventory.Index].ReadOnly = true;
+                        }
+                        if (iColIndex != colEquipment.Index)
+                        {
+                            dgvr.Cells[colEquipment.Index].ReadOnly = false;
+                            dgvr.Cells[colEquipment.Index].Value = false;
+                        }
+                        else
+                        {
+                            dgvr.Cells[colEquipment.Index].ReadOnly = true;
+                        }
+                    }
+                    else if (!Convert.ToBoolean(dgvr.Cells[colTarget.Index].Value) 
+                          && !Convert.ToBoolean(dgvr.Cells[colSource.Index].Value)
+                          && !Convert.ToBoolean(dgvr.Cells[colSellOrJunk.Index].Value)
+                          && !Convert.ToBoolean(dgvr.Cells[colTick.Index].Value)
+                          && !Convert.ToBoolean(dgvr.Cells[colInventory.Index].Value)
+                          && !Convert.ToBoolean(dgvr.Cells[colEquipment.Index].Value))
+                    {
+                        switch (sioei.LocationType)
+                        {
+                            case ItemLocationType.Room:
+                                dgvr.Cells[colSource.Index].Value = true;
+                                break;
+                            case ItemLocationType.Inventory:
+                                dgvr.Cells[colInventory.Index].Value = true;
+                                break;
+                            case ItemLocationType.Equipment:
+                                dgvr.Cells[colEquipment.Index].Value = true;
+                                break;
+                        }
+                    }
                 }
             }
         }
