@@ -1405,7 +1405,9 @@ namespace IsengardClient.Backend
 
         [SingularName("Faded map")]
         [PluralName("Faded maps")]
+        [LookText("You see a map written in a strange language, who could possibly decipher it?")]
         [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         FadedMap,
 
         [SingularName("firecracker")]
