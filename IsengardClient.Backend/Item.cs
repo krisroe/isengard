@@ -1764,6 +1764,15 @@ namespace IsengardClient.Backend
         [Sellable(SellableEnum.Junk)]
         IronRing,
 
+        [SingularName("iron skull")]
+        [PluralName("iron skulls")]
+        [LookText("A iron figurine forged in the shape of a humanoid skull.")]
+        [EquipmentType(EquipmentType.Head)]
+        [Weight(4)]
+        [ArmorClass(1)]
+        [Sellable(49)]
+        IronSkull,
+
         [SingularName("iron spear")]
         [PluralName("iron spears")]
         [LookText("You see an iron spear which appears to be glowing faintly.")]

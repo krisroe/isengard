@@ -1158,6 +1158,7 @@
 
         [SingularName("minstrel of Esgaroth")]
         [PluralName("minstrels of Esgaroth")]
+        [Experience(1000)]
         MinstrelOfEsgaroth,
 
         [SingularName("mistress")]
@@ -1855,6 +1856,10 @@
         [SingularName("wolf")]
         [PluralName("wolves")]
         Wolf,
+
+        [SingularName("wooly mammoth")]
+        [PluralName("wooly mammoths")]
+        WoolyMammoth,
 
         [SingularName("worker")]
         [PluralName("workers")]
