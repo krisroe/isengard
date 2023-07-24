@@ -30,7 +30,6 @@
         {
             this.btnTargetLocations = new System.Windows.Forms.Button();
             this.btnTargetGraph = new System.Windows.Forms.Button();
-            this.cboTargetRoom = new System.Windows.Forms.ComboBox();
             this.lblTarget = new System.Windows.Forms.Label();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
@@ -44,7 +43,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.cboTargetRoom = new System.Windows.Forms.ComboBox();
             this.lblTickRoom = new System.Windows.Forms.Label();
             this.cboTickRoom = new System.Windows.Forms.ComboBox();
             this.dgvItems = new System.Windows.Forms.DataGridView();
@@ -81,16 +80,6 @@
             this.btnTargetGraph.Text = "Graph";
             this.btnTargetGraph.UseVisualStyleBackColor = true;
             this.btnTargetGraph.Click += new System.EventHandler(this.btnTargetGraph_Click);
-            // 
-            // cboTargetRoom
-            // 
-            this.cboTargetRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboTargetRoom.FormattingEnabled = true;
-            this.cboTargetRoom.Location = new System.Drawing.Point(149, 19);
-            this.cboTargetRoom.Margin = new System.Windows.Forms.Padding(4);
-            this.cboTargetRoom.Name = "cboTargetRoom";
-            this.cboTargetRoom.Size = new System.Drawing.Size(528, 27);
-            this.cboTargetRoom.TabIndex = 16;
             // 
             // lblTarget
             // 
@@ -142,7 +131,6 @@
             this.pnlTop.Controls.Add(this.btnTargetGraph);
             this.pnlTop.Controls.Add(this.lblTarget);
             this.pnlTop.Controls.Add(this.btnTargetLocations);
-            this.pnlTop.Controls.Add(this.cboTargetRoom);
             this.pnlTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTop.Location = new System.Drawing.Point(0, 0);
             this.pnlTop.Name = "pnlTop";
@@ -158,7 +146,7 @@
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.button2);
-            this.panel1.Controls.Add(this.comboBox2);
+            this.panel1.Controls.Add(this.cboTargetRoom);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
@@ -215,6 +203,7 @@
             this.button1.TabIndex = 17;
             this.button1.Text = "Graph";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.btnTargetLocations_Click);
             // 
             // label2
             // 
@@ -234,16 +223,17 @@
             this.button2.TabIndex = 18;
             this.button2.Text = "Locations";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.btnTargetGraph_Click);
             // 
-            // comboBox2
+            // cboTargetRoom
             // 
-            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(149, 19);
-            this.comboBox2.Margin = new System.Windows.Forms.Padding(4);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(528, 27);
-            this.comboBox2.TabIndex = 16;
+            this.cboTargetRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboTargetRoom.FormattingEnabled = true;
+            this.cboTargetRoom.Location = new System.Drawing.Point(149, 19);
+            this.cboTargetRoom.Margin = new System.Windows.Forms.Padding(4);
+            this.cboTargetRoom.Name = "cboTargetRoom";
+            this.cboTargetRoom.Size = new System.Drawing.Size(528, 27);
+            this.cboTargetRoom.TabIndex = 16;
             // 
             // lblTickRoom
             // 
@@ -378,7 +368,6 @@
         #endregion
         private System.Windows.Forms.Button btnTargetLocations;
         private System.Windows.Forms.Button btnTargetGraph;
-        private System.Windows.Forms.ComboBox cboTargetRoom;
         private System.Windows.Forms.Label lblTarget;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
@@ -401,7 +390,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox cboTargetRoom;
         private System.Windows.Forms.Label lblTickRoom;
         private System.Windows.Forms.ComboBox cboTickRoom;
     }

@@ -16,7 +16,7 @@ namespace IsengardClient
             get
             {
                 Room ret;
-                if (cboTargetRoom.SelectedItem == null)
+                if (cboTargetRoom.SelectedIndex == 0)
                     ret = null;
                 else
                     ret = ((RoomEntry)cboTargetRoom.SelectedItem).Room;
@@ -120,25 +120,7 @@ namespace IsengardClient
             foreach (Area a in settings.EnumerateAreas())
             {
                 r = a.InventorySinkRoomObject;
-                if (r != null && !targetRooms.Contains(r))
-                {
-                    targetRooms.Add(r);
-                    cboTargetRoom.Items.Add(new RoomEntry(r));
-                }
-            }
-            foreach (HealingRoom next in Enum.GetValues(typeof(HealingRoom)))
-            {
-                r = gameMap.HealingRooms[next];
-                if (!targetRooms.Contains(r))
-                {
-                    targetRooms.Add(r);
-                    cboTargetRoom.Items.Add(new RoomEntry(r));
-                }
-            }
-            foreach (PawnShoppe next in Enum.GetValues(typeof(PawnShoppe)))
-            {
-                r = gameMap.PawnShoppes[next];
-                if (!targetRooms.Contains(r))
+                if (r != null && r != _currentRoom && !targetRooms.Contains(r))
                 {
                     targetRooms.Add(r);
                     cboTargetRoom.Items.Add(new RoomEntry(r));
@@ -300,22 +282,12 @@ namespace IsengardClient
 
         private void btnTargetLocations_Click(object sender, EventArgs e)
         {
-            DisplayLocations();
-        }
-
-        private void btnTargetGraph_Click(object sender, EventArgs e)
-        {
-            DisplayGraph();
-        }
-
-        private void DisplayLocations()
-        {
             frmLocations locationsForm = new frmLocations(_gameMap, _settings, _currentRoom, true, _GraphInputs, false);
             locationsForm.ShowDialog();
             EnsureRoomSelectedInDropdown(cboTargetRoom, locationsForm.SelectedRoom);
         }
 
-        private void DisplayGraph()
+        private void btnTargetGraph_Click(object sender, EventArgs e)
         {
             frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, _GraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation, false);
             graphForm.ShowDialog();
