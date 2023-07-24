@@ -5614,12 +5614,12 @@ BeforeHazy:
                 if (SelectedItemsWithTargets == null)
                 {
                     List<SelectedInventoryOrEquipmentItem> sioeis = new List<SelectedInventoryOrEquipmentItem>();
-                    lock (_currentEntityInfo.EntityLock)
-                    {
                         string sPreviousValue = null;
                         ItemTypeEnum? ePreviousValue = null;
                         int iCounter = 0;
-                        if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom)
+                    if (eInvProcessInputs == ItemsToProcessType.ProcessAllItemsInRoom)
+                    {
+                        lock (_currentEntityInfo.EntityLock)
                         {
                             foreach (ItemEntity ie in _currentEntityInfo.CurrentRoomItems)
                             {
@@ -5651,13 +5651,16 @@ BeforeHazy:
                                 sioeis.Add(new SelectedInventoryOrEquipmentItem(ie, ie.ItemType, iCounter, ItemLocationType.Room));
                             }
                         }
-                        else if (eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops)
+                    }
+                    else if (eInvProcessInputs == ItemsToProcessType.ProcessMonsterDrops)
+                    {
+                        List<ItemEntity> monsterItems = new List<ItemEntity>(_monsterKilledItems);
+                        if (monsterItems.Count > 0)
                         {
-                            List<ItemEntity> monsterItems = new List<ItemEntity>(_monsterKilledItems);
-                            if (monsterItems.Count > 0)
+                            backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, AbortIfHazying, true);
+                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
+                            lock (_currentEntityInfo.EntityLock)
                             {
-                                backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, AbortIfHazying, true);
-                                if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
                                 foreach (ItemEntity ie in _currentEntityInfo.CurrentRoomItems)
                                 {
                                     string sNextValue = null;
@@ -5709,10 +5712,10 @@ BeforeHazy:
                                 }
                             }
                         }
-                        else
-                        {
-                            throw new InvalidOperationException();
-                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
                     }
                     SelectedItemsWithTargets = new List<SelectedItemWithTarget>();
                     foreach (SelectedInventoryOrEquipmentItem sioei in sioeis)
