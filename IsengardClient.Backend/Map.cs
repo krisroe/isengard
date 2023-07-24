@@ -2521,7 +2521,19 @@ namespace IsengardClient.Backend
             AddPermanentMobs(oSalamander, MobTypeEnum.Salamander);
             AddExit(oBrandywineRiverShore, oSalamander, "reeds");
             AddExit(oSalamander, oBrandywineRiverShore, "shore");
-            underBreeGraph.Rooms[oSalamander] = new PointF(9, 7);
+            underBreeGraph.Rooms[oSalamander] = new PointF(7, 7);
+
+            Room oBrandywineRiverFromSalamander = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oSalamander, oBrandywineRiverFromSalamander, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oBrandywineRiverFromSalamander] = new PointF(7, 8);
+
+            Room oBrandywineRiver2FromSalamander = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiverFromSalamander, oBrandywineRiver2FromSalamander, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oBrandywineRiver2FromSalamander] = new PointF(7, 9);
+
+            Room oBrandywineRiver3FromSalamander = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver2FromSalamander, oBrandywineRiver3FromSalamander, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oBrandywineRiver3FromSalamander] = new PointF(7, 10);
 
             Room oBrandywineRiver1 = AddRoom("Brandywine River", "The Brandywine River");
             oBrandywineRiver1.DamageType = RoomDamageType.Water;

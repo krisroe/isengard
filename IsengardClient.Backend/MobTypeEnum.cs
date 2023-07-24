@@ -554,8 +554,6 @@
         [PluralName("giant centipedes")]
         GiantCentipede,
 
-        //CSRTODO: giant crayfish?
-
         [SingularName("giant grasshopper")]
         [PluralName("giant grasshoppers")]
         GiantGrasshopper,
@@ -973,6 +971,10 @@
         [SingularName("lag")]
         [PluralName("lags")] //verified 6/21/23
         Lag,
+
+        [SingularName("large crayfish")]
+        //CSRTODO: plural?
+        LargeCrayfish,
 
         [SingularName("large goblin")]
         [PluralName("large goblins")]
