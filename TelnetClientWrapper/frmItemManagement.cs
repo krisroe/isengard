@@ -16,7 +16,7 @@ namespace IsengardClient
             get
             {
                 Room ret;
-                if (cboTargetRoom.SelectedIndex == 0)
+                if (cboTargetRoom.SelectedIndex <= 0)
                     ret = null;
                 else
                     ret = ((RoomEntry)cboTargetRoom.SelectedItem).Room;

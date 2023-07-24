@@ -2295,6 +2295,15 @@ namespace IsengardClient
             }
         }
 
+        private static void OnCannotWearEquipment(FeedLineParameters flParams)
+        {
+            BackgroundCommandType? bct = flParams.BackgroundCommandType;
+            if (bct.HasValue && bct.Value == BackgroundCommandType.WearEquipment)
+            {
+                flParams.CommandResult = CommandResult.CommandUnsuccessfulAlways;
+            }
+        }
+
         /// <summary>
         /// handles the result of the stand command. Either the user stands up or is already standing, and in
         /// either case maintain the current player state as standing.
@@ -3814,6 +3823,7 @@ namespace IsengardClient
                 new ConstantOutputSequence("You need a ", " to use this weapon effectively.", OnCannotWieldWeapon, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon}),
                 new ConstantOutputSequence("You can't wield that.", OnCannotWieldWeapon, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WieldWeapon }),
                 new ConstantOutputSequence("You can't hold that.", OnCannotHoldItem, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.HoldItem }),
+                new ConstantOutputSequence("You can't wear that.", OnCannotWearEquipment, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.WearEquipment }),
                 new ConstantOutputSequence("You attempt to hide in the shadows.", FailHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
                 new ConstantOutputSequence("You slip into the shadows unnoticed.", SuccessfulHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
                 new ConstantOutputSequence("You are already hidden.", SuccessfulHide, ConstantSequenceMatchType.ExactMatch, 0, new List<BackgroundCommandType>() { BackgroundCommandType.Hide }),
