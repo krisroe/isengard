@@ -156,7 +156,7 @@ namespace IsengardClient.Backend
             {
                 sSingular = sid.SingularName;
             }
-            foreach (string s in StringProcessing.PickWords(sSingular))
+            foreach (string s in StringProcessing.PickWords(sSingular, true))
             {
                 yield return s;
             }

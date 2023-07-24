@@ -1013,6 +1013,10 @@
         [PluralName("llamas")]
         Llama,
 
+        [SingularName("Lodz")]
+        //CSRTODO: no plural
+        Lodz,
+
         [SingularName("longshoreman")]
         [PluralName("longshoremen")]
         Longshoreman,

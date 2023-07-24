@@ -5467,13 +5467,13 @@ namespace IsengardClient.Backend
             AddExit(libraryEntrance, briarMagenta, "oak door");
             esgarothGraph.Rooms[libraryEntrance] = new PointF(0, 4);
 
-            Room referenceDesk = AddRoom("Reference Desk", "Reference Desk");
+            Room referenceDesk = AddRoom("Ranier", "Reference Desk");
             AddPermanentMobs(referenceDesk, MobTypeEnum.RanierTheLibrarian);
             AddExit(libraryEntrance, referenceDesk, "blue door");
             AddExit(referenceDesk, libraryEntrance, "door");
             esgarothGraph.Rooms[referenceDesk] = new PointF(0, 5);
 
-            Room colloquiaRoom = AddRoom("Colloquia Room", "Colloquia Room");
+            Room colloquiaRoom = AddRoom("Blind Crone", "Colloquia Room");
             AddPermanentMobs(colloquiaRoom, MobTypeEnum.BlindCrone);
             e = AddExit(libraryEntrance, colloquiaRoom, "golden door");
             e.MustOpen = true;
@@ -5488,7 +5488,13 @@ namespace IsengardClient.Backend
             Room languageStudies = AddRoom("Language Studies", "Language studies room");
             AddExit(researchRoom, languageStudies, "small door");
             AddExit(languageStudies, researchRoom, "door");
-            esgarothGraph.Rooms[languageStudies] = new PointF(-1, 3);
+            esgarothGraph.Rooms[languageStudies] = new PointF(-1, 3.5F);
+
+            Room lounge = AddRoom("Lodz", "Lounge");
+            AddPermanentMobs(lounge, MobTypeEnum.Lodz);
+            e = AddBidirectionalExitsWithOut(languageStudies, lounge, "oak door");
+            e.Hidden = true;
+            esgarothGraph.Rooms[lounge] = new PointF(-1, 3);
         }
 
         private void AddEsgarothMuseum(Room briarLane2, RoomGraph esgarothGraph)

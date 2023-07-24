@@ -543,7 +543,7 @@ namespace IsengardClient.Backend
             {
                 sSingular = smd.SingularName;
             }
-            foreach (string s in StringProcessing.PickWords(sSingular))
+            foreach (string s in StringProcessing.PickWords(sSingular, true))
             {
                 yield return s;
             }

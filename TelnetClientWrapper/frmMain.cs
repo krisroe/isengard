@@ -8019,7 +8019,7 @@ TryUnlockExit:
                         break;
                 }
             }
-            var enumerator = StringProcessing.PickWords(target).GetEnumerator();
+            var enumerator = StringProcessing.PickWords(target, false).GetEnumerator();
             enumerator.MoveNext();
             string sWord = enumerator.Current;
             if (ret == null)

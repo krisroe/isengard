@@ -3775,7 +3775,7 @@ namespace IsengardClient.Backend
         /// </summary>
         /// <param name="input">input words</param>
         /// <returns>words, starting with the longest</returns>
-        public static IEnumerable<string> PickWords(string input)
+        public static IEnumerable<string> PickWords(string input, bool sortByLength)
         {
             string sBestWord = string.Empty;
             List<string> sEffectiveWords = new List<string>();
@@ -3787,10 +3787,13 @@ namespace IsengardClient.Backend
                 else if (iDashIndex > 0)
                     sEffectiveWords.Add(sNextWord.Substring(0, iDashIndex));
             }
-            sEffectiveWords.Sort((a, b) =>
+            if (sortByLength)
             {
-                return b.Length.CompareTo(a.Length);
-            });
+                sEffectiveWords.Sort((a, b) =>
+                {
+                    return b.Length.CompareTo(a.Length);
+                });
+            }
             foreach (string sNextWord in sEffectiveWords)
             {
                 yield return sNextWord;
