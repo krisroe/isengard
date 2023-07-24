@@ -117,14 +117,24 @@ namespace IsengardClient
             cboTargetRoom.Items.Add(string.Empty);
             HashSet<Room> targetRooms = new HashSet<Room>();
             Room r;
+            RoomEntry roomEntryToSelect = null;
             foreach (Area a in settings.EnumerateAreas())
             {
                 r = a.InventorySinkRoomObject;
                 if (r != null && r != _currentRoom && !targetRooms.Contains(r))
                 {
                     targetRooms.Add(r);
-                    cboTargetRoom.Items.Add(new RoomEntry(r));
+                    RoomEntry newEntry = new RoomEntry(r);
+                    if (roomEntryToSelect == null && currentArea != null && currentArea.InventorySinkRoomObject == r)
+                    {
+                        roomEntryToSelect = newEntry;
+                    }
+                    cboTargetRoom.Items.Add(newEntry);
                 }
+            }
+            if (roomEntryToSelect != null)
+            {
+                cboTargetRoom.SelectedItem = roomEntryToSelect;
             }
         }
 

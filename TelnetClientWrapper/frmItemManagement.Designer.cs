@@ -319,6 +319,7 @@
             this.colSellOrJunk,
             this.colInventory,
             this.colEquipment});
+            this.dgvItems.ContextMenuStrip = this.ctxItems;
             this.dgvItems.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvItems.Location = new System.Drawing.Point(0, 139);
             this.dgvItems.Name = "dgvItems";
@@ -399,38 +400,38 @@
             this.tsmiInventoryAll,
             this.tsmiEquipmentAll});
             this.ctxItems.Name = "ctxItems";
-            this.ctxItems.Size = new System.Drawing.Size(211, 152);
+            this.ctxItems.Size = new System.Drawing.Size(173, 124);
             this.ctxItems.Opening += new System.ComponentModel.CancelEventHandler(this.ctxItems_Opening);
             this.ctxItems.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxItems_ItemClicked);
             // 
             // tsmiTargetAll
             // 
             this.tsmiTargetAll.Name = "tsmiTargetAll";
-            this.tsmiTargetAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiTargetAll.Size = new System.Drawing.Size(172, 24);
             this.tsmiTargetAll.Text = "Target All";
             // 
             // tsmiTickAll
             // 
             this.tsmiTickAll.Name = "tsmiTickAll";
-            this.tsmiTickAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiTickAll.Size = new System.Drawing.Size(172, 24);
             this.tsmiTickAll.Text = "Tick All";
             // 
             // tsmiSellOrJunkAll
             // 
             this.tsmiSellOrJunkAll.Name = "tsmiSellOrJunkAll";
-            this.tsmiSellOrJunkAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiSellOrJunkAll.Size = new System.Drawing.Size(172, 24);
             this.tsmiSellOrJunkAll.Text = "Sell/Junk All";
             // 
             // tsmiInventoryAll
             // 
             this.tsmiInventoryAll.Name = "tsmiInventoryAll";
-            this.tsmiInventoryAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiInventoryAll.Size = new System.Drawing.Size(172, 24);
             this.tsmiInventoryAll.Text = "Inventory All";
             // 
             // tsmiEquipmentAll
             // 
             this.tsmiEquipmentAll.Name = "tsmiEquipmentAll";
-            this.tsmiEquipmentAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiEquipmentAll.Size = new System.Drawing.Size(172, 24);
             this.tsmiEquipmentAll.Text = "Equipment All";
             // 
             // frmItemManagement
