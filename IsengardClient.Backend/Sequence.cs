@@ -2329,7 +2329,7 @@ namespace IsengardClient.Backend
             if (!bct.HasValue || bct != BackgroundCommandType.LookAtItem) return;
             SelectedInventoryOrEquipmentItem sioei = Parameters.SIOEI;
             if (sioei == null) return;
-            StaticItemData sid = ItemEntity.StaticItemData[sioei.ItemType];
+            StaticItemData sid = ItemEntity.StaticItemData[sioei.ItemType.Value];
             if (string.IsNullOrEmpty(sid.LookText)) return;
             string firstLine = lines[0];
             if (firstLine != sid.LookText) return;

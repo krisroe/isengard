@@ -36,6 +36,17 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.pnlBottom = new System.Windows.Forms.Panel();
             this.pnlTop = new System.Windows.Forms.Panel();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.lblPawn = new System.Windows.Forms.Label();
+            this.cboPawn = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.cboTick = new System.Windows.Forms.ComboBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.lblTickRoom = new System.Windows.Forms.Label();
+            this.cboTickRoom = new System.Windows.Forms.ComboBox();
             this.dgvItems = new System.Windows.Forms.DataGridView();
             this.colItem = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colLocation = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -47,6 +58,7 @@
             this.colEquipment = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.pnlBottom.SuspendLayout();
             this.pnlTop.SuspendLayout();
+            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
             this.SuspendLayout();
             // 
@@ -117,13 +129,16 @@
             this.pnlBottom.Controls.Add(this.btnCancel);
             this.pnlBottom.Controls.Add(this.btnOK);
             this.pnlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlBottom.Location = new System.Drawing.Point(0, 532);
+            this.pnlBottom.Location = new System.Drawing.Point(0, 785);
             this.pnlBottom.Name = "pnlBottom";
             this.pnlBottom.Size = new System.Drawing.Size(1145, 61);
             this.pnlBottom.TabIndex = 21;
             // 
             // pnlTop
             // 
+            this.pnlTop.Controls.Add(this.panel1);
+            this.pnlTop.Controls.Add(this.lblTickRoom);
+            this.pnlTop.Controls.Add(this.cboTickRoom);
             this.pnlTop.Controls.Add(this.btnTargetGraph);
             this.pnlTop.Controls.Add(this.lblTarget);
             this.pnlTop.Controls.Add(this.btnTargetLocations);
@@ -131,8 +146,124 @@
             this.pnlTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTop.Location = new System.Drawing.Point(0, 0);
             this.pnlTop.Name = "pnlTop";
-            this.pnlTop.Size = new System.Drawing.Size(1145, 61);
+            this.pnlTop.Size = new System.Drawing.Size(1145, 139);
             this.pnlTop.TabIndex = 22;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.lblPawn);
+            this.panel1.Controls.Add(this.cboPawn);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.cboTick);
+            this.panel1.Controls.Add(this.button1);
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.button2);
+            this.panel1.Controls.Add(this.comboBox2);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1145, 139);
+            this.panel1.TabIndex = 23;
+            // 
+            // lblPawn
+            // 
+            this.lblPawn.AutoSize = true;
+            this.lblPawn.Location = new System.Drawing.Point(40, 92);
+            this.lblPawn.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblPawn.Name = "lblPawn";
+            this.lblPawn.Size = new System.Drawing.Size(54, 19);
+            this.lblPawn.TabIndex = 21;
+            this.lblPawn.Text = "Pawn:";
+            // 
+            // cboPawn
+            // 
+            this.cboPawn.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboPawn.FormattingEnabled = true;
+            this.cboPawn.Location = new System.Drawing.Point(149, 89);
+            this.cboPawn.Margin = new System.Windows.Forms.Padding(4);
+            this.cboPawn.Name = "cboPawn";
+            this.cboPawn.Size = new System.Drawing.Size(528, 27);
+            this.cboPawn.TabIndex = 22;
+            this.cboPawn.SelectedIndexChanged += new System.EventHandler(this.cboPawn_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(40, 57);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(43, 19);
+            this.label1.TabIndex = 19;
+            this.label1.Text = "Tick:";
+            // 
+            // cboTick
+            // 
+            this.cboTick.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboTick.FormattingEnabled = true;
+            this.cboTick.Location = new System.Drawing.Point(149, 54);
+            this.cboTick.Margin = new System.Windows.Forms.Padding(4);
+            this.cboTick.Name = "cboTick";
+            this.cboTick.Size = new System.Drawing.Size(528, 27);
+            this.cboTick.TabIndex = 20;
+            this.cboTick.SelectedIndexChanged += new System.EventHandler(this.cboTick_SelectedIndexChanged);
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(832, 12);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(133, 38);
+            this.button1.TabIndex = 17;
+            this.button1.Text = "Graph";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(40, 22);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(58, 19);
+            this.label2.TabIndex = 15;
+            this.label2.Text = "Target:";
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(693, 12);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(133, 38);
+            this.button2.TabIndex = 18;
+            this.button2.Text = "Locations";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // comboBox2
+            // 
+            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Location = new System.Drawing.Point(149, 19);
+            this.comboBox2.Margin = new System.Windows.Forms.Padding(4);
+            this.comboBox2.Name = "comboBox2";
+            this.comboBox2.Size = new System.Drawing.Size(528, 27);
+            this.comboBox2.TabIndex = 16;
+            // 
+            // lblTickRoom
+            // 
+            this.lblTickRoom.AutoSize = true;
+            this.lblTickRoom.Location = new System.Drawing.Point(40, 57);
+            this.lblTickRoom.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lblTickRoom.Name = "lblTickRoom";
+            this.lblTickRoom.Size = new System.Drawing.Size(43, 19);
+            this.lblTickRoom.TabIndex = 19;
+            this.lblTickRoom.Text = "Tick:";
+            // 
+            // cboTickRoom
+            // 
+            this.cboTickRoom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboTickRoom.FormattingEnabled = true;
+            this.cboTickRoom.Location = new System.Drawing.Point(149, 54);
+            this.cboTickRoom.Margin = new System.Windows.Forms.Padding(4);
+            this.cboTickRoom.Name = "cboTickRoom";
+            this.cboTickRoom.Size = new System.Drawing.Size(528, 27);
+            this.cboTickRoom.TabIndex = 20;
             // 
             // dgvItems
             // 
@@ -150,13 +281,13 @@
             this.colInventory,
             this.colEquipment});
             this.dgvItems.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvItems.Location = new System.Drawing.Point(0, 61);
+            this.dgvItems.Location = new System.Drawing.Point(0, 139);
             this.dgvItems.Name = "dgvItems";
             this.dgvItems.RowHeadersVisible = false;
             this.dgvItems.RowHeadersWidth = 51;
             this.dgvItems.RowTemplate.Height = 24;
             this.dgvItems.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvItems.Size = new System.Drawing.Size(1145, 471);
+            this.dgvItems.Size = new System.Drawing.Size(1145, 646);
             this.dgvItems.TabIndex = 23;
             this.dgvItems.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellContentClick);
             this.dgvItems.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvItems_CellValueChanged);
@@ -223,7 +354,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1145, 593);
+            this.ClientSize = new System.Drawing.Size(1145, 846);
             this.Controls.Add(this.dgvItems);
             this.Controls.Add(this.pnlTop);
             this.Controls.Add(this.pnlBottom);
@@ -237,6 +368,8 @@
             this.pnlBottom.ResumeLayout(false);
             this.pnlTop.ResumeLayout(false);
             this.pnlTop.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).EndInit();
             this.ResumeLayout(false);
 
@@ -260,5 +393,16 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn colSellOrJunk;
         private System.Windows.Forms.DataGridViewCheckBoxColumn colInventory;
         private System.Windows.Forms.DataGridViewCheckBoxColumn colEquipment;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label lblPawn;
+        private System.Windows.Forms.ComboBox cboPawn;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox cboTick;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.Label lblTickRoom;
+        private System.Windows.Forms.ComboBox cboTickRoom;
     }
 }

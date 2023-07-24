@@ -547,7 +547,7 @@
         Ghoul,
 
         [SingularName("giant catfish")]
-        //CSRTODO: plural?
+        [PluralName("giant catfish")]
         GiantCatfish,
 
         [SingularName("giant centipede")]

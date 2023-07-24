@@ -343,7 +343,7 @@ namespace IsengardClient.Backend
 
     public class SelectedInventoryOrEquipmentItem
     {
-        public SelectedInventoryOrEquipmentItem(ItemEntity ie, ItemTypeEnum ItemType, int Counter, ItemLocationType LocationType)
+        public SelectedInventoryOrEquipmentItem(ItemEntity ie, ItemTypeEnum? ItemType, int Counter, ItemLocationType LocationType)
         {
             ItemEntity = ie;
             this.ItemType = ItemType;
@@ -351,7 +351,7 @@ namespace IsengardClient.Backend
             this.LocationType = LocationType;
         }
         public ItemEntity ItemEntity;
-        public ItemTypeEnum ItemType;
+        public ItemTypeEnum? ItemType;
         public int Counter;
         public ItemLocationType LocationType;
     }
@@ -372,7 +372,7 @@ namespace IsengardClient.Backend
         public ItemEntity ItemEntity;
         public ItemTypeEnum ItemType;
         public int Counter;
-        public ItemLocationType LocationType;
+        public ItemManagementLocationType LocationType;
         public ColumnType Target;
     }
 

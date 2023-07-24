@@ -2525,15 +2525,71 @@ namespace IsengardClient.Backend
 
             Room oBrandywineRiverFromSalamander = AddRoom("River", "The Brandywine River");
             AddBidirectionalExits(oSalamander, oBrandywineRiverFromSalamander, BidirectionalExitType.NorthSouth);
-            underBreeGraph.Rooms[oBrandywineRiverFromSalamander] = new PointF(7, 8);
+            underBreeGraph.Rooms[oBrandywineRiverFromSalamander] = new PointF(6, 9);
 
             Room oBrandywineRiver2FromSalamander = AddRoom("River", "The Brandywine River");
             AddBidirectionalExits(oBrandywineRiverFromSalamander, oBrandywineRiver2FromSalamander, BidirectionalExitType.NorthSouth);
-            underBreeGraph.Rooms[oBrandywineRiver2FromSalamander] = new PointF(7, 9);
+            underBreeGraph.Rooms[oBrandywineRiver2FromSalamander] = new PointF(6, 10);
 
             Room oBrandywineRiver3FromSalamander = AddRoom("River", "The Brandywine River");
             AddBidirectionalExits(oBrandywineRiver2FromSalamander, oBrandywineRiver3FromSalamander, BidirectionalExitType.NorthSouth);
-            underBreeGraph.Rooms[oBrandywineRiver3FromSalamander] = new PointF(7, 10);
+            underBreeGraph.Rooms[oBrandywineRiver3FromSalamander] = new PointF(6, 11);
+
+            Room oBrandywineRiver4FromSalamander = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver3FromSalamander, oBrandywineRiver4FromSalamander, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oBrandywineRiver4FromSalamander] = new PointF(6, 12);
+            //CSRTODO: east, west
+
+            Room oBrandywineRiver5 = AddRoom("River", "The Brandywine River");
+            AddExit(oBrandywineRiverFromSalamander, oBrandywineRiver5, "west");
+            AddExit(oBrandywineRiver5, oBrandywineRiver3FromSalamander, "east");
+            underBreeGraph.Rooms[oBrandywineRiver5] = new PointF(5, 9);
+
+            Room oBrandywineRiver6 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver5, oBrandywineRiver6, BidirectionalExitType.NorthSouth);
+            AddBidirectionalExits(oBrandywineRiver6, oBrandywineRiver2FromSalamander, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oBrandywineRiver6] = new PointF(5, 10);
+
+            Room oBrandywineRiver7 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver6, oBrandywineRiver7, BidirectionalExitType.NorthSouth);
+            AddExit(oBrandywineRiver7, oBrandywineRiver3FromSalamander, "west");
+            underBreeGraph.Rooms[oBrandywineRiver7] = new PointF(5, 11);
+            //CSRTODO: south
+
+            Room oBrandywineRiver8 = AddRoom("River", "The Brandywine River");
+            AddExit(oBrandywineRiver5, oBrandywineRiver8, "north");
+            AddExit(oBrandywineRiver8, oBrandywineRiver2FromSalamander, "east");
+            AddExit(oBrandywineRiver8, oBrandywineRiverFromSalamander, "north");
+            underBreeGraph.Rooms[oBrandywineRiver8] = new PointF(5, 8);
+
+            Room oBrandywineRiver9 = AddRoom("River", "The Brandywine River");
+            AddExit(oBrandywineRiverFromSalamander, oBrandywineRiver9, "east");
+            AddExit(oBrandywineRiver9, oBrandywineRiver2FromSalamander, "west");
+            underBreeGraph.Rooms[oBrandywineRiver9] = new PointF(7, 9);
+            //CSRTODO: south
+
+            Room oBrandywineRiver10 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver10, oBrandywineRiver9, BidirectionalExitType.NorthSouth);
+            AddExit(oBrandywineRiver10, oSalamander, "north");
+            AddExit(oBrandywineRiver10, oBrandywineRiver2FromSalamander, "west");
+            underBreeGraph.Rooms[oBrandywineRiver10] = new PointF(7, 8);
+
+            Room oBrandywineRiver11 = AddRoom("River", "The Brandywine River");
+            AddExit(oBrandywineRiver2FromSalamander, oBrandywineRiver11, "east");
+            AddExit(oBrandywineRiver11, oBrandywineRiver4FromSalamander, "west");
+            AddBidirectionalExits(oBrandywineRiver9, oBrandywineRiver11, BidirectionalExitType.NorthSouth);
+            //CSRTODO: south
+            underBreeGraph.Rooms[oBrandywineRiver11] = new PointF(7, 10);
+
+            Room oBrandywineRiver12 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver4FromSalamander, oBrandywineRiver12, BidirectionalExitType.NorthSouth);
+            AddExit(oBrandywineRiver7, oBrandywineRiver12, "east");
+            underBreeGraph.Rooms[oBrandywineRiver12] = new PointF(6, 13);
+
+            Room oBrandywineRiver13 = AddRoom("River", "The Brandywine River");
+            AddExit(oBrandywineRiver3FromSalamander, oBrandywineRiver13, "east");
+            underBreeGraph.Rooms[oBrandywineRiver13] = new PointF(7, 11);
+            //CSRTODO: north, south, east
 
             Room oBrandywineRiver1 = AddRoom("Brandywine River", "The Brandywine River");
             oBrandywineRiver1.DamageType = RoomDamageType.Water;

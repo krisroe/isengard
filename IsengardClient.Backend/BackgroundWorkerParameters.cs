@@ -33,9 +33,17 @@ namespace IsengardClient.Backend
         /// </summary>
         public Room InventorySinkRoom { get; set; }
         /// <summary>
-        /// inventory management flow
+        /// healing room
         /// </summary>
-        public InventoryManagementWorkflow InventoryManagementFlow { get; set; }
+        public HealingRoom? HealingRoom { get; set; }
+        /// <summary>
+        /// pawn shop
+        /// </summary>
+        public PawnShoppe? PawnShop { get; set; }
+        /// <summary>
+        /// selected items with targets
+        /// </summary>
+        public List<SelectedItemWithTarget> SelectedItemsWithTargets { get; set; }
         public bool Cancelled { get; set; }
         public Strategy Strategy { get; set; }
         public List<string> QueuedCommands { get; set; }
@@ -134,6 +142,8 @@ namespace IsengardClient.Backend
                         CommonParentArea = CurrentArea.DetermineCommonParentArea(NewArea);
                     }
                     InventorySinkRoom = NewArea.InventorySinkRoomObject;
+                    HealingRoom = NewArea.TickRoom;
+                    PawnShop = NewArea.PawnShop;
                 }
             }
             InventoryProcessInputType = p.ItemsToProcessType;

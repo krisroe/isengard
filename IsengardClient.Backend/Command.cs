@@ -116,6 +116,7 @@
         GetItem,
         SellItem,
         DropItem,
+        WearEquipment,
         RemoveEquipment,
         WieldWeapon,
         HoldItem,

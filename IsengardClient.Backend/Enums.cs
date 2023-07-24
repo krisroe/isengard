@@ -123,6 +123,14 @@ namespace IsengardClient.Backend
         Room,
     }
 
+    public enum ItemManagementLocationType
+    {
+        Inventory,
+        Equipment,
+        SourceRoom,
+        TargetRoom,
+    }
+
     public enum MobLocationType
     {
         CurrentRoomMobs,
@@ -134,12 +142,6 @@ namespace IsengardClient.Backend
         NoProcessing = 0,
         ProcessMonsterDrops = 1,
         ProcessAllItemsInRoom = 2,
-    }
-
-    public enum InventoryManagementWorkflow
-    {
-        ManageSourceItems = 0,
-        Ferry = 1,
     }
 
     public enum MobVisibility

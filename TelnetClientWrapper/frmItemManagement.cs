@@ -15,7 +15,46 @@ namespace IsengardClient
         {
             get
             {
-                return ((RoomEntry)cboTargetRoom.SelectedItem).Room;
+                Room ret;
+                if (cboTargetRoom.SelectedItem == null)
+                    ret = null;
+                else
+                    ret = ((RoomEntry)cboTargetRoom.SelectedItem).Room;
+                return ret;
+            }
+        }
+
+        public HealingRoom? TickRoom
+        {
+            get
+            {
+                HealingRoom? ret;
+                if (cboTick.SelectedIndex == 0)
+                {
+                    ret = null;
+                }
+                else
+                {
+                    ret = (HealingRoom)cboTick.SelectedItem;
+                }
+                return ret;
+            }
+        }
+
+        public PawnShoppe? PawnShop
+        {
+            get
+            {
+                PawnShoppe? ret;
+                if (cboPawn.SelectedIndex == 0)
+                {
+                    ret = null;
+                }
+                else
+                {
+                    ret = (PawnShoppe)cboPawn.SelectedItem;
+                }
+                return ret;
             }
         }
 
@@ -25,11 +64,25 @@ namespace IsengardClient
             set;
         }
 
-        public frmItemManagement(CurrentEntityInfo cei, IsengardMap gameMap, Func<GraphInputs> GraphInputs, IsengardSettingData settings)
+        public frmItemManagement(CurrentEntityInfo cei, IsengardMap gameMap, Func<GraphInputs> GraphInputs, IsengardSettingData settings, Area currentArea)
         {
             InitializeComponent();
 
             dgvItems.AlternatingRowsDefaultCellStyle = UIShared.GetAlternatingDataGridViewCellStyle();
+
+            cboTick.Items.Add(string.Empty);
+            foreach (HealingRoom next in Enum.GetValues(typeof(HealingRoom))) cboTick.Items.Add(next);
+            if (currentArea != null && currentArea.TickRoom.HasValue)
+                cboTick.SelectedItem = currentArea.TickRoom.Value;
+            else
+                cboTick.SelectedIndex = 0;
+
+            cboPawn.Items.Add(string.Empty);
+            foreach (PawnShoppe next in Enum.GetValues(typeof(PawnShoppe))) cboPawn.Items.Add(next);
+            if (currentArea != null && currentArea.PawnShop.HasValue)
+                cboPawn.SelectedItem = currentArea.PawnShop.Value;
+            else
+                cboPawn.SelectedIndex = 0;
 
             _cei = cei;
             _gameMap = gameMap;
@@ -51,12 +104,12 @@ namespace IsengardClient
                             iCounter = 0;
                         }
                         iCounter++;
-                        AddItemToGrid(ie, new SelectedInventoryOrEquipmentItem(ie, nextItemType, iCounter, ItemLocationType.Room));
+                        AddItemToGrid(new SelectedInventoryOrEquipmentItem(ie, nextItemType, iCounter, ItemLocationType.Room));
                     }
                 }
                 foreach (SelectedInventoryOrEquipmentItem sioei in cei.GetInvEqItems(null, true, true))
                 {
-                    AddItemToGrid(sioei.ItemEntity, sioei);
+                    AddItemToGrid(sioei);
                 }
             }
 
@@ -93,9 +146,9 @@ namespace IsengardClient
             }
         }
 
-        private void AddItemToGrid(ItemEntity ie, SelectedInventoryOrEquipmentItem sioei)
+        private void AddItemToGrid(SelectedInventoryOrEquipmentItem sioei)
         {
-            ItemTypeEnum itemType = sioei.ItemType;
+            ItemTypeEnum itemType = sioei.ItemType.Value;
             StaticItemData sid = ItemEntity.StaticItemData[itemType];
             bool isSource = sioei.LocationType == ItemLocationType.Room;
             bool isInventory = sioei.LocationType == ItemLocationType.Inventory;
@@ -118,6 +171,8 @@ namespace IsengardClient
         private void btnOK_Click(object sender, EventArgs e)
         {
             bool haveTargetItems = false;
+            bool haveTickItems = false;
+            bool haveSellOrJunkItems = false;
             ItemsToChange = new List<SelectedItemWithTarget>();
             foreach (DataGridViewRow dgvr in dgvItems.Rows)
             {
@@ -150,10 +205,12 @@ namespace IsengardClient
                 else if (Convert.ToBoolean(dgvr.Cells[colSellOrJunk.Index].Value))
                 {
                     ct = ColumnType.SellOrJunk;
+                    haveSellOrJunkItems = true;
                 }
                 else if (Convert.ToBoolean(dgvr.Cells[colTick.Index].Value))
                 {
                     ct = ColumnType.Tick;
+                    haveTickItems = true;
                 }
                 else if (Convert.ToBoolean(dgvr.Cells[colInventory.Index].Value))
                 {
@@ -161,14 +218,28 @@ namespace IsengardClient
                 }
                 else if (Convert.ToBoolean(dgvr.Cells[colEquipment.Index].Value))
                 {
-                    ct = ColumnType.Inventory;
+                    ct = ColumnType.Equipment;
                 }
                 if (ct != ColumnType.None && ct != ctCheck)
                 {
                     SelectedItemWithTarget siwt = new SelectedItemWithTarget();
                     siwt.ItemEntity = sioei.ItemEntity;
-                    siwt.ItemType = sioei.ItemType;
-                    siwt.LocationType = sioei.LocationType;
+                    siwt.ItemType = sioei.ItemType.Value;
+                    siwt.Counter = sioei.Counter;
+                    switch (sioei.LocationType)
+                    {
+                        case ItemLocationType.Inventory:
+                            siwt.LocationType = ItemManagementLocationType.Inventory;
+                            break;
+                        case ItemLocationType.Equipment:
+                            siwt.LocationType = ItemManagementLocationType.Equipment;
+                            break;
+                        case ItemLocationType.Room:
+                            siwt.LocationType = ItemManagementLocationType.SourceRoom;
+                            break;
+                        default:
+                            throw new InvalidOperationException();
+                    }
                     siwt.Target = ct;
                     ItemsToChange.Add(siwt);
                 }
@@ -202,6 +273,23 @@ namespace IsengardClient
                 if (MapComputation.ComputeLowestCostPath(rSink, rSource, gi) == null)
                 {
                     MessageBox.Show("Cannot find path from target room to source room.");
+                    return;
+                }
+            }
+
+            if (haveTickItems)
+            {
+                if (cboTick.SelectedIndex == 0)
+                {
+                    MessageBox.Show("No healing room selected.");
+                    return;
+                }
+            }
+            if (haveSellOrJunkItems)
+            {
+                if (cboPawn.SelectedIndex == 0)
+                {
+                    MessageBox.Show("No pawn shop selected.");
                     return;
                 }
             }
@@ -371,6 +459,30 @@ namespace IsengardClient
                                 break;
                         }
                     }
+                }
+            }
+        }
+
+        private void cboTick_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboTick.SelectedIndex > 0)
+            {
+                HealingRoom entry = (HealingRoom)cboTick.SelectedItem;
+                if (Enum.TryParse(entry.ToString(), out PawnShoppe pawnShoppe))
+                {
+                    cboPawn.SelectedItem = pawnShoppe;
+                }
+            }
+        }
+
+        private void cboPawn_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboPawn.SelectedIndex > 0)
+            {
+                PawnShoppe entry = (PawnShoppe)cboPawn.SelectedItem;
+                if (Enum.TryParse(entry.ToString(), out HealingRoom healingRoom))
+                {
+                    cboTick.SelectedItem = healingRoom;
                 }
             }
         }
