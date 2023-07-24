@@ -5920,6 +5920,7 @@ BeforeHazy:
                 if (SelectedItemsWithTargets.Any((siwt) => { return siwt.Target == ColumnType.Target && (siwt.LocationType == ItemManagementLocationType.Inventory || siwt.LocationType == ItemManagementLocationType.Equipment); }))
                 {
                     List<SelectedItemWithTarget> siwts = new List<SelectedItemWithTarget>();
+                    List<SelectedItemWithTarget> newEntries = new List<SelectedItemWithTarget>();
                     for (int i = SelectedItemsWithTargets.Count - 1; i >= 0; i--)
                     {
                         SelectedItemWithTarget siwt = SelectedItemsWithTargets[i];
@@ -5985,6 +5986,7 @@ BeforeHazy:
                                 entry.LocationType = ItemManagementLocationType.TargetRoom;
                                 entry.Target = ColumnType.Inventory;
                                 SelectedItemsWithTargets.Add(entry);
+                                newEntries.Add(entry);
                                 iTargetCount--;
                             }
                             else
@@ -5999,7 +6001,7 @@ BeforeHazy:
                                 iSourceCount--;
                                 SelectedItemsWithTargets[iSourceCount].Target = ColumnType.Target;
                             }
-                            else if (iTotalInventoryCount > iKeepCount)
+                            else if (iTotalInventoryCount > 0 && iTotalInventoryCount > iKeepCount)
                             {
                                 if (iInventoryCount > 0)
                                 {
@@ -6010,6 +6012,7 @@ BeforeHazy:
                                     entry.LocationType = ItemManagementLocationType.Inventory;
                                     entry.Target = ColumnType.Target;
                                     SelectedItemsWithTargets.Add(entry);
+                                    newEntries.Add(entry);
                                     iInventoryCount--;
                                     iTotalInventoryCount--;
                                 }
@@ -6022,6 +6025,7 @@ BeforeHazy:
                                     entry.LocationType = ItemManagementLocationType.Equipment;
                                     entry.Target = ColumnType.Target;
                                     SelectedItemsWithTargets.Add(entry);
+                                    newEntries.Add(entry);
                                     iEquipmentCount--;
                                     iTotalInventoryCount--;
                                 }
@@ -6042,6 +6046,7 @@ BeforeHazy:
                                 entry.LocationType = ItemManagementLocationType.Inventory;
                                 entry.Target = ColumnType.SellOrJunk;
                                 SelectedItemsWithTargets.Add(entry);
+                                newEntries.Add(entry);
                                 iInventoryCount--;
                                 iTotalInventoryCount--;
                             }
@@ -6054,15 +6059,15 @@ BeforeHazy:
                                 entry.LocationType = ItemManagementLocationType.Equipment;
                                 entry.Target = ColumnType.SellOrJunk;
                                 SelectedItemsWithTargets.Add(entry);
+                                newEntries.Add(entry);
                                 iEquipmentCount--;
                                 iTotalInventoryCount--;
                             }
                         }
                     }
 
-                    for (int i = siwts.Count - 1; i >= 0; i--)
+                    foreach (SelectedItemWithTarget siwt in newEntries)
                     {
-                        SelectedItemWithTarget siwt = siwts[i];
                         if (siwt.Target == ColumnType.Target && (siwt.LocationType == ItemManagementLocationType.Inventory || siwt.LocationType == ItemManagementLocationType.Equipment))
                         {
                             backgroundCommandResultObject = EnsureItemInInventory(siwt, pms);
