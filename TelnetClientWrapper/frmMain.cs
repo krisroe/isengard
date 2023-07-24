@@ -5745,6 +5745,7 @@ BeforeHazy:
                                 SelectedItemWithTarget siwt = new SelectedItemWithTarget();
                                 siwt.ItemEntity = sioei.ItemEntity;
                                 siwt.ItemType = eItemType;
+                                siwt.Counter = sioei.Counter;
                                 siwt.LocationType = ItemManagementLocationType.SourceRoom;
                                 siwt.Target = ct;
                                 SelectedItemsWithTargets.Add(siwt);
@@ -5769,8 +5770,9 @@ BeforeHazy:
                 failedForRoomMessages.Clear();
                 List<SelectedItemWithTarget> itemsToRemoveFromProcessing = new List<SelectedItemWithTarget>();
                 int weightFailed = int.MaxValue;
-                foreach (var nextItemWithTargets in SelectedItemsWithTargets)
+                for (int i = SelectedItemsWithTargets.Count - 1; i >= 0; i--)
                 {
+                    SelectedItemWithTarget nextItemWithTargets = SelectedItemsWithTargets[i];
                     if (nextItemWithTargets.LocationType == ItemManagementLocationType.SourceRoom)
                     {
                         ItemEntity nextItem = nextItemWithTargets.ItemEntity;
@@ -5786,17 +5788,24 @@ BeforeHazy:
                             }
                             if (string.IsNullOrEmpty(sItemText))
                             {
-                                failedForRoomMessages.Add($"Failed to construct selection text for item: {eItemType}");
+                                failedForRoomMessages.Add($"Failed to construct selection text for item: {eItemType} {nextItemWithTargets.Counter}");
                             }
                             else
                             {
                                 backgroundCommandResultObject = TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.GetItem, eItemType, sItemText, pms, AbortIfHazying);
                                 if (backgroundCommandResultObject.Result == CommandResult.CommandSuccessful)
                                 {
-                                    lock (_currentEntityInfo.EntityLock)
+                                    if (sid.IsCurrency())
                                     {
-                                        nextItemWithTargets.LocationType = ItemManagementLocationType.Inventory;
-                                        nextItemWithTargets.Counter = _currentEntityInfo.GetTotalInventoryCount(eItemType, false, true);
+                                        SelectedItemsWithTargets.RemoveAt(i);
+                                    }
+                                    else
+                                    {
+                                        lock (_currentEntityInfo.EntityLock)
+                                        {
+                                            nextItemWithTargets.LocationType = ItemManagementLocationType.Inventory;
+                                            nextItemWithTargets.Counter = _currentEntityInfo.GetTotalInventoryCount(eItemType, false, true);
+                                        }
                                     }
                                     somethingDone = true;
                                 }
@@ -5978,6 +5987,10 @@ BeforeHazy:
                                 SelectedItemsWithTargets.Add(entry);
                                 iTargetCount--;
                             }
+                            else
+                            {
+                                break;
+                            }
                         }
                         for (int i = iTargetCount; i < iSinkCount; i++) //fill target from inventory or source
                         {
@@ -6012,6 +6025,10 @@ BeforeHazy:
                                     iEquipmentCount--;
                                     iTotalInventoryCount--;
                                 }
+                            }
+                            else
+                            {
+                                break;
                             }
                         }
                         for (int i = iTotalInventoryCount; i > iKeepCount; i--) //dispose of excess inventory

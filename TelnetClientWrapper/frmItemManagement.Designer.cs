@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnTargetLocations = new System.Windows.Forms.Button();
             this.btnTargetGraph = new System.Windows.Forms.Button();
             this.lblTarget = new System.Windows.Forms.Label();
@@ -36,6 +37,9 @@
             this.pnlBottom = new System.Windows.Forms.Panel();
             this.pnlTop = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chkEquipment = new System.Windows.Forms.CheckBox();
+            this.chkInventory = new System.Windows.Forms.CheckBox();
+            this.chkRoomItems = new System.Windows.Forms.CheckBox();
             this.lblPawn = new System.Windows.Forms.Label();
             this.cboPawn = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -55,10 +59,17 @@
             this.colSellOrJunk = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colInventory = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.colEquipment = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.ctxItems = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiTargetAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiTickAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSellOrJunkAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiInventoryAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiEquipmentAll = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlBottom.SuspendLayout();
             this.pnlTop.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).BeginInit();
+            this.ctxItems.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnTargetLocations
@@ -139,6 +150,9 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.chkEquipment);
+            this.panel1.Controls.Add(this.chkInventory);
+            this.panel1.Controls.Add(this.chkRoomItems);
             this.panel1.Controls.Add(this.lblPawn);
             this.panel1.Controls.Add(this.cboPawn);
             this.panel1.Controls.Add(this.label1);
@@ -152,6 +166,41 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1145, 139);
             this.panel1.TabIndex = 23;
+            // 
+            // chkEquipment
+            // 
+            this.chkEquipment.AutoSize = true;
+            this.chkEquipment.Location = new System.Drawing.Point(974, 110);
+            this.chkEquipment.Name = "chkEquipment";
+            this.chkEquipment.Size = new System.Drawing.Size(117, 23);
+            this.chkEquipment.TabIndex = 25;
+            this.chkEquipment.Text = "Equipment?";
+            this.chkEquipment.UseVisualStyleBackColor = true;
+            this.chkEquipment.CheckedChanged += new System.EventHandler(this.chkEquipment_CheckedChanged);
+            // 
+            // chkInventory
+            // 
+            this.chkInventory.AutoSize = true;
+            this.chkInventory.Location = new System.Drawing.Point(847, 110);
+            this.chkInventory.Name = "chkInventory";
+            this.chkInventory.Size = new System.Drawing.Size(107, 23);
+            this.chkInventory.TabIndex = 24;
+            this.chkInventory.Text = "Inventory?";
+            this.chkInventory.UseVisualStyleBackColor = true;
+            this.chkInventory.CheckedChanged += new System.EventHandler(this.chkInventory_CheckedChanged);
+            // 
+            // chkRoomItems
+            // 
+            this.chkRoomItems.AutoSize = true;
+            this.chkRoomItems.Checked = true;
+            this.chkRoomItems.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRoomItems.Location = new System.Drawing.Point(693, 110);
+            this.chkRoomItems.Name = "chkRoomItems";
+            this.chkRoomItems.Size = new System.Drawing.Size(125, 23);
+            this.chkRoomItems.TabIndex = 23;
+            this.chkRoomItems.Text = "Room items?";
+            this.chkRoomItems.UseVisualStyleBackColor = true;
+            this.chkRoomItems.CheckedChanged += new System.EventHandler(this.chkRoomItems_CheckedChanged);
             // 
             // lblPawn
             // 
@@ -340,6 +389,50 @@
             this.colEquipment.Name = "colEquipment";
             this.colEquipment.Width = 125;
             // 
+            // ctxItems
+            // 
+            this.ctxItems.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxItems.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiTargetAll,
+            this.tsmiTickAll,
+            this.tsmiSellOrJunkAll,
+            this.tsmiInventoryAll,
+            this.tsmiEquipmentAll});
+            this.ctxItems.Name = "ctxItems";
+            this.ctxItems.Size = new System.Drawing.Size(211, 152);
+            this.ctxItems.Opening += new System.ComponentModel.CancelEventHandler(this.ctxItems_Opening);
+            this.ctxItems.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.ctxItems_ItemClicked);
+            // 
+            // tsmiTargetAll
+            // 
+            this.tsmiTargetAll.Name = "tsmiTargetAll";
+            this.tsmiTargetAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiTargetAll.Text = "Target All";
+            // 
+            // tsmiTickAll
+            // 
+            this.tsmiTickAll.Name = "tsmiTickAll";
+            this.tsmiTickAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiTickAll.Text = "Tick All";
+            // 
+            // tsmiSellOrJunkAll
+            // 
+            this.tsmiSellOrJunkAll.Name = "tsmiSellOrJunkAll";
+            this.tsmiSellOrJunkAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiSellOrJunkAll.Text = "Sell/Junk All";
+            // 
+            // tsmiInventoryAll
+            // 
+            this.tsmiInventoryAll.Name = "tsmiInventoryAll";
+            this.tsmiInventoryAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiInventoryAll.Text = "Inventory All";
+            // 
+            // tsmiEquipmentAll
+            // 
+            this.tsmiEquipmentAll.Name = "tsmiEquipmentAll";
+            this.tsmiEquipmentAll.Size = new System.Drawing.Size(210, 24);
+            this.tsmiEquipmentAll.Text = "Equipment All";
+            // 
             // frmItemManagement
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
@@ -361,6 +454,7 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvItems)).EndInit();
+            this.ctxItems.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -393,5 +487,14 @@
         private System.Windows.Forms.ComboBox cboTargetRoom;
         private System.Windows.Forms.Label lblTickRoom;
         private System.Windows.Forms.ComboBox cboTickRoom;
+        private System.Windows.Forms.CheckBox chkRoomItems;
+        private System.Windows.Forms.CheckBox chkEquipment;
+        private System.Windows.Forms.CheckBox chkInventory;
+        private System.Windows.Forms.ContextMenuStrip ctxItems;
+        private System.Windows.Forms.ToolStripMenuItem tsmiTargetAll;
+        private System.Windows.Forms.ToolStripMenuItem tsmiTickAll;
+        private System.Windows.Forms.ToolStripMenuItem tsmiSellOrJunkAll;
+        private System.Windows.Forms.ToolStripMenuItem tsmiInventoryAll;
+        private System.Windows.Forms.ToolStripMenuItem tsmiEquipmentAll;
     }
 }

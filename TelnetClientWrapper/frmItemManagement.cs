@@ -104,12 +104,12 @@ namespace IsengardClient
                             iCounter = 0;
                         }
                         iCounter++;
-                        AddItemToGrid(new SelectedInventoryOrEquipmentItem(ie, nextItemType, iCounter, ItemLocationType.Room));
+                        AddItemToGrid(new SelectedInventoryOrEquipmentItem(ie, nextItemType, iCounter, ItemLocationType.Room), true);
                     }
                 }
                 foreach (SelectedInventoryOrEquipmentItem sioei in cei.GetInvEqItems(null, true, true))
                 {
-                    AddItemToGrid(sioei);
+                    AddItemToGrid(sioei, false);
                 }
             }
 
@@ -128,7 +128,7 @@ namespace IsengardClient
             }
         }
 
-        private void AddItemToGrid(SelectedInventoryOrEquipmentItem sioei)
+        private void AddItemToGrid(SelectedInventoryOrEquipmentItem sioei, bool visible)
         {
             ItemTypeEnum itemType = sioei.ItemType.Value;
             StaticItemData sid = ItemEntity.StaticItemData[itemType];
@@ -146,6 +146,7 @@ namespace IsengardClient
                 iColIndex = colEquipment.Index;
             else
                 throw new InvalidOperationException();
+            dgvr.Visible = visible;
             dgvr.Cells[iColIndex].ReadOnly = true;
             dgvr.Tag = sioei;
         }
@@ -455,6 +456,125 @@ namespace IsengardClient
                 if (Enum.TryParse(entry.ToString(), out HealingRoom healingRoom))
                 {
                     cboTick.SelectedItem = healingRoom;
+                }
+            }
+        }
+
+        private void chkRoomItems_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshVisible();
+        }
+
+        private void chkInventory_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshVisible();
+        }
+
+        private void chkEquipment_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshVisible();
+        }
+
+        private void RefreshVisible()
+        {
+            bool showRoomItems = chkRoomItems.Checked;
+            bool showInventory = chkInventory.Checked;
+            bool showEquipment = chkEquipment.Checked;
+            foreach (DataGridViewRow dgvr in dgvItems.Rows)
+            {
+                SelectedInventoryOrEquipmentItem sioei = (SelectedInventoryOrEquipmentItem)dgvr.Tag;
+                bool visible;
+                switch (sioei.LocationType)
+                {
+                    case ItemLocationType.Equipment:
+                        visible = showEquipment;
+                        break;
+                    case ItemLocationType.Inventory:
+                        visible = showInventory;
+                        break;
+                    case ItemLocationType.Room:
+                        visible = showRoomItems;
+                        break;
+                    default:
+                        throw new InvalidOperationException();
+                }
+                dgvr.Visible = visible;
+            }
+        }
+
+        private void ctxItems_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            bool hasVisible = false;
+            foreach (DataGridViewRow dgvr in dgvItems.Rows)
+            {
+                if (dgvr.Visible)
+                {
+                    hasVisible = true;
+                    break;
+                }
+            }
+            if (hasVisible)
+            {
+                if (dgvItems.SelectedRows.Count == 0)
+                {
+                    tsmiTargetAll.Text = "Target All";
+                    tsmiTickAll.Text = "Tick All";
+                    tsmiSellOrJunkAll.Text = "Sell/Junk All";
+                    tsmiInventoryAll.Text = "Inventory All";
+                    tsmiEquipmentAll.Text = "Equipment All";
+                }
+                else
+                {
+                    tsmiTargetAll.Text = "Target Selected";
+                    tsmiTickAll.Text = "Tick Selected";
+                    tsmiSellOrJunkAll.Text = "Sell/Junk Selected";
+                    tsmiInventoryAll.Text = "Inventory Selected";
+                    tsmiEquipmentAll.Text = "Equipment Selected";
+                }
+            }
+            else
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void ctxItems_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            object clickedItem = e.ClickedItem;
+            DataGridViewCheckBoxColumn col;
+            if (clickedItem == tsmiTargetAll) col = colTarget;
+            else if (clickedItem == tsmiTickAll) col = colTick;
+            else if (clickedItem == tsmiSellOrJunkAll) col = colSellOrJunk;
+            else if (clickedItem == tsmiInventoryAll) col = colInventory;
+            else if (clickedItem == tsmiEquipmentAll) col = colEquipment;
+            else throw new InvalidOperationException();
+            int iIndex = col.Index;
+            foreach (DataGridViewRow dgvr in GetRowsToCheck())
+            {
+                dgvr.Cells[iIndex].Value = true;
+            }
+        }
+
+        private IEnumerable<DataGridViewRow> GetRowsToCheck()
+        {
+            if (dgvItems.SelectedRows.Count > 0)
+            {
+                foreach (DataGridViewRow dgvr in dgvItems.SelectedRows)
+                {
+                    if (dgvr.Visible)
+                    {
+                        yield return dgvr;
+                    }
+                }
+            }
+            else
+            {
+                foreach (DataGridViewRow dgvr in dgvItems.Rows)
+                {
+                    if (dgvr.Visible)
+                    {
+                        yield return dgvr;
+                    }
                 }
             }
         }
