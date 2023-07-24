@@ -6473,11 +6473,11 @@ BeforeHazy:
                     string sItemText;
                     lock (_currentEntityInfo.EntityLock)
                     {
-                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, next.Counter, true, false);
+                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, next.Counter, false, false);
                     }
                     if (string.IsNullOrEmpty(sItemText))
                     {
-                        AddConsoleMessage("Unable to construct drop selection text for " + itemType);
+                        AddConsoleMessage($"Unable to construct sell/junk selection text for {itemType} {next.Counter}");
                         success = false;
                         continue;
                     }
