@@ -6762,7 +6762,7 @@ BeforeHazy:
                         bool triedPickingUpKey = false;
                         bool exitAvailable = false;
                         backgroundCommandResultObject = null;
-                        if (keyType != SupportedKeysFlags.None && pr != null && ((pr.SupportedKeys & keyType) == keyType))
+                        if (keyType != SupportedKeysFlags.None && pr != null && (((pr.SupportedKeys & keyType) == keyType) || keyType == SupportedKeysFlags.RustyKey))
                         {
                             ItemTypeEnum keyItemType = (ItemTypeEnum)Enum.Parse(typeof(ItemTypeEnum), keyType.ToString());
                             RemoveKeyFromHeldSlot(keyItemType, pms, abortLogic); //can't unlock an exit using a key in the held slot, so remove if there
@@ -10237,7 +10237,7 @@ TryUnlockExit:
             {
                 flying = _spellsCast.Contains(SpellsEnum.fly);
                 levitating = _spellsCast.Contains(SpellsEnum.levitate);
-                keys = _currentEntityInfo.GetAvailableKeys(false);
+                keys = _currentEntityInfo.GetAvailableKeys(false) | SupportedKeysFlags.RustyKey;
             }
             return new GraphInputs(_class, _level, IsDay(_timeUI), flying, levitating, keys);
         }
