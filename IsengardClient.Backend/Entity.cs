@@ -1497,16 +1497,14 @@ namespace IsengardClient.Backend
         /// <param name="locationType">where to look for the item</param>
         /// <param name="itemType">item type</param>
         /// <param name="itemCounter">item counter</param>
-        /// <param name="reverseOrder">whether to look in forward or reverse order</param>
         /// <returns>actual index if found, -1 if not found</returns>
-        public int PickActualIndexFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder)
+        public int PickActualIndexFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter)
         {
             int iActualIndex = -1;
             int iCounter = 0;
-            int iIncrement = reverseOrder ? -1 : 1;
             if (locationType == ItemLocationType.Inventory)
             {
-                for (int i = reverseOrder ? InventoryItems.Count - 1 : 0; reverseOrder ? i >= 0 : i < InventoryItems.Count; i += iIncrement)
+                for (int i = 0; i < InventoryItems.Count; i++)
                 {
                     if (InventoryItems[i].ItemType == itemType)
                     {
@@ -1521,7 +1519,7 @@ namespace IsengardClient.Backend
             }
             else if (locationType == ItemLocationType.Equipment)
             {
-                for (int i = reverseOrder ? Equipment.Length - 1 : 0; reverseOrder ? i >= 0 : i < Equipment.Length; i += iIncrement)
+                for (int i = 0; i < Equipment.Length; i++)
                 {
                     ItemEntity ie = Equipment[i];
                     if (ie != null && ie.ItemType == itemType)
@@ -1537,7 +1535,7 @@ namespace IsengardClient.Backend
             }
             else if (locationType == ItemLocationType.Room)
             {
-                for (int i = reverseOrder ? CurrentRoomItems.Count - 1 : 0; reverseOrder ? i >= 0 : i < CurrentRoomItems.Count; i += iIncrement)
+                for (int i = 0; i < CurrentRoomItems.Count; i++)
                 {
                     ItemTypeEnum? it = CurrentRoomItems[i].ItemType;
                     if (it.HasValue && it.Value == itemType)
@@ -1564,12 +1562,11 @@ namespace IsengardClient.Backend
         /// <param name="locationType">where to look for the item</param>
         /// <param name="itemType">item type</param>
         /// <param name="itemCounter">item counter of that type</param>
-        /// <param name="reverseOrder">whether to search in reverse order</param>
         /// <param name="validateAgainstOtherSources">whether to validate for duplicates in higher priority locations</param>
         /// <returns>selection text for the item</returns>
-        public string PickItemTextFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool reverseOrder, bool validateAgainstOtherSources)
+        public string PickItemTextFromItemCounter(ItemLocationType locationType, ItemTypeEnum itemType, int itemCounter, bool validateAgainstOtherSources)
         {
-            int iActualIndex = PickActualIndexFromItemCounter(locationType, itemType, itemCounter, reverseOrder);
+            int iActualIndex = PickActualIndexFromItemCounter(locationType, itemType, itemCounter);
             return iActualIndex < 0 ? null : PickItemTextFromActualIndex(locationType, itemType, iActualIndex, validateAgainstOtherSources);
         }
 

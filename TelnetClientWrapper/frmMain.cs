@@ -3481,7 +3481,7 @@ namespace IsengardClient
                 }
                 if (sioei != null && action == ItemManagementAction.Trade) //remove traded item from inventory
                 {
-                    int iActualIndex = _currentEntityInfo.PickActualIndexFromItemCounter(ItemLocationType.Inventory, sioei.ItemType.Value, sioei.Counter, false);
+                    int iActualIndex = _currentEntityInfo.PickActualIndexFromItemCounter(ItemLocationType.Inventory, sioei.ItemType.Value, sioei.Counter);
                     if (iActualIndex >= 0)
                     {
                         _currentEntityInfo.InventoryItems.RemoveAt(iActualIndex);
@@ -4621,7 +4621,7 @@ namespace IsengardClient
                         {
                             SelectedInventoryOrEquipmentItem sioei = pms.InventoryItems[i];
                             ItemTypeEnum eItemType = sioei.ItemType.Value;
-                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, eItemType, sioei.Counter, false, false);
+                            string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, eItemType, sioei.Counter, false);
                             if (string.IsNullOrEmpty(sItemText))
                             {
                                 AddConsoleMessage("Unable to construct trade command for " + eItemType);
@@ -5568,7 +5568,7 @@ BeforeHazy:
             string sItemText;
             lock (_currentEntityInfo.EntityLock)
             {
-                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, sioei.ItemType.Value, sioei.Counter, false, false);
+                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, sioei.ItemType.Value, sioei.Counter, false);
             }
             if (string.IsNullOrEmpty(sItemText))
             {
@@ -5784,7 +5784,7 @@ BeforeHazy:
                             string sItemText;
                             lock (_currentEntityInfo.EntityLock)
                             {
-                                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, nextItemWithTargets.Counter, false, false);
+                                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, eItemType, nextItemWithTargets.Counter, false);
                             }
                             if (string.IsNullOrEmpty(sItemText))
                             {
@@ -5893,7 +5893,7 @@ BeforeHazy:
                         string sItemText;
                         lock (_currentEntityInfo.EntityLock)
                         {
-                            sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, siwt.ItemType, siwt.Counter, false, false);
+                            sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, siwt.ItemType, siwt.Counter, false);
                         }
                         if (string.IsNullOrEmpty(sItemText))
                         {
@@ -6070,7 +6070,7 @@ BeforeHazy:
                             string sItemText;
                             lock (_currentEntityInfo.EntityLock)
                             {
-                                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, siwt.ItemType, siwt.Counter, false, false);
+                                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, siwt.ItemType, siwt.Counter, false);
                             }
                             if (string.IsNullOrEmpty(sItemText))
                             {
@@ -6154,7 +6154,7 @@ BeforeHazy:
                     string sItemText;
                     lock (_currentEntityInfo.EntityLock)
                     {
-                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, siwt.ItemType, siwt.Counter, false, false);
+                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, siwt.ItemType, siwt.Counter, false);
                     }
                     if (string.IsNullOrEmpty(sItemText))
                     {
@@ -6199,7 +6199,7 @@ BeforeHazy:
                     string sItemText;
                     lock (_currentEntityInfo.EntityLock)
                     {
-                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, siwt.ItemType, siwt.Counter, false, false);
+                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, siwt.ItemType, siwt.Counter, false);
                     }
                     if (string.IsNullOrEmpty(sItemText))
                     {
@@ -6265,7 +6265,7 @@ BeforeHazy:
         {
             if (siwt.LocationType == ItemManagementLocationType.Equipment)
             {
-                string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, siwt.ItemType, siwt.Counter, false, false);
+                string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Equipment, siwt.ItemType, siwt.Counter, false);
                 if (string.IsNullOrEmpty(sItemText))
                 {
                     return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
@@ -6334,7 +6334,7 @@ BeforeHazy:
             {
                 if (!_currentEntityInfo.HasPotionForSpell(spellInfo.SpellType, out potItem, out bool? inInventory)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
                 ItemLocationType ilt = inInventory.Value ? ItemLocationType.Inventory : ItemLocationType.Equipment;
-                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, potItem.Value, 1, false, ilt == ItemLocationType.Equipment);
+                sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, potItem.Value, 1, ilt == ItemLocationType.Equipment);
                 if (string.IsNullOrEmpty(sItemText) && ilt == ItemLocationType.Equipment)
                 {
                     removeHeldPotion = true;
@@ -6349,7 +6349,7 @@ BeforeHazy:
                 }
                 lock (_currentEntityInfo.EntityLock)
                 {
-                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, potItem.Value, 1, false, false);
+                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, potItem.Value, 1, false);
                 }
                 if (string.IsNullOrEmpty(sItemText)) return new CommandResultObject(CommandResult.CommandUnsuccessfulAlways);
             }
@@ -6473,7 +6473,7 @@ BeforeHazy:
                     string sItemText;
                     lock (_currentEntityInfo.EntityLock)
                     {
-                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, next.Counter, false, false);
+                        sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemType, next.Counter, false);
                     }
                     if (string.IsNullOrEmpty(sItemText))
                     {
@@ -6537,7 +6537,7 @@ BeforeHazy:
                 ItemTypeEnum eKeyType = sioei.ItemType.Value;
                 lock (_currentEntityInfo.EntityLock)
                 {
-                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, eKeyType, sioei.Counter, false, false);
+                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, eKeyType, sioei.Counter, false);
                 }
                 _commandInventoryItem = sioei;
                 backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtItem, "look " + sItemText, pms, AbortIfHazying, false);
@@ -7051,7 +7051,7 @@ TryUnlockExit:
                                 string sItemText;
                                 lock (_currentEntityInfo.EntityLock)
                                 {
-                                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, keyItemType, i, false, false);
+                                    sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, keyItemType, i, false);
                                 }
                                 if (!string.IsNullOrEmpty(sItemText))
                                 {
@@ -7359,7 +7359,7 @@ TryUnlockExit:
             string sItemText = null;
             lock (cei.EntityLock)
             {
-                sItemText = cei.PickItemTextFromItemCounter(ItemLocationType.Inventory, sioei.ItemType.Value, sioei.Counter, false, false);
+                sItemText = cei.PickItemTextFromItemCounter(ItemLocationType.Inventory, sioei.ItemType.Value, sioei.Counter, false);
             }
             return sItemText;
         }
@@ -7681,7 +7681,7 @@ TryUnlockExit:
                                 if (ie.ItemType == itemValue)
                                 {
                                     iCounter++;
-                                    string itemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemValue, iCounter, false, false);
+                                    string itemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Inventory, itemValue, iCounter, false);
                                     if (!string.IsNullOrEmpty(itemText))
                                     {
                                         itemTexts.Add(itemText);
@@ -10874,7 +10874,7 @@ TryUnlockExit:
             lock (_currentEntityInfo.EntityLock)
             {
                 bool validateAgainstOtherSources = command == "look";
-                string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, ie.ItemType.Value, counter, false, validateAgainstOtherSources);
+                string sItemText = _currentEntityInfo.PickItemTextFromItemCounter(ItemLocationType.Room, ie.ItemType.Value, counter, validateAgainstOtherSources);
                 if (string.IsNullOrEmpty(sItemText))
                     MessageBox.Show($"Unable to construct {command} command for item.");
                 else
@@ -11203,7 +11203,7 @@ TryUnlockExit:
                             validateAgainstOtherSources = menuText != "remove";
                         else
                             validateAgainstOtherSources = false;
-                        string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, false, validateAgainstOtherSources);
+                        string sText = _currentEntityInfo.PickItemTextFromItemCounter(ilt, eItemType, sioei.Counter, validateAgainstOtherSources);
                         if (string.IsNullOrEmpty(sText))
                             MessageBox.Show("Unable to construct selection text for " + ilt + " " + eItemType + " " + sioei.Counter);
                         else
