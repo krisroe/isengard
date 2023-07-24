@@ -5897,7 +5897,7 @@ BeforeHazy:
                         }
                         if (string.IsNullOrEmpty(sItemText))
                         {
-                            AddConsoleMessage("Unable to construct drop selection text for " + siwt.ItemType);
+                            AddConsoleMessage($"Unable to construct drop selection text for {siwt.ItemType} {siwt.Counter}");
                             success = false;
                             continue;
                         }
@@ -6074,21 +6074,20 @@ BeforeHazy:
                             }
                             if (string.IsNullOrEmpty(sItemText))
                             {
-                                AddConsoleMessage("Unable to construct drop selection text for " + siwt.ItemType);
+                                AddConsoleMessage($"Unable to construct drop selection text for {siwt.ItemType} {siwt.Counter}");
                                 success = false;
                                 continue;
                             }
                             if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, siwt.ItemType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
                             {
                                 somethingDone = true;
-                                continue;
+                                siwts.RemoveAt(i);
                             }
                             else
                             {
                                 AddConsoleMessage("Failed to drop " + siwt.ItemType);
                                 success = false;
                             }
-                            siwts.RemoveAt(i);
                         }
                     }
                 }
