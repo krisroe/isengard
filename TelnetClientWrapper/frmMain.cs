@@ -6485,15 +6485,21 @@ BeforeHazy:
                         success = false;
                         continue;
                     }
+
+                    _commandInventoryItem = new SelectedInventoryOrEquipmentItem(next.ItemEntity, next.ItemType, next.Counter, ItemLocationType.Inventory);
+                    backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.LookAtItem, "look " + sItemText, pms, AbortIfHazying, true);
+                    if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
+                    ItemStatus itemStatus = (ItemStatus)backgroundCommandResultObject.ResultCode;
+
                     StaticItemData sid = ItemEntity.StaticItemData[itemType];
-                    bool trySell = sid.SellGold > 0 || sid.Sellable == SellableEnum.Unknown;
+                    bool trySell = itemStatus != ItemStatus.Broken && (sid.SellGold > 0 || sid.Sellable == SellableEnum.Unknown);
                     if (trySell && TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.SellItem, itemType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
                     {
                         somethingDone = true;
                         continue;
                     }
 
-                    if (sid.Sellable == SellableEnum.Junk)
+                    if (itemStatus == ItemStatus.Broken || sid.Sellable == SellableEnum.Junk)
                     {
                         if (TryCommandAddingOrRemovingFromInventory(BackgroundCommandType.DropItem, itemType, sItemText, pms, AbortIfHazying).Result == CommandResult.CommandSuccessful)
                         {

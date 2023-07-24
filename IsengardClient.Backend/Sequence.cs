@@ -2348,6 +2348,10 @@ namespace IsengardClient.Backend
             Parameters.CommandResult = CommandResult.CommandSuccessful;
             Parameters.FinishedProcessing = true;
             Parameters.CommandSpecificResult = Convert.ToInt32(status);
+            if (Parameters.RunningHiddenCommand)
+            {
+                Parameters.SetSuppressEcho(true);
+            }
         }
     }
 
