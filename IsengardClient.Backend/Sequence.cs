@@ -1435,13 +1435,13 @@ namespace IsengardClient.Backend
         }
         public override void FeedLine(FeedLineParameters flParams)
         {
-            int nextLineIndex = flParams.NextLineIndex;
             List<string> Lines = flParams.Lines;
             TrapType eTrapType = TrapType.None;
             RoomTransitionType rtType = RoomTransitionType.Move;
             int iDamage = 0;
             int? iTransitionIndex = null;
-            for (int i = nextLineIndex; i < Lines.Count; i++)
+            int nextLineIndex = 0;
+            for (int i = 0; i < Lines.Count; i++)
             {
                 string sNextLine = Lines[i];
                 if (sNextLine.StartsWith("Scared of going "))
@@ -1503,6 +1503,8 @@ namespace IsengardClient.Backend
                 return;
             }
 
+            int iNextLineIndexAfterRoomContentProcess = nextLineIndex;
+
             bool drankHazy = false;
 
             if (nextLineIndex < lineCount)
@@ -1562,6 +1564,14 @@ namespace IsengardClient.Backend
                     foreach (int i in linesToRemove)
                     {
                         Lines.RemoveAt(i);
+                        nextLineIndex--;
+                    }
+                }
+                if (flParams.RunningHiddenCommand && flParams.BackgroundCommandType == BackgroundCommandType.Look && nextLineIndex > 0 && rtType == RoomTransitionType.Move && flParams.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
+                {
+                    for (int i = iNextLineIndexAfterRoomContentProcess - 1; i >= 0; i--)
+                    {
+                        flParams.Lines.RemoveAt(i);
                         nextLineIndex--;
                     }
                 }
