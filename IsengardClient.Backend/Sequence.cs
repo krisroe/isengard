@@ -1567,13 +1567,31 @@ namespace IsengardClient.Backend
                         nextLineIndex--;
                     }
                 }
-                if (flParams.RunningHiddenCommand && flParams.BackgroundCommandType == BackgroundCommandType.Look && nextLineIndex > 0 && rtType == RoomTransitionType.Move && flParams.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
+                if (flParams.RunningHiddenCommand && flParams.BackgroundCommandType == BackgroundCommandType.Look && rtType == RoomTransitionType.Move)
                 {
-                    for (int i = iNextLineIndexAfterRoomContentProcess - 1; i >= 0; i--)
+                    if (nextLineIndex > 0 && flParams.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
                     {
-                        flParams.Lines.RemoveAt(i);
-                        nextLineIndex--;
+                        for (int i = iNextLineIndexAfterRoomContentProcess - 1; i >= 0; i--)
+                        {
+                            flParams.Lines.RemoveAt(i);
+                            nextLineIndex--;
+                        }
+                        bool hasData = false;
+                        foreach (string s in Lines)
+                        {
+                            if (!string.IsNullOrEmpty(s))
+                            {
+                                hasData = true;
+                                break;
+                            }
+                        }
+                        if (!hasData)
+                        {
+                            flParams.SetSuppressEcho(true);
+                            flParams.FinishedProcessing = true;
+                        }
                     }
+                    flParams.CommandResult = CommandResult.CommandSuccessful;
                 }
                 flParams.NextLineIndex = nextLineIndex;
             }

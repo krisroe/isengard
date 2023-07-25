@@ -3696,15 +3696,15 @@ namespace IsengardClient
                             {
                                 //if this set of output completed the command, include the command input in the console output,
                                 //except for maximum verbosity in which case the input was sent to the console immediately
-                                if (_settingsData != null && _settingsData.ConsoleVerbosity == ConsoleOutputVerbosity.Minimum && !previousCommandResult.HasValue && flParams.CommandResult.HasValue)
+                                if (_settingsData != null && _settingsData.ConsoleVerbosity == ConsoleOutputVerbosity.Minimum && !previousCommandResult.HasValue && flParams.CommandResult.HasValue && !flParams.RunningHiddenCommand)
                                 {
                                     sNewLine = _lastCommand + Environment.NewLine + sNewLine;
                                 }
-                                if (flParams.CommandResult.HasValue)
-                                {
-                                    _commandResult = flParams.CommandResult.Value;
-                                    _commandSpecificResult = flParams.CommandSpecificResult;
-                                }
+                            }
+                            if (flParams.CommandResult.HasValue)
+                            {
+                                _commandResult = flParams.CommandResult.Value;
+                                _commandSpecificResult = flParams.CommandSpecificResult;
                             }
                         }
 
