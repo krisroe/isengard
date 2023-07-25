@@ -2718,6 +2718,7 @@ namespace IsengardClient.Backend
 
         [SingularName("tattoo of a snake")]
         [PluralName("tattoo of a snake")] //verified 7/5/23
+        [LookText("A red and black tattoo of a hissing snake.")]
         [EquipmentType(EquipmentType.Arms)]
         [Weight(1)]
         [DisallowedClasses(ClassTypeFlags.Mage)] //verified 7/6/23

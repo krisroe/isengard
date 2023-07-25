@@ -263,6 +263,10 @@
         //CSRTODO: plural
         CitizenOfTharbad,
 
+        [SingularName("city guard")]
+        [PluralName("city guards")]
+        CityGuard,
+
         [SingularName("clockwork dragon")]
         [PluralName("clockwork dragons")]
         ClockworkDragon,
