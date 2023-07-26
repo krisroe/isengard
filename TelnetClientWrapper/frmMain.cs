@@ -9669,7 +9669,10 @@ TryUnlockExit:
                             {
                                 InsertTopLevelTreeNode(tnObviousExits);
                             }
-                            tnOtherExits.Nodes.Remove(removeNode);
+                            if (removeNode != null)
+                            {
+                                tnOtherExits.Nodes.Remove(removeNode);
+                            }
                             if (tnOtherExits.Nodes.Count == 0)
                             {
                                 treeCurrentRoom.Nodes.Remove(tnOtherExits);

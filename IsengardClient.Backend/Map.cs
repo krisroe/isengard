@@ -655,6 +655,33 @@ namespace IsengardClient.Backend
             AddBidirectionalSameNameExit(oMithlondGateInside, oMithlondGateOutside, "gate");
             mithlondGraph.Rooms[oMithlondGateOutside] = new PointF(2, 0);
 
+            Room oEredLune1 = AddRoom("Ered Lune", "Ered Lune");
+            AddBidirectionalExits(oMithlondGateOutside, oEredLune1, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oEredLune1] = new PointF(3, 0);
+
+            Room oEredLune2 = AddRoom("Ered Lune", "Ered Lune");
+            AddBidirectionalExits(oEredLune1, oEredLune2, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oEredLune2] = new PointF(4, 1);
+
+            Room oEredLune3 = AddRoom("Ered Lune", "Ered Lune");
+            e = AddExit(oEredLune2, oEredLune3, "up");
+            e.IsTrapExit = true;
+            e = AddExit(oEredLune3, oEredLune2, "down");
+            e.IsTrapExit = true;
+            mithlondGraph.Rooms[oEredLune3] = new PointF(4, 0);
+
+            Room oCliff = AddRoom("Cliff", "Cliff");
+            e = AddExit(oEredLune3, oCliff, "up");
+            e.IsTrapExit = true;
+            AddExit(oCliff, oEredLune3, "down");
+            mithlondGraph.Rooms[oCliff] = new PointF(4, -1);
+
+            Room oCliff2 = AddRoom("Cliff", "Cliff");
+            AddExit(oCliff, oCliff2, "up");
+            e = AddExit(oCliff2, oCliff, "down");
+            e.IsTrapExit = true;
+            mithlondGraph.Rooms[oCliff2] = new PointF(4, -2);
+
             AddHarbringer(oHarbringerGangplank, tharbadDocks);
             AddBullroarer(oBullroarerSlip, nindamosDocks);
             AddCelduinExpress(boatswain, breeDocks);
