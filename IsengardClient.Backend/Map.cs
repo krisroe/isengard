@@ -602,6 +602,40 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oMithlondPort, oEvendimTrailEnd, BidirectionalExitType.SoutheastNorthwest);
             mithlondGraph.Rooms[oEvendimTrailEnd] = new PointF(3, 5);
 
+            Room oEvendimTrail2 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail2, oEvendimTrailEnd, BidirectionalExitType.UpDown);
+            mithlondGraph.Rooms[oEvendimTrail2] = new PointF(3, 4.5F);
+
+            Room oEvendimTrail3 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail3, oEvendimTrail2, BidirectionalExitType.UpDown);
+            mithlondGraph.Rooms[oEvendimTrail3] = new PointF(3, 4);
+
+            Room oEvendimTrail4 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail3, oEvendimTrail4, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oEvendimTrail4] = new PointF(4, 5);
+
+            Room oEvendimTrail5 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail5, oEvendimTrail4, BidirectionalExitType.UpDown);
+            mithlondGraph.Rooms[oEvendimTrail5] = new PointF(4, 4);
+
+            Room oEvendimTrail6 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail5, oEvendimTrail6, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oEvendimTrail6] = new PointF(5, 5);
+
+            Room oEvendimTrail7 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail6, oEvendimTrail7, BidirectionalExitType.UpDown);
+            mithlondGraph.Rooms[oEvendimTrail7] = new PointF(5, 5.5F);
+
+            Room oEvendimTrail8 = AddRoom("Trail", "Evendim Trail");
+            AddExit(oEvendimTrail7, oEvendimTrail8, "down");
+            e = AddExit(oEvendimTrail8, oEvendimTrail7, "up");
+            e.FloatRequirement = FloatRequirement.Fly;
+            mithlondGraph.Rooms[oEvendimTrail8] = new PointF(5, 6);
+
+            Room oEvendimTrail9 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail8, oEvendimTrail9, BidirectionalExitType.UpDown);
+            mithlondGraph.Rooms[oEvendimTrail9] = new PointF(5, 6.5F);
+
             Room oMithlondPort2 = AddRoom("Mithlond Port", "Mithlond Port");
             AddBidirectionalExits(oMithlondPort2, oMithlondPort, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oMithlondPort2] = new PointF(2, 3);

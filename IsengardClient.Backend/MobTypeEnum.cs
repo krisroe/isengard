@@ -68,6 +68,10 @@
         //CSRTODO: no plural
         Azgara,
 
+        [SingularName("baby roc")]
+        [PluralName("baby rocs")]
+        BabyRoc,
+
         [SingularName("bandit")]
         [PluralName("bandits")]
         Bandit,
