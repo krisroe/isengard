@@ -1147,6 +1147,7 @@ namespace IsengardClient.Backend
 
         [SingularName("crystal amulet")]
         [PluralName("crystal amulets")]
+        [LookText("You see a brilliant crystal trinket attached to a golden necklace.")]
         [EquipmentType(EquipmentType.Unknown)]
         CrystalAmulet,
 
