@@ -2811,6 +2811,7 @@ namespace IsengardClient.Backend
         TrainingKey,
 
         [SingularName("translucent armor")]
+        [LookText("You see shimmers in the air where the armor should be.")]
         [EquipmentType(EquipmentType.Torso)]
         TranslucentArmor,
 

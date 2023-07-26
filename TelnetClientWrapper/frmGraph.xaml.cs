@@ -77,7 +77,10 @@ namespace IsengardClient
                 foreach (Exit nextExit in nextRoom.Exits)
                 {
                     Room targetRoom = nextExit.Target;
-                    if (_fullMap.RoomsToMaps.TryGetValue(targetRoom, out MapType nextTargetMapType) && (nextMapType == mt || nextTargetMapType == mt))
+                    //there's an ugly link between tree of life and guild street that doesn't show well on the bree streets graph
+                    //to avoid that, do not display links between rooms not in the map type for the intangible graph
+                    if (_fullMap.RoomsToMaps.TryGetValue(targetRoom, out MapType nextTargetMapType) && 
+                        (nextMapType == mt || nextTargetMapType == mt || nextMapType != MapType.Intangible))
                     {
                         if (rg.Rooms.ContainsKey(targetRoom))
                         {

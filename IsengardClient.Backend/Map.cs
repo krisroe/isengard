@@ -677,7 +677,7 @@ namespace IsengardClient.Backend
             e.BoatExitType = BoatExitType.MithlondEnterOmaniPrincess;
             e = AddExit(oMainDeck1, oOmaniPrincessSlip, "gangway");
             e.BoatExitType = BoatExitType.MithlondExitOmaniPrincess;
-            mithlondGraph.Rooms[oMainDeck1] = new PointF(0.5F, 7);
+            mithlondGraph.Rooms[oMainDeck1] = new PointF(1, 7);
             shipsGraph.Rooms[oMainDeck1] = new PointF(0.5F, 6.5F);
             AddMapBoundaryPoint(oOmaniPrincessSlip, oMainDeck1, MapType.Mithlond, MapType.Ships);
 
@@ -901,7 +901,6 @@ namespace IsengardClient.Backend
             e.BoatExitType = BoatExitType.NindamosExitBullroarer;
             nindamosGraph.Rooms[bullroarerSE] = new PointF(15, 6);
             mithlondGraph.Rooms[bullroarerSE] = new PointF(3, 6);
-            mithlondGraph.Rooms[nindamosDocks] = new PointF(6, 5);
             shipsGraph.Rooms[bullroarerSE] = new PointF(5, 5);
             shipsGraph.Rooms[nindamosDocks] = new PointF(6, 5);
             AddMapBoundaryPoint(nindamosDocks, bullroarerSE, MapType.Nindamos, MapType.Ships);
