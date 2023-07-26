@@ -1154,7 +1154,7 @@ namespace IsengardClient
 
                 InitialLoginInfo info = _loginInfo;
                 string sRoomName = info.RoomName;
-                if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None, false, null, null, null))
+                if (RoomTransitionSequence.ProcessRoom(sRoomName, info.ObviousExits, info.List1, info.List2, info.List3, OnRoomTransition, flp, RoomTransitionType.Initial, 0, TrapType.None, null, null, null))
                 {
                     _initializationSteps |= InitializationStep.Finalization;
                     Room r = _currentEntityInfo.CurrentRoom;
@@ -1507,10 +1507,6 @@ namespace IsengardClient
             {
                 _hazying = false;
                 _fleeing = false;
-                if (roomTransitionInfo.DrankHazy)
-                {
-                    AddOrRemoveItemsFromInventoryOrEquipment(flParams, new List<ItemEntity>() { new ItemEntity(ItemTypeEnum.HazyPotion, 1, 1) }, ItemManagementAction.ConsumeItem, null);
-                }
                 if (fromAnyBackgroundCommand) //abort whatever background command is currently running
                 {
                     if (fromBackgroundHazy && rtType == RoomTransitionType.WordOfRecall)
@@ -5657,8 +5653,6 @@ BeforeHazy:
                         List<ItemEntity> monsterItems = new List<ItemEntity>(_monsterKilledItems);
                         if (monsterItems.Count > 0)
                         {
-                            backgroundCommandResultObject = RunSingleCommandForCommandResult(BackgroundCommandType.Look, "look", pms, AbortIfHazying, true);
-                            if (backgroundCommandResultObject.Result != CommandResult.CommandSuccessful) return backgroundCommandResultObject;
                             lock (_currentEntityInfo.EntityLock)
                             {
                                 foreach (ItemEntity ie in _currentEntityInfo.CurrentRoomItems)
@@ -7009,7 +7003,7 @@ BeforeHazy:
                         if (timeRemainingSeconds != 0)
                         {
                             AddConsoleMessage("Waiting " + timeRemainingSeconds.ToString("N1") + " seconds for boat exit.");
-                            WaitUntilNextCommandTry(Convert.ToInt32((timeRemainingSeconds + 1) * 1000), BackgroundCommandType.Look);
+                            WaitUntilNextCommandTry(Convert.ToInt32((timeRemainingSeconds + 1) * 1000), null);
                             if (abortLogic()) return new CommandResultObject(CommandResult.CommandEscaped);
                             if (_bwBackgroundProcess.CancellationPending) return new CommandResultObject(CommandResult.CommandAborted);
                         }
@@ -8101,7 +8095,7 @@ TryUnlockExit:
             return RunSingleCommand(bct, "cast " + spellName, bwp, abortLogic, false);
         }
 
-        private void WaitUntilNextCommandTry(int remainingMS, BackgroundCommandType commandType)
+        private void WaitUntilNextCommandTry(int remainingMS, BackgroundCommandType? commandType)
         {
             DateTime dtWaitUntilUTC = DateTime.UtcNow.AddMilliseconds(remainingMS);
             bool hazying = commandType == BackgroundCommandType.DrinkHazy;

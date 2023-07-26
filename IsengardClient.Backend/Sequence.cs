@@ -1388,7 +1388,6 @@ namespace IsengardClient.Backend
         public List<ItemEntity> Items { get; set; }
         public List<MobEntity> Mobs { get; set; }
         public List<UnknownTypeEntity> UnknownEntities { get; set; }
-        public bool DrankHazy { get; set; }
     }
 
     public class InitialLoginSequence : AOutputProcessingSequence
@@ -1505,8 +1504,6 @@ namespace IsengardClient.Backend
 
             int iNextLineIndexAfterRoomContentProcess = nextLineIndex;
 
-            bool drankHazy = false;
-
             if (nextLineIndex < lineCount)
             {
                 string sNextLine = Lines[nextLineIndex];
@@ -1526,12 +1523,9 @@ namespace IsengardClient.Backend
                             nextLineIndex = i + 1;
                             goto StartProcessRoom;
                         }
-                        else if (sNextLine == "The hazy potion disintegrates.")
-                        {
-                            drankHazy = true;
-                        }
                         else if (sNextLine == "You tingle all over" || //part of word of recall / hazy
-                                 sNextLine == "Substance consumed.") //part of drinking hazy
+                                 sNextLine == "Substance consumed." ||
+                                 sNextLine == "The hazy potion disintegrates.") //part of drinking hazy
                         {
                             //skipped
                         }
@@ -1555,7 +1549,7 @@ namespace IsengardClient.Backend
                 }
             }
 
-            if (ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, _onSatisfied, flParams, rtType, iDamage, eTrapType, drankHazy, broadcastMessages, addedPlayers, removedPlayers))
+            if (ProcessRoom(sRoomName, exitsString, list1String, list2String, list3String, _onSatisfied, flParams, rtType, iDamage, eTrapType, broadcastMessages, addedPlayers, removedPlayers))
             {
                 //remove from output lines that shouldn't display
                 if (linesToRemove != null & flParams.ConsoleVerbosity != ConsoleOutputVerbosity.Maximum)
@@ -1666,7 +1660,7 @@ namespace IsengardClient.Backend
             return true;
         }
 
-        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType, bool drankHazy, List<string> broadcastMessages, List<string> addedPlayers, List<string> removedPlayers)
+        public static bool ProcessRoom(string sRoomName, string exitsList, string list1, string list2, string list3, Action<FeedLineParameters, RoomTransitionInfo, int, TrapType, List<string>, List<string>, List<string>> onSatisfied, FeedLineParameters flParams, RoomTransitionType rtType, int damage, TrapType trapType, List<string> broadcastMessages, List<string> addedPlayers, List<string> removedPlayers)
         {
             List<string> exits = StringProcessing.ParseList(exitsList);
             if (exits == null)
@@ -1856,7 +1850,6 @@ namespace IsengardClient.Backend
             rti.Mobs = mobs;
             rti.Items = items;
             rti.UnknownEntities = unknownEntities;
-            rti.DrankHazy = drankHazy;
             onSatisfied(flParams, rti, damage, trapType, broadcastMessages, addedPlayers, removedPlayers);
             return true;
         }
