@@ -636,6 +636,60 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oEvendimTrail8, oEvendimTrail9, BidirectionalExitType.UpDown);
             mithlondGraph.Rooms[oEvendimTrail9] = new PointF(5, 6.5F);
 
+            Room oEvendimTrail10 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail9, oEvendimTrail10, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oEvendimTrail10] = new PointF(6, 6.5F);
+
+            Room oEvendimTrail11 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail10, oEvendimTrail11, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oEvendimTrail11] = new PointF(7, 6.5F);
+
+            Room oEvendimTrail12 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail12, oEvendimTrail11, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oEvendimTrail12] = new PointF(8, 5.5F);
+
+            Room oEvendimTrail13 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail13, oEvendimTrail12, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oEvendimTrail13] = new PointF(9, 4.5F);
+
+            Room oEvendimTrail14 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail13, oEvendimTrail14, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oEvendimTrail14] = new PointF(10, 4.5F);
+
+            Room oEvendimTrail15 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail14, oEvendimTrail15, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oEvendimTrail15] = new PointF(11, 4.5F);
+
+            Room oEvendimTrail16 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail15, oEvendimTrail16, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oEvendimTrail16] = new PointF(12, 4.5F);
+
+            Room oEvendimTrail17 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail16, oEvendimTrail17, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oEvendimTrail17] = new PointF(13, 4.5F);
+
+            Room oEvendimTrail18 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail18, oEvendimTrail17, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oEvendimTrail18] = new PointF(14, 3.5F);
+
+            Room oEvendimTrail19 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail19, oEvendimTrail18, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oEvendimTrail19] = new PointF(15, 2.5F);
+
+            Room oEvendimTrail20 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail19, oEvendimTrail20, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oEvendimTrail20] = new PointF(16, 2.5F);
+            //CSRTODO: village
+
+            Room oEvendimTrail21 = AddRoom("Trail", "Evendim Trail");
+            AddBidirectionalExits(oEvendimTrail20, oEvendimTrail21, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oEvendimTrail21] = new PointF(17, 2.5F);
+
+            Room oEndOfTheEvendimTrail = AddRoom("Trail End", "End of the Evendim Trail");
+            AddBidirectionalExits(oEndOfTheEvendimTrail, oEvendimTrail21, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oEndOfTheEvendimTrail] = new PointF(18, 1.5F);
+            //CSRTODO: boulder
+
             Room oMithlondPort2 = AddRoom("Mithlond Port", "Mithlond Port");
             AddBidirectionalExits(oMithlondPort2, oMithlondPort, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oMithlondPort2] = new PointF(2, 3);

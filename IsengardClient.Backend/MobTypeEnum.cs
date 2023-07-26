@@ -412,6 +412,10 @@
         [PluralName("dwarven shoppers")]
         DwarvenShopper,
 
+        [SingularName("eagle")]
+        [PluralName("eagles")]
+        Eagle,
+
         [SingularName("Eald the Wise")]
         //CSRTODO: no plural
         EaldTheWise,
