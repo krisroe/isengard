@@ -2005,6 +2005,7 @@ namespace IsengardClient.Backend
 
         [SingularName("mask of darkness")]
         //CSRTODO: plural?
+        [LookText("You see a stylish, black mask made of translucent galvorn.")]
         [EquipmentType(EquipmentType.Face)]
         [Weight(3)]
         [ArmorClass(0.6)]

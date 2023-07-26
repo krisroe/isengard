@@ -236,6 +236,9 @@ namespace IsengardClient.Backend
         [MapTypeDisplayName("North of Esgaroth")]
         NorthOfEsgaroth,
 
+        [MapTypeDisplayName("Ships")]
+        Ships,
+
         [MapTypeDisplayName("Mithlond")]
         Mithlond,
 

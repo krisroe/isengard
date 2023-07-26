@@ -548,6 +548,7 @@ namespace IsengardClient.Backend
         private void AddMithlond(Room breeDocks, Room boatswain, Room tharbadDocks, Room nindamosDocks, RoomGraph nindamosGraph)
         {
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
+            RoomGraph shipsGraph = _graphs[MapType.Ships];
 
             Room oCelduinExpressSlip = AddRoom("Celduin Express Slip", "Pier - Slip for the Celduin Express");
             AddPermanentMobs(oCelduinExpressSlip, MobTypeEnum.HarborMaster);
@@ -557,20 +558,26 @@ namespace IsengardClient.Backend
             e = AddExit(oCelduinExpressSlip, boatswain, "gangway");
             e.BoatExitType = BoatExitType.MithlondEnterCelduinExpress;
             mithlondGraph.Rooms[oCelduinExpressSlip] = new PointF(2, 5);
+            shipsGraph.Rooms[oCelduinExpressSlip] = new PointF(2, 5);
+            AddMapBoundaryPoint(boatswain, oCelduinExpressSlip, MapType.Ships, MapType.Mithlond);
 
             Room oBullroarerSlip = AddRoom("Bullroarer Slip", "Pier - Slip for the Bullroarer");
             oBullroarerSlip.BoatLocationType = BoatEmbarkOrDisembark.BullroarerMithlond;
             AddBidirectionalExits(oCelduinExpressSlip, oBullroarerSlip, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oBullroarerSlip] = new PointF(2, 6);
+            shipsGraph.Rooms[oBullroarerSlip] = new PointF(2, 6);
 
             Room oOmaniPrincessSlip = AddRoom("Omani Princess Slip", "Pier - Slip for the Omani Princess");
             oOmaniPrincessSlip.BoatLocationType = BoatEmbarkOrDisembark.OmaniPrincessMithlondDock;
             AddBidirectionalExits(oBullroarerSlip, oOmaniPrincessSlip, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oOmaniPrincessSlip] = new PointF(2, 7);
+            shipsGraph.Rooms[oOmaniPrincessSlip] = new PointF(2, 7);
 
             Room oHarbringerSlip = AddRoom("Harbringer Slip", "Pier - Slip for the Harbringer");
             AddBidirectionalExits(oOmaniPrincessSlip, oHarbringerSlip, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oHarbringerSlip] = new PointF(2, 8);
+            shipsGraph.Rooms[oHarbringerSlip] = new PointF(2, 8);
+            AddRoomMapDisambiguation(oHarbringerSlip, MapType.Mithlond);
 
             Room oBayOfSomund = AddRoom("Bay of Somund", "Bay of Somund");
             AddExit(oHarbringerSlip, oBayOfSomund, "down");
@@ -583,6 +590,7 @@ namespace IsengardClient.Backend
             AddExit(oHarbringerSlip, oHarbringerGangplank, "gangplank");
             AddExit(oHarbringerGangplank, oHarbringerSlip, "pier");
             mithlondGraph.Rooms[oHarbringerGangplank] = new PointF(3, 8);
+            shipsGraph.Rooms[oHarbringerGangplank] = new PointF(3, 8);
 
             Room oMithlondPort = AddRoom("Mithlond Port", "Mithlond Port");
             AddPermanentItems(oMithlondPort, ItemTypeEnum.PortManifest);
@@ -655,10 +663,11 @@ namespace IsengardClient.Backend
 
         private void AddOmaniPrincess(Room oOmaniPrincessSlip)
         {
+            RoomGraph shipsGraph = _graphs[MapType.Ships];
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
 
             Room oStem = AddRoom("Stem", "Stem of the Omani Princess");
-            mithlondGraph.Rooms[oStem] = new PointF(-0.5F, 5.5F);
+            shipsGraph.Rooms[oStem] = new PointF(-0.5F, 5.5F);
 
             Room oMainDeck1 = AddRoom("Main Deck", "Main Deck of the Omani Princess");
             oMainDeck1.BoatLocationType = BoatEmbarkOrDisembark.OmaniPrincessMithlondBoat;
@@ -668,46 +677,48 @@ namespace IsengardClient.Backend
             e.BoatExitType = BoatExitType.MithlondEnterOmaniPrincess;
             e = AddExit(oMainDeck1, oOmaniPrincessSlip, "gangway");
             e.BoatExitType = BoatExitType.MithlondExitOmaniPrincess;
-            mithlondGraph.Rooms[oMainDeck1] = new PointF(0.5F, 6.5F);
+            mithlondGraph.Rooms[oMainDeck1] = new PointF(0.5F, 7);
+            shipsGraph.Rooms[oMainDeck1] = new PointF(0.5F, 6.5F);
+            AddMapBoundaryPoint(oOmaniPrincessSlip, oMainDeck1, MapType.Mithlond, MapType.Ships);
 
             Room oMainDeck2 = AddRoom("Main Deck", "Maindeck of the Omani Princess");
             oMainDeck2.BoatLocationType = BoatEmbarkOrDisembark.OmaniPrincessUmbarBoat;
             AddExit(oMainDeck2, oStem, "bow");
             AddExit(oMainDeck1, oMainDeck2, "starboard");
             AddExit(oMainDeck2, oMainDeck1, "portside");
-            mithlondGraph.Rooms[oMainDeck2] = new PointF(-1.5F, 6.5F);
+            shipsGraph.Rooms[oMainDeck2] = new PointF(-1.5F, 6.5F);
 
             Room oForwardCabin = AddRoom("Forward Cabin", "Forward Cabin of the Omani Princess");
             AddBidirectionalSameNameExit(oMainDeck1, oForwardCabin, "door");
-            mithlondGraph.Rooms[oForwardCabin] = new PointF(-0.5F, 6);
+            shipsGraph.Rooms[oForwardCabin] = new PointF(-0.5F, 6);
 
             Room oMidship = AddRoom("Midship", "Midship of the Omani Princess");
             AddExit(oMainDeck1, oMidship, "stern");
             AddExit(oMainDeck2, oMidship, "stern");
             AddExit(oMidship, oMainDeck1, "bow");
-            mithlondGraph.Rooms[oMidship] = new PointF(-0.5F, 7);
+            shipsGraph.Rooms[oMidship] = new PointF(-0.5F, 7);
 
             Room oMainCabin = AddRoom("Main Cabin", "Main Cabin of the Omani Princess");
             AddBidirectionalExitsWithOut(oMidship, oMainCabin, "door");
-            mithlondGraph.Rooms[oMainCabin] = new PointF(-0.5F, 6.75F);
+            shipsGraph.Rooms[oMainCabin] = new PointF(-0.5F, 6.75F);
 
             Room oCargoHold = AddRoom("Cargo Hold", "Cargo Hold of the Omani Princess");
             AddBidirectionalSameNameExit(oMidship, oCargoHold, "hatch");
-            mithlondGraph.Rooms[oCargoHold] = new PointF(-0.5F, 8);
+            shipsGraph.Rooms[oCargoHold] = new PointF(-0.5F, 8);
 
             Room oCrowsNest = AddRoom("Crow's Nest", "Crow's Nest of the Omani Princess");
             AddBidirectionalExits(oCrowsNest, oMidship, BidirectionalExitType.UpDown);
-            mithlondGraph.Rooms[oCrowsNest] = new PointF(-1.5F, 8);
+            shipsGraph.Rooms[oCrowsNest] = new PointF(-1.5F, 8);
 
             Room oGangway = AddRoom("Gangway", "Gangway of the Omani Princess");
             AddExit(oMidship, oGangway, "gangway");
             AddExit(oGangway, oMidship, "down");
-            mithlondGraph.Rooms[oGangway] = new PointF(0.5F, 8);
+            shipsGraph.Rooms[oGangway] = new PointF(0.5F, 8);
 
             Room oCaptainBelfalas = AddRoom("Captain Belfalas", "Transom Deck of the Omani Princess");
             AddExit(oGangway, oCaptainBelfalas, "up");
             AddExit(oCaptainBelfalas, oGangway, "gangway");
-            mithlondGraph.Rooms[oCaptainBelfalas] = new PointF(0.5F, 7.5F);
+            shipsGraph.Rooms[oCaptainBelfalas] = new PointF(0.5F, 7.5F);
 
             Room oUmbarPort = AddRoom("Umbar Port", "Umbar Port");
             oUmbarPort.BoatLocationType = BoatEmbarkOrDisembark.OmaniPrincessUmbarDock;
@@ -715,18 +726,20 @@ namespace IsengardClient.Backend
             e.BoatExitType = BoatExitType.UmbarExitOmaniPrincess;
             e = AddExit(oUmbarPort, oMainDeck2, "dhow");
             e.BoatExitType = BoatExitType.UmbarEnterOmaniPrincess;
-            mithlondGraph.Rooms[oUmbarPort] = new PointF(-2.5F, 6.5F);
+            shipsGraph.Rooms[oUmbarPort] = new PointF(-2.5F, 6.5F);
         }
 
         private void AddCelduinExpress(Room boatswain, Room breeDocks)
         {
+            RoomGraph shipsGraph = _graphs[MapType.Ships];
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
 
-            mithlondGraph.Rooms[boatswain] = new PointF(1, 3);
-            mithlondGraph.Rooms[breeDocks] = new PointF(1, 2.5F);
+            mithlondGraph.Rooms[boatswain] = new PointF(1, 5);
+            shipsGraph.Rooms[boatswain] = new PointF(1, 3);
+            shipsGraph.Rooms[breeDocks] = new PointF(1, 2.5F);
 
             Room oBeneathBridge = AddRoom("Under Bridge", "Beneath the Bridge of the Celduin Express");
-            mithlondGraph.Rooms[oBeneathBridge] = new PointF(-0.5F, 3.5F);
+            shipsGraph.Rooms[oBeneathBridge] = new PointF(-0.5F, 3.5F);
             AddBidirectionalExits(boatswain, oBeneathBridge, BidirectionalExitType.SouthwestNortheast);
 
             Room oBridge = AddRoom("Capt. Felagund", "Bridge of the Celduin Express");
@@ -736,15 +749,15 @@ namespace IsengardClient.Backend
             e.MustOpen = true;
             e = AddExit(oBridge, oBeneathBridge, "down");
             e.MustOpen = true;
-            mithlondGraph.Rooms[oBridge] = new PointF(-0.5F, 3.25F);
+            shipsGraph.Rooms[oBridge] = new PointF(-0.5F, 3.25F);
 
             Room oUnderDeck = AddRoom("Under Deck", "Beneath the Deck of the Celduin Express");
             AddBidirectionalSameNameExit(oBeneathBridge, oUnderDeck, "stairway");
-            mithlondGraph.Rooms[oUnderDeck] = new PointF(-1, 4.5F);
+            shipsGraph.Rooms[oUnderDeck] = new PointF(-1, 4.5F);
 
             Room oPassengerLounge = AddRoom("Passenger Lounge", "Passenger Lounge");
             AddBidirectionalExits(oUnderDeck, oPassengerLounge, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oPassengerLounge] = new PointF(-1, 4.75F);
+            shipsGraph.Rooms[oPassengerLounge] = new PointF(-1, 4.75F);
 
             Room oBoilerRoom = AddRoom("Boiler Room", "Boiler Room");
             e = AddExit(oUnderDeck, oBoilerRoom, "door");
@@ -752,28 +765,28 @@ namespace IsengardClient.Backend
             e.MustOpen = true;
             e = AddExit(oBoilerRoom, oUnderDeck, "door");
             e.MustOpen = true;
-            mithlondGraph.Rooms[oBoilerRoom] = new PointF(0, 4.5F);
+            shipsGraph.Rooms[oBoilerRoom] = new PointF(0, 4.5F);
 
             Room oCelduinExpressNW = AddRoom("Stern", "Stern of the Celduin Express");
             AddBidirectionalExits(oCelduinExpressNW, boatswain, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oCelduinExpressNW, oBeneathBridge, BidirectionalExitType.SoutheastNorthwest);
-            mithlondGraph.Rooms[oCelduinExpressNW] = new PointF(-2, 3);
+            shipsGraph.Rooms[oCelduinExpressNW] = new PointF(-2, 3);
 
             Room oCelduinExpressMainDeckW = AddRoom("Main Deck", "Main Deck of the Celduin Express");
             AddBidirectionalExits(oCelduinExpressNW, oCelduinExpressMainDeckW, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oBeneathBridge, oCelduinExpressMainDeckW, BidirectionalExitType.SouthwestNortheast);
-            mithlondGraph.Rooms[oCelduinExpressMainDeckW] = new PointF(-2, 5);
+            shipsGraph.Rooms[oCelduinExpressMainDeckW] = new PointF(-2, 5);
 
             Room oCelduinExpressMainDeckE = AddRoom("Main Deck", "Main Deck of the Celduin Express");
             AddBidirectionalExits(boatswain, oCelduinExpressMainDeckE, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oBeneathBridge, oCelduinExpressMainDeckE, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oCelduinExpressMainDeckW, oCelduinExpressMainDeckE, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[oCelduinExpressMainDeckE] = new PointF(1, 5);
+            shipsGraph.Rooms[oCelduinExpressMainDeckE] = new PointF(1, 5);
 
             Room oCelduinExpressBow = AddRoom("Bow", "Bow of the Celduin Express");
             AddBidirectionalExits(oCelduinExpressMainDeckE, oCelduinExpressBow, BidirectionalExitType.SouthwestNortheast);
             AddBidirectionalExits(oCelduinExpressMainDeckW, oCelduinExpressBow, BidirectionalExitType.SoutheastNorthwest);
-            mithlondGraph.Rooms[oCelduinExpressBow] = new PointF(-0.5F, 5.25F);
+            shipsGraph.Rooms[oCelduinExpressBow] = new PointF(-0.5F, 5.25F);
         }
 
         /// <summary>
@@ -783,19 +796,20 @@ namespace IsengardClient.Backend
         {
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
             RoomGraph tharbadGraph = _graphs[MapType.Tharbad];
+            RoomGraph shipsGraph = _graphs[MapType.Ships];
 
             Room oHarbringerTop = AddRoom("Bluejacket", "Bow of the Harbringer.");
             AddPermanentMobs(oHarbringerTop, MobTypeEnum.Bluejacket, MobTypeEnum.Scallywag);
-            mithlondGraph.Rooms[oHarbringerTop] = new PointF(4.5F, 5.5F);
+            shipsGraph.Rooms[oHarbringerTop] = new PointF(4.5F, 5.5F);
 
             Room oHarbringerWest1 = AddRoom("Harbringer", "Starboad-side of the Harbringer");
             AddBidirectionalExits(oHarbringerTop, oHarbringerWest1, BidirectionalExitType.SouthwestNortheast);
-            mithlondGraph.Rooms[oHarbringerWest1] = new PointF(4, 6);
+            shipsGraph.Rooms[oHarbringerWest1] = new PointF(4, 6);
 
             Room oHarbringerEast1 = AddRoom("Harbringer", "Port-side of the Harbringer");
             AddBidirectionalExits(oHarbringerTop, oHarbringerEast1, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oHarbringerWest1, oHarbringerEast1, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[oHarbringerEast1] = new PointF(5, 6);
+            shipsGraph.Rooms[oHarbringerEast1] = new PointF(5, 6);
 
             Room oHarbringerMithlondEntrance = AddRoom("Harbringer", "Starboad-side of the Harbringer");
             oHarbringerMithlondEntrance.BoatLocationType = BoatEmbarkOrDisembark.Harbringer;
@@ -806,71 +820,74 @@ namespace IsengardClient.Backend
             e.BoatExitType = BoatExitType.MithlondExitHarbringer;
             e = AddExit(tharbadDocks, oHarbringerMithlondEntrance, "gangway");
             e.BoatExitType = BoatExitType.TharbadEnterHarbringer;
-            mithlondGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(4, 6.5F);
-            mithlondGraph.Rooms[tharbadDocks] = new PointF(3, 6.5F);
+            mithlondGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(4, 8);
+            shipsGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(4, 6.5F);
+            shipsGraph.Rooms[tharbadDocks] = new PointF(3, 6.5F);
             tharbadGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(0, 9);
-            AddMapBoundaryPoint(tharbadDocks, oHarbringerMithlondEntrance, MapType.Tharbad, MapType.Mithlond);
+            AddMapBoundaryPoint(tharbadDocks, oHarbringerMithlondEntrance, MapType.Tharbad, MapType.Ships);
+            AddMapBoundaryPoint(mithlondEntrance, oHarbringerMithlondEntrance, MapType.Mithlond, MapType.Ships);
 
             Room oHarbringerEast2 = AddRoom("Harbringer", "Port-side of the Harbringer");
             AddBidirectionalExits(oHarbringerMithlondEntrance, oHarbringerEast2, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oHarbringerEast1, oHarbringerEast2, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oHarbringerEast2] = new PointF(5, 6.5F);
+            shipsGraph.Rooms[oHarbringerEast2] = new PointF(5, 6.5F);
 
             Room oHarbringerWest3 = AddRoom("Harbringer", "Starboad-side of the Harbringer");
             AddBidirectionalExits(oHarbringerMithlondEntrance, oHarbringerWest3, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oHarbringerWest3] = new PointF(4, 7);
+            shipsGraph.Rooms[oHarbringerWest3] = new PointF(4, 7);
 
             Room oHarbringerEast3 = AddRoom("Harbringer", "Port-side of the Harbringer");
             AddBidirectionalExits(oHarbringerEast2, oHarbringerEast3, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oHarbringerWest3, oHarbringerEast3, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[oHarbringerEast3] = new PointF(5, 7);
+            shipsGraph.Rooms[oHarbringerEast3] = new PointF(5, 7);
 
             Room oHarbringerWest4 = AddRoom("Harbringer", "Starboad-side of the Harbringer");
             AddBidirectionalExits(oHarbringerWest3, oHarbringerWest4, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oHarbringerWest4] = new PointF(4, 7.5F);
+            shipsGraph.Rooms[oHarbringerWest4] = new PointF(4, 7.5F);
 
             Room oHarbringerEast4 = AddRoom("Harbringer", "Port-side of the Harbringer");
             AddBidirectionalExits(oHarbringerEast3, oHarbringerEast4, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(oHarbringerWest4, oHarbringerEast4, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[oHarbringerEast4] = new PointF(5, 7.5F);
+            shipsGraph.Rooms[oHarbringerEast4] = new PointF(5, 7.5F);
 
             Room oKralle = AddRoom("Kralle", "Stern of the Harbringer");
             AddPermanentMobs(oKralle, MobTypeEnum.Kralle);
             AddBidirectionalExits(oHarbringerWest4, oKralle, BidirectionalExitType.SoutheastNorthwest);
             AddBidirectionalExits(oHarbringerEast4, oKralle, BidirectionalExitType.SouthwestNortheast);
-            mithlondGraph.Rooms[oKralle] = new PointF(4.5F, 8);
+            shipsGraph.Rooms[oKralle] = new PointF(4.5F, 8);
 
             Room oShipsHoldSE = AddRoom("Ship's Hold", "Ship's Hold");
             AddExit(oHarbringerEast3, oShipsHoldSE, "hatch");
             AddExit(oShipsHoldSE, oHarbringerEast3, "up");
-            mithlondGraph.Rooms[oShipsHoldSE] = new PointF(7, 7.5F);
+            shipsGraph.Rooms[oShipsHoldSE] = new PointF(7, 7.5F);
 
             Room oShipsHoldS = AddRoom("Ship's Hold", "Ship's Hold");
             AddBidirectionalExits(oShipsHoldSE, oShipsHoldS, BidirectionalExitType.SouthwestNortheast);
-            mithlondGraph.Rooms[oShipsHoldS] = new PointF(6.5F, 8);
+            shipsGraph.Rooms[oShipsHoldS] = new PointF(6.5F, 8);
 
             Room oShipsHoldSW = AddRoom("Ship's Hold", "Ship's Hold");
             AddBidirectionalExits(oShipsHoldSW, oShipsHoldS, BidirectionalExitType.SoutheastNorthwest);
-            mithlondGraph.Rooms[oShipsHoldSW] = new PointF(6, 7.5F);
+            shipsGraph.Rooms[oShipsHoldSW] = new PointF(6, 7.5F);
 
             Room oBrig = AddRoom("Brig", "Brig");
             AddPermanentMobs(oBrig, MobTypeEnum.Smee);
             AddExit(oShipsHoldSW, oBrig, "door");
-            mithlondGraph.Rooms[oBrig] = new PointF(6, 6.5F);
+            shipsGraph.Rooms[oBrig] = new PointF(6, 6.5F);
 
             Room oShipsHoldNE = AddRoom("Ship's Hold", "Ship's Hold");
             AddBidirectionalExits(oShipsHoldNE, oShipsHoldSE, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oShipsHoldNE] = new PointF(7, 7);
+            shipsGraph.Rooms[oShipsHoldNE] = new PointF(7, 7);
 
             Room oRandsQuarters = AddRoom("Rand's Quarters", "Rand's Quarters");
             AddBidirectionalSameNameMustOpenExit(oShipsHoldNE, oRandsQuarters, "door");
-            mithlondGraph.Rooms[oRandsQuarters] = new PointF(7, 6.5F);
+            shipsGraph.Rooms[oRandsQuarters] = new PointF(7, 6.5F);
         }
 
         private void AddBullroarer(Room mithlondEntrance, Room nindamosDocks)
         {
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
             RoomGraph nindamosGraph = _graphs[MapType.Nindamos];
+            RoomGraph shipsGraph = _graphs[MapType.Ships];
 
             Room bullroarerSE = AddRoom("Bullroarer", "Deck of the Bullroarer");
             bullroarerSE.BoatLocationType = BoatEmbarkOrDisembark.Bullroarer;
@@ -883,41 +900,44 @@ namespace IsengardClient.Backend
             e = AddExit(bullroarerSE, nindamosDocks, "plank");
             e.BoatExitType = BoatExitType.NindamosExitBullroarer;
             nindamosGraph.Rooms[bullroarerSE] = new PointF(15, 6);
-            mithlondGraph.Rooms[bullroarerSE] = new PointF(5, 5);
+            mithlondGraph.Rooms[bullroarerSE] = new PointF(3, 6);
             mithlondGraph.Rooms[nindamosDocks] = new PointF(6, 5);
-            AddMapBoundaryPoint(nindamosDocks, bullroarerSE, MapType.Nindamos, MapType.Mithlond);
+            shipsGraph.Rooms[bullroarerSE] = new PointF(5, 5);
+            shipsGraph.Rooms[nindamosDocks] = new PointF(6, 5);
+            AddMapBoundaryPoint(nindamosDocks, bullroarerSE, MapType.Nindamos, MapType.Ships);
+            AddMapBoundaryPoint(mithlondEntrance, bullroarerSE, MapType.Mithlond, MapType.Ships);
 
             Room bullroarerSW = AddRoom("Bullroarer", "Covered Deck");
             AddBidirectionalExits(bullroarerSW, bullroarerSE, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[bullroarerSW] = new PointF(4, 5);
+            shipsGraph.Rooms[bullroarerSW] = new PointF(4, 5);
 
             Room bullroarerNW = AddRoom("Bullroarer", "Fish Landing Deck");
             AddBidirectionalExits(bullroarerNW, bullroarerSW, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(bullroarerNW, bullroarerSE, BidirectionalExitType.SoutheastNorthwest);
-            mithlondGraph.Rooms[bullroarerNW] = new PointF(4, 4.5F);
+            shipsGraph.Rooms[bullroarerNW] = new PointF(4, 4.5F);
 
             Room bullroarerNE = AddRoom("Bullroarer", "Fish Cleaning Deck");
             AddBidirectionalExits(bullroarerNW, bullroarerNE, BidirectionalExitType.WestEast);
             AddBidirectionalExits(bullroarerNE, bullroarerSE, BidirectionalExitType.NorthSouth);
             AddBidirectionalExits(bullroarerNE, bullroarerSW, BidirectionalExitType.SouthwestNortheast);
-            mithlondGraph.Rooms[bullroarerNE] = new PointF(5, 4.5F);
+            shipsGraph.Rooms[bullroarerNE] = new PointF(5, 4.5F);
 
             Room wheelhouse = AddRoom("Wheelhouse", "The Bullroarers Wheelhouse");
             AddExit(bullroarerNE, wheelhouse, "wheelhouse");
             AddExit(bullroarerNW, wheelhouse, "wheelhouse");
             AddExit(wheelhouse, bullroarerNE, "out");
-            mithlondGraph.Rooms[wheelhouse] = new PointF(4.5F, 4);
+            shipsGraph.Rooms[wheelhouse] = new PointF(4.5F, 4);
 
             Room cargoHold = AddRoom("Cargo Hold", "Cargo Hold");
             AddBidirectionalSameNameExit(wheelhouse, cargoHold, "stairs");
-            mithlondGraph.Rooms[cargoHold] = new PointF(4.5F, 3.5F);
+            shipsGraph.Rooms[cargoHold] = new PointF(4.5F, 3.5F);
 
             Room fishHold = AddRoom("Fish Hold", "Fish Hold");
             fishHold.DamageType = RoomDamageType.Wind;
             Room brentDiehard = AddRoom("Brent Diehard", "Engine Room");
             AddPermanentMobs(brentDiehard, MobTypeEnum.BrentDiehard);
-            mithlondGraph.Rooms[fishHold] = new PointF(4.5F, 3);
-            mithlondGraph.Rooms[brentDiehard] = new PointF(4.5F, 2.5F);
+            shipsGraph.Rooms[fishHold] = new PointF(4.5F, 3);
+            shipsGraph.Rooms[brentDiehard] = new PointF(4.5F, 2.5F);
             AddBidirectionalSameNameMustOpenExit(fishHold, brentDiehard, "hatchway");
             AddBidirectionalSameNameMustOpenExit(cargoHold, fishHold, "hatch");
         }
@@ -1856,7 +1876,7 @@ namespace IsengardClient.Backend
             e.BoatExitType = BoatExitType.BreeEnterCelduinExpress;
             e = AddExit(boatswain, breeDocks, "dock");
             e.BoatExitType = BoatExitType.BreeExitCelduinExpress;
-            AddMapBoundaryPoint(breeDocks, boatswain, MapType.BreeStreets, MapType.Mithlond);
+            AddMapBoundaryPoint(breeDocks, boatswain, MapType.BreeStreets, MapType.Ships);
 
             Room oPearlAlley = AddRoom("Pearl Alley", "Pearl Alley");
             AddExit(oBreeTownSquare, oPearlAlley, "alley");
