@@ -2885,6 +2885,7 @@ namespace IsengardClient.Backend
 
         [SingularName("voulge")]
         [PluralName("voulges")]
+        [LookText("You see a large axe or cleaver-type blade mounted on a short pole.")]
         [WeaponType(WeaponType.Slash)]
         [Weight(1)]
         [Sellable(173)]
