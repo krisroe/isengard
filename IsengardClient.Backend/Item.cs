@@ -834,7 +834,11 @@ namespace IsengardClient.Backend
 
         [SingularName("assassin's mask")]
         [PluralName("assassin's masks")]
+        [LookText("You see a black mask that would completely cover your face.")]
         [EquipmentType(EquipmentType.Face)]
+        [Weight(1)]
+        [ArmorClass(0.2)]
+        [Sellable(SellableEnum.Junk)]
         AssassinsMask,
 
         [SingularName("A statuette of Balthazar")]
