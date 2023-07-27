@@ -4860,6 +4860,7 @@ namespace IsengardClient.Backend
             RoomGraph breeStreetsGraph = _graphs[MapType.BreeStreets];
             RoomGraph westOfBreeMap = _graphs[MapType.WestOfBree];
             RoomGraph breeSewersMap = _graphs[MapType.BreeSewers];
+            RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
 
             westOfBreeMap.Rooms[oBreeWestGateInside] = new PointF(15, 0);
 
@@ -4991,6 +4992,8 @@ namespace IsengardClient.Backend
             westronRoadToMithlond = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(westronRoadToMithlond, oVillageOfHobbiton3, BidirectionalExitType.NorthSouth);
             westOfBreeMap.Rooms[westronRoadToMithlond] = new PointF(2, -2);
+            mithlondGraph.Rooms[oVillageOfHobbiton3] = new PointF(9, 26.5F);
+            AddMapBoundaryPoint(westronRoadToMithlond, oVillageOfHobbiton3, MapType.Mithlond, MapType.WestOfBree);
 
             Room oValleyRoad = AddRoom("Valley Road", "Valley Road");
             AddBidirectionalExits(oVillageOfHobbiton2, oValleyRoad, BidirectionalExitType.NorthSouth);
