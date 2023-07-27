@@ -1711,6 +1711,9 @@ namespace IsengardClient.Backend
         [SingularName("hardwood shield")]
         [PluralName("hardwood shields")]
         [EquipmentType(EquipmentType.Shield)]
+        [Weight(10)]
+        [ArmorClass(0.5)]
+        [Sellable(247)]
         HardwoodShield,
 
         [SingularName("hazy potion")]
