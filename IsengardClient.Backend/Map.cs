@@ -50,7 +50,7 @@ namespace IsengardClient.Backend
 
             AddBreeCity(out Room oConstructionSite, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, out Room oNorthBridge, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain, out Room breeEastGateOutside, out Room oCemetery, out Room breeDocks, out Room accursedGuildHall, out Room crusaderGuildHall, out Room thievesGuildHall);
             AddMayorMillwoodMansion(oConstructionSite, _graphs[MapType.BreeStreets]);
-            AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage);
+            AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage, out Room westronRoadToMithlond);
             AddBreeToImladris(out Room oOuthouse, breeEastGateInside, breeEastGateOutside, out Room imladrisWestGateOutside, oCemetery, out Room southernBrethilForestNWEdge, out Room southernBrethilForestSW, out Room southernBrethilForestSE, out Room southernBrethilForestNE);
             AddUnderBree(oNorthBridge, oOuthouse, oSewerPipeExit);
             AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside, out Room healingHand, out Room oEastGateOfImladrisInside);
@@ -65,7 +65,7 @@ namespace IsengardClient.Backend
             AddArmenelos(oArmenelosGatesOutside);
             AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside, nindamosGraph);
             AddEldemondeCity(oEldemondeEastGateOutside);
-            AddMithlond(breeDocks, boatswain, tharbadDocks, nindamosDocks, nindamosGraph);
+            AddMithlond(breeDocks, boatswain, tharbadDocks, nindamosDocks, westronRoadToMithlond);
             AddIntangible(oBreeTownSquare, healingHand, nindamosVillageCenter, accursedGuildHall, crusaderGuildHall, thievesGuildHall);
 
             Dictionary<Room, MapType> roomsWithoutExplicitMaps = new Dictionary<Room, MapType>();
@@ -545,7 +545,7 @@ namespace IsengardClient.Backend
             tharbadWestGraph.Rooms[oWildmanVillage] = new PointF(-1, 15);
         }
 
-        private void AddMithlond(Room breeDocks, Room boatswain, Room tharbadDocks, Room nindamosDocks, RoomGraph nindamosGraph)
+        private void AddMithlond(Room breeDocks, Room boatswain, Room tharbadDocks, Room nindamosDocks, Room westronRoadToHobbiton)
         {
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
             RoomGraph shipsGraph = _graphs[MapType.Ships];
@@ -589,7 +589,7 @@ namespace IsengardClient.Backend
             oHarbringerGangplank.BoatLocationType = BoatEmbarkOrDisembark.HarbringerMithlond;
             AddExit(oHarbringerSlip, oHarbringerGangplank, "gangplank");
             AddExit(oHarbringerGangplank, oHarbringerSlip, "pier");
-            mithlondGraph.Rooms[oHarbringerGangplank] = new PointF(3, 8);
+            mithlondGraph.Rooms[oHarbringerGangplank] = new PointF(1, 8);
             shipsGraph.Rooms[oHarbringerGangplank] = new PointF(3, 8);
 
             Room oMithlondPort = AddRoom("Mithlond Port", "Mithlond Port");
@@ -639,6 +639,87 @@ namespace IsengardClient.Backend
             Room oEvendimTrail10 = AddRoom("Trail", "Evendim Trail");
             AddBidirectionalExits(oEvendimTrail9, oEvendimTrail10, BidirectionalExitType.WestEast);
             mithlondGraph.Rooms[oEvendimTrail10] = new PointF(6, 6.5F);
+
+            Room oCollapsedTrail1 = AddRoom("Collapsed Trail", "Collapsed Trail");
+            AddBidirectionalExits(oEvendimTrail10, oCollapsedTrail1, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oCollapsedTrail1] = new PointF(5, 7.5F);
+
+            Room oCollapsedTrail2 = AddRoom("Collapsed Trail", "Collapsed Trail");
+            AddBidirectionalExits(oCollapsedTrail1, oCollapsedTrail2, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oCollapsedTrail2] = new PointF(4, 8.5F);
+
+            Room oCollapsedTrail3 = AddRoom("Collapsed Trail", "Collapsed Trail");
+            AddBidirectionalExits(oCollapsedTrail2, oCollapsedTrail3, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oCollapsedTrail3] = new PointF(3, 9.5F);
+
+            Room oCollapsedTrail4 = AddRoom("Collapsed Trail", "Collapsed Trail");
+            AddBidirectionalExits(oCollapsedTrail3, oCollapsedTrail4, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oCollapsedTrail4] = new PointF(3, 10.5F);
+
+            Room oCollapsedTrail5 = AddRoom("Collapsed Trail", "Collapsed Trail");
+            AddBidirectionalExits(oCollapsedTrail4, oCollapsedTrail5, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oCollapsedTrail5] = new PointF(3, 11.5F);
+
+            Room oCollapsedTrail6 = AddRoom("Collapsed Trail", "Collapsed Trail");
+            AddBidirectionalExits(oCollapsedTrail5, oCollapsedTrail6, BidirectionalExitType.UpDown);
+            mithlondGraph.Rooms[oCollapsedTrail6] = new PointF(3, 12);
+
+            Room oCollapsedTrail7 = AddRoom("Collapsed Trail", "Collapsed Trail");
+            AddBidirectionalExits(oCollapsedTrail6, oCollapsedTrail7, BidirectionalExitType.UpDown);
+            mithlondGraph.Rooms[oCollapsedTrail7] = new PointF(3, 12.5F);
+
+            Room oWestronRoad1 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oCollapsedTrail7, oWestronRoad1, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oWestronRoad1] = new PointF(4, 13.5F);
+
+            Room oWestronRoad2 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad1, oWestronRoad2, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oWestronRoad2] = new PointF(5, 14.5F);
+
+            Room oWestronRoad3 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad2, oWestronRoad3, BidirectionalExitType.SoutheastNorthwest);
+            AddPermanentMobs(oWestronRoad3, MobTypeEnum.BarbarianRaider, MobTypeEnum.BarbarianRaider, MobTypeEnum.BarbarianRaider);
+            mithlondGraph.Rooms[oWestronRoad3] = new PointF(6, 15.5F);
+
+            Room oWestronRoad4 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad3, oWestronRoad4, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oWestronRoad4] = new PointF(7, 16.5F);
+
+            Room oWestronRoad5 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad4, oWestronRoad5, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oWestronRoad5] = new PointF(8, 17.5F);
+
+            Room oWestronRoad6 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad5, oWestronRoad6, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oWestronRoad6] = new PointF(9, 18.5F);
+
+            Room oWestronRoad7 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad6, oWestronRoad7, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWestronRoad7] = new PointF(9, 19.5F);
+
+            Room oWestronRoad8 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad7, oWestronRoad8, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWestronRoad8] = new PointF(9, 20.5F);
+
+            Room oWestronRoad9 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad8, oWestronRoad9, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWestronRoad9] = new PointF(9, 21.5F);
+
+            Room oWestronRoad10 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad9, oWestronRoad10, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWestronRoad10] = new PointF(9, 22.5F);
+
+            Room oWestronRoad11 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad10, oWestronRoad11, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWestronRoad11] = new PointF(9, 23.5F);
+            //CSRTODO: west
+
+            Room oWestronRoad12 = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(oWestronRoad11, oWestronRoad12, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWestronRoad12] = new PointF(9, 24.5F);
+
+            AddBidirectionalExits(oWestronRoad12, westronRoadToHobbiton, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[westronRoadToHobbiton] = new PointF(9, 25.5F);
 
             Room oEvendimTrail11 = AddRoom("Trail", "Evendim Trail");
             AddBidirectionalExits(oEvendimTrail10, oEvendimTrail11, BidirectionalExitType.WestEast);
@@ -935,7 +1016,7 @@ namespace IsengardClient.Backend
             e.BoatExitType = BoatExitType.MithlondExitHarbringer;
             e = AddExit(tharbadDocks, oHarbringerMithlondEntrance, "gangway");
             e.BoatExitType = BoatExitType.TharbadEnterHarbringer;
-            mithlondGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(4, 8);
+            mithlondGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(0, 8);
             shipsGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(4, 6.5F);
             shipsGraph.Rooms[tharbadDocks] = new PointF(3, 6.5F);
             tharbadGraph.Rooms[oHarbringerMithlondEntrance] = new PointF(0, 9);
@@ -1015,7 +1096,7 @@ namespace IsengardClient.Backend
             e = AddExit(bullroarerSE, nindamosDocks, "plank");
             e.BoatExitType = BoatExitType.NindamosExitBullroarer;
             nindamosGraph.Rooms[bullroarerSE] = new PointF(15, 6);
-            mithlondGraph.Rooms[bullroarerSE] = new PointF(3, 6);
+            mithlondGraph.Rooms[bullroarerSE] = new PointF(1, 6);
             shipsGraph.Rooms[bullroarerSE] = new PointF(5, 5);
             shipsGraph.Rooms[nindamosDocks] = new PointF(6, 5);
             AddMapBoundaryPoint(nindamosDocks, bullroarerSE, MapType.Nindamos, MapType.Ships);
@@ -4774,7 +4855,7 @@ namespace IsengardClient.Backend
             eastOfImladrisGraph.Rooms[oIorlas] = new PointF(2, 3);
         }
 
-        private void AddBreeToHobbiton(Room oBreeWestGateInside, Room oSmoulderingVillage)
+        private void AddBreeToHobbiton(Room oBreeWestGateInside, Room oSmoulderingVillage, out Room westronRoadToMithlond)
         {
             RoomGraph breeStreetsGraph = _graphs[MapType.BreeStreets];
             RoomGraph westOfBreeMap = _graphs[MapType.WestOfBree];
@@ -4907,9 +4988,9 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oWesternRoadWestOfHobbiton, oVillageOfHobbiton4, BidirectionalExitType.WestEast);
             westOfBreeMap.Rooms[oWesternRoadWestOfHobbiton] = new PointF(0, 0);
 
-            Room oWestronRoad = AddRoom("Westron Road", "Westron Road");
-            AddBidirectionalExits(oWestronRoad, oVillageOfHobbiton3, BidirectionalExitType.NorthSouth);
-            westOfBreeMap.Rooms[oWestronRoad] = new PointF(2, -2);
+            westronRoadToMithlond = AddRoom("Westron Road", "Westron Road");
+            AddBidirectionalExits(westronRoadToMithlond, oVillageOfHobbiton3, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[westronRoadToMithlond] = new PointF(2, -2);
 
             Room oValleyRoad = AddRoom("Valley Road", "Valley Road");
             AddBidirectionalExits(oVillageOfHobbiton2, oValleyRoad, BidirectionalExitType.NorthSouth);

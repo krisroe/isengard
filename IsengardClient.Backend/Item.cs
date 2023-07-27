@@ -722,6 +722,14 @@ namespace IsengardClient.Backend
     /// </summary>
     public enum ItemTypeEnum
     {
+        [SingularName("adamantine blade")]
+        [PluralName("adamantine blades")]
+        [LookText("You see an ornate blade that shimmers of pure adamantine.")]
+        [WeaponType(WeaponType.Slash)]
+        [Weight(5)]
+        [Sellable(927)]
+        AdamantineBlade,
+
         [SingularName("adamantine dart")]
         [PluralName("adamantine darts")]
         [WeaponType(WeaponType.Unknown)]
