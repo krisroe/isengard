@@ -687,7 +687,19 @@ namespace IsengardClient.Backend
             Room oWesternShore4 = AddRoom("Western Shore", "Western Shore");
             AddBidirectionalExits(oWesternShore3, oWesternShore4, BidirectionalExitType.SouthwestNortheast);
             mithlondGraph.Rooms[oWesternShore4] = new PointF(3, 17.5F);
-            //CSRTODO: west to beach
+
+            Room oBeach = AddRoom("Beach", "Beach");
+            AddExit(oWesternShore4, oBeach, "west");
+            AddExit(oBeach, oWesternShore4, "shore");
+            mithlondGraph.Rooms[oBeach] = new PointF(2, 17.5F);
+
+            Room oEncirclingSea = AddRoom("Encircling Sea", "Encircling Sea");
+            AddBidirectionalExits(oEncirclingSea, oBeach, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oEncirclingSea] = new PointF(1, 16.5F);
+
+            Room oGreatWesternOcean = AddRoom("Ocean", "Great Western Ocean");
+            AddBidirectionalExits(oGreatWesternOcean, oBeach, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oGreatWesternOcean] = new PointF(1, 17.5F);
 
             Room oWesternShore5 = AddRoom("Western Shore", "Western Shore");
             AddBidirectionalExits(oWesternShore4, oWesternShore5, BidirectionalExitType.SoutheastNorthwest);

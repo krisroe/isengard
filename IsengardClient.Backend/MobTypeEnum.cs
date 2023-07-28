@@ -1502,6 +1502,10 @@
         [Alignment(AlignmentType.Red)]
         SeasonedVeteran,
 
+        [SingularName("sea turtle")]
+        [PluralName("sea turtles")]
+        SeaTurtle,
+
         [SingularName("secretary")]
         //CSRTODO: plural?
         Secretary,
