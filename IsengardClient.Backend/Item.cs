@@ -817,6 +817,9 @@ namespace IsengardClient.Backend
 
         [SingularName("anvil")]
         [PluralName("anvils")]
+        [LookText("A blackened steel forge that is glowing red.")]
+        [Weight(12)]
+        [Sellable(371)]
         Anvil,
 
         [SingularName("aquamarine potion")]
