@@ -2354,6 +2354,14 @@ namespace IsengardClient.Backend
         [Sellable(24)]
         RepairKit,
 
+        [SingularName("ribbed plate armor")]
+        //CSRTODO: plural
+        [LookText("The armor is heavily reinforced with metal ribbing.")]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(15)]
+        [Sellable(496)]
+        RibbedPlateArmor,
+
         [SingularName("ribbed plate boots")]
         [EquipmentType(EquipmentType.Feet)]
         [Weight(4)]
