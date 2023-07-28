@@ -672,6 +672,49 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oCollapsedTrail7, oWestronRoad1, BidirectionalExitType.SoutheastNorthwest);
             mithlondGraph.Rooms[oWestronRoad1] = new PointF(4, 13.5F);
 
+            Room oWesternShore1 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWestronRoad1, oWesternShore1, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWesternShore1] = new PointF(4, 14.5F);
+
+            Room oWesternShore2 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore1, oWesternShore2, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWesternShore2] = new PointF(4, 15.5F);
+
+            Room oWesternShore3 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore2, oWesternShore3, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWesternShore3] = new PointF(4, 16.5F);
+
+            Room oWesternShore4 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore3, oWesternShore4, BidirectionalExitType.SouthwestNortheast);
+            mithlondGraph.Rooms[oWesternShore4] = new PointF(3, 17.5F);
+            //CSRTODO: west to beach
+
+            Room oWesternShore5 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore4, oWesternShore5, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oWesternShore5] = new PointF(4, 18.5F);
+
+            Room oWesternShore6 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore5, oWesternShore6, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oWesternShore6] = new PointF(5, 19.5F);
+
+            Room oWesternShore7 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore6, oWesternShore7, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWesternShore7] = new PointF(5, 20.5F);
+            //CSRTODO: east
+
+            Room oWesternShore8 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore7, oWesternShore8, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oWesternShore8] = new PointF(6, 21.5F);
+
+            Room oWesternShore9 = AddRoom("Western Shore", "Western Shore");
+            AddPermanentMobs(oWesternShore9, MobTypeEnum.WhiteKnightPerm);
+            AddBidirectionalExits(oWesternShore8, oWesternShore9, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oWesternShore9] = new PointF(7, 22.5F);
+
+            Room oWesternShore10 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore9, oWesternShore10, BidirectionalExitType.NorthSouth);
+            mithlondGraph.Rooms[oWesternShore10] = new PointF(7, 23.5F);
+
             Room oWestronRoad2 = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(oWestronRoad1, oWestronRoad2, BidirectionalExitType.SoutheastNorthwest);
             mithlondGraph.Rooms[oWestronRoad2] = new PointF(5, 14.5F);

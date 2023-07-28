@@ -1844,7 +1844,7 @@
         Weaver,
 
         [SingularName("werewolf")]
-        [PluralName("werewolves")]
+        [PluralName("werewolfs")] //verified 7/28/23
         Werewolf,
 
         [SingularName("wheat harvester")]
@@ -1854,6 +1854,10 @@
         [SingularName("white knight")]
         [PluralName("white knights")]
         WhiteKnight,
+
+        [SingularName("White Knight")]
+        //CSRTODO: plural
+        WhiteKnightPerm,
 
         [SingularName("wight")]
         [PluralName("wights")]
