@@ -1186,6 +1186,14 @@ namespace IsengardClient.Backend
         [Sellable(SellableEnum.Junk)]
         Dagger,
 
+        [SingularName("dagger of impaling")]
+        //CSRTODO: plural
+        [LookText("You see nothing special about it.")]
+        [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
+        [Sellable(297)]
+        DaggerOfImpaling,
+
         [SingularName("dark blade")]
         [PluralName("dark blades")]
         [WeaponType(WeaponType.Slash)]
