@@ -56,6 +56,9 @@
         [PluralName("art students")]
         ArtStudent,
 
+        [SingularName("Asimele the Pleasure Priestess")]
+        AsimeleThePleasurePriestess,
+
         [SingularName("auctioneer")]
         [PluralName("auctioneers")]
         Auctioneer,
@@ -232,6 +235,10 @@
         [SingularName("cartographer")]
         [PluralName("cartographers")]
         Cartographer,
+
+        [SingularName("cat")]
+        [PluralName("cats")]
+        Cat,
 
         [SingularName("catapult crewmember")]
         [PluralName("catapult crewmembers")]
@@ -569,6 +576,10 @@
         [SingularName("giant grasshopper")]
         [PluralName("giant grasshoppers")]
         GiantGrasshopper,
+
+        [SingularName("giant octopus")]
+        //CSRTODO: plural?
+        GiantOctopus,
 
         [SingularName("giant rat")]
         [PluralName("giant rats")]

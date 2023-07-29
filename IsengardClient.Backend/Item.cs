@@ -806,8 +806,7 @@ namespace IsengardClient.Backend
         [Sellable(61)]
         AncientShieldOfAdalphi,
 
-        [SingularName("animal hides")]
-        //CSRTODO: plural
+        [SingularName("animal hides")] //verified collective 7/29/23
         [LookText("The hide looks as though it could make a decent piece of armor.")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(5)]
@@ -1054,6 +1053,14 @@ namespace IsengardClient.Backend
         [Sellable(SellableEnum.Junk)]
         CarvedIvoryKey,
 
+        [SingularName("carving knife")]
+        [PluralName("carving knifes")] //verified 7/29/23
+        [LookText("It's similar in size to a pocket knife, but much sharper.")]
+        [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
+        CarvingKnife,
+
         //has a strength requirement
         [SingularName("cat o' nine tails")]
         [PluralName("cat o' nine tailses")] //verified 7/3/23
@@ -1087,6 +1094,7 @@ namespace IsengardClient.Backend
 
         [SingularName("claw gauntlet")]
         [PluralName("claw gauntlets")]
+        [LookText("You see a gauntlet with sharp claws protruding from the end.")]
         [WeaponType(WeaponType.Slash)]
         [Weight(3)]
         ClawGauntlet,
@@ -1136,7 +1144,11 @@ namespace IsengardClient.Backend
 
         [SingularName("copper ring")]
         [PluralName("copper rings")]
+        [LookText("This ring will turn your finger green.")]
         [EquipmentType(EquipmentType.Finger)]
+        [Weight(1)]
+        [ArmorClass(0.1)]
+        [Sellable(SellableEnum.Junk)]
         CopperRing,
 
         [SingularName("cracker")]
@@ -1522,6 +1534,7 @@ namespace IsengardClient.Backend
 
         [SingularName("Girion's key")]
         [PluralName("Girion's keys")]
+        [LookText("You see a large stone key attached to a leather rope.")]
         [ItemClass(ItemClass.Key)]
         GirionsKey,
 
@@ -2255,6 +2268,10 @@ namespace IsengardClient.Backend
         [Sellable(SellableEnum.Junk)]
         PipeWeed,
 
+        [SingularName("platinum conch")]
+        //CSRTODO: plural
+        PlatinumConch,
+
         [SingularName("platinum pieces")]
         [PluralName("platinum pieces")]
         [ItemClass(ItemClass.Coins)]
@@ -2410,6 +2427,7 @@ namespace IsengardClient.Backend
         //mages cannot use
         [SingularName("rod of the dead")]
         //CSRTODO: plural
+        [LookText("You see a white rod carved from bone.")]
         [Wand(SpellsEnum.removecurse)] //spell per wiki
         [Sellable(24)]
         RodOfTheDead,
@@ -2422,10 +2440,11 @@ namespace IsengardClient.Backend
         RoguesMask,
 
         [SingularName("rope of snaring")]
-        //CSRTODO: plural?
+        [PluralName("rope of snarings")] //verified 7/29/23
         [LookText("You see a long rope that tangles everything it comes near.")]
         [Use(SpellsEnum.fumble)]
         [Weight(0)]
+        [Sellable(SellableEnum.Junk)]
         RopeOfSnaring,
 
         [SingularName("ruby")]
@@ -2792,7 +2811,10 @@ namespace IsengardClient.Backend
 
         [SingularName("throwing axe")]
         [PluralName("throwing axes")]
+        [LookText("The axe is small and easily handled.")]
         [WeaponType(WeaponType.Missile)]
+        [Weight(2)]
+        [Sellable(48)]
         ThrowingAxe,
 
         [SingularName("tiger shark leather armor")]
@@ -2877,7 +2899,10 @@ namespace IsengardClient.Backend
 
         [SingularName("verdant green scroll")]
         [PluralName("verdant green scrolls")]
+        [LookText("You see nothing special about it.")]
         [Scroll(SpellsEnum.protection)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         VerdantGreenScroll,
 
         [SingularName("very old key")]

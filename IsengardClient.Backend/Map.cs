@@ -4020,12 +4020,118 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oRiverBank12, oBrandywineEstuary, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oBrandywineEstuary] = new PointF(-2.5F, 11.5F);
 
+            Room oHiddenCave = AddRoom("Hidden Cave", "Hidden Cave");
+            AddPermanentMobs(oHiddenCave, MobTypeEnum.GiantOctopus);
+            AddPermanentItems(oHiddenCave, ItemTypeEnum.PlatinumConch);
+            e = AddBidirectionalExitsWithOut(oBrandywineEstuary, oHiddenCave, "cave");
+            e.Hidden = true;
+            breeToImladrisGraph.Rooms[oHiddenCave] = new PointF(-2.5F, 11.75F);
+
             Room oBrandywineShore = AddRoom("Shore", "Brandywine Shore");
             AddBidirectionalExits(oBrandywineShore, oBrandywineEstuary, BidirectionalExitType.SoutheastNorthwest);
             breeToImladrisGraph.Rooms[oBrandywineShore] = new PointF(-3.25F, 11.25F);
 
+            Room oWesternShore1 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore1, oBrandywineShore, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oWesternShore1] = new PointF(-4, 11);
+
+            Room oWesternShore2 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore2, oWesternShore1, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oWesternShore2] = new PointF(-4.75F, 10.75F);
+
+            Room oWesternShore3 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore3, oWesternShore2, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oWesternShore3] = new PointF(-4.75F, 10.5F);
+
+            Room oWesternShore4 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore4, oWesternShore3, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oWesternShore4] = new PointF(-5.5F, 10.25F);
+
+            Room oWesternShore5 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore5, oWesternShore4, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oWesternShore5] = new PointF(-6.25F, 10);
+
+            Room oWesternShore6 = AddRoom("Western Shore", "Western Shore");
+            AddExit(oWesternShore5, oWesternShore6, "northwest"); //this exit goes to either western shore 6 or western shore 9
+            AddExit(oWesternShore6, oWesternShore5, "southeast");
+            breeToImladrisGraph.Rooms[oWesternShore6] = new PointF(-7, 9.75F);
+
+            Room oWesternShore7 = AddRoom("Western Shore", "Western Shore");
+            AddPermanentMobs(oWesternShore7, MobTypeEnum.GreatSpider);
+            AddBidirectionalExits(oWesternShore7, oWesternShore6, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oWesternShore7] = new PointF(-7, 9.5F);
+
+            Room oWesternShore8 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore8, oWesternShore7, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oWesternShore8] = new PointF(-7.75F, 9.25F);
+
+            Room oWesternShore9 = AddRoom("Western Shore", "Western Shore");
+            AddExit(oWesternShore8, oWesternShore9, "northwest");
+            AddExit(oWesternShore9, oWesternShore8, "southeast"); //this exit goes to either western shore 5 or western shore 8
+            breeToImladrisGraph.Rooms[oWesternShore9] = new PointF(-8.5F, 9);
+
+            Room oWesternShore10 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore10, oWesternShore9, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oWesternShore10] = new PointF(-8.5F, 8.75F);
+
+            Room oWesternShore11 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore11, oWesternShore10, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oWesternShore11] = new PointF(-9.25F, 8.5F);
+
+            Room oWesternShore12 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore12, oWesternShore11, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oWesternShore12] = new PointF(-8.5F, 8.25F);
+
+            Room oWesternShore13 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore13, oWesternShore12, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oWesternShore13] = new PointF(-9.25F, 8);
+
+            Room oWesternShore14 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore14, oWesternShore13, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oWesternShore14] = new PointF(-9.25F, 7.75F);
+
+            Room oWesternShore15 = AddRoom("Western Shore", "Western Shore");
+            AddBidirectionalExits(oWesternShore15, oWesternShore14, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oWesternShore15] = new PointF(-10, 7.5F);
+
+            Room oSmugglersCove = AddRoom("Smuggler's Cove", "Smuggler's Cove");
+            AddBidirectionalExits(oSmugglersCove, oWesternShore15, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oSmugglersCove] = new PointF(-10.75F, 7.25F);
+
+            Room oSmugglersVillage = AddRoom("Smuggler's Village", "Smuggler's Village");
+            AddBidirectionalExits(oSmugglersVillage, oSmugglersCove, BidirectionalExitType.NorthSouth);
+            breeToImladrisGraph.Rooms[oSmugglersVillage] = new PointF(-10.75F, 7);
+
+            Room oWillingWench = AddRoom("Willing Wench", "Willing Wench");
+            AddExit(oSmugglersVillage, oWillingWench, "shack");
+            AddExit(oWillingWench, oSmugglersVillage, "door");
+            breeToImladrisGraph.Rooms[oWillingWench] = new PointF(-9.75F, 7);
+
+            Room oAsimele = AddRoom("Asimele", "Asimele's Quarters");
+            AddPermanentMobs(oAsimele, MobTypeEnum.AsimeleThePleasurePriestess);
+            AddBidirectionalExitsWithOut(oWillingWench, oAsimele, "back");
+            breeToImladrisGraph.Rooms[oAsimele] = new PointF(-8.75F, 7);
+
+            Room oSmugglersVillage2 = AddRoom("Smuggler's Village", "Smuggler's Village");
+            AddBidirectionalExits(oSmugglersVillage2, oSmugglersVillage, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oSmugglersVillage2] = new PointF(-11.5F, 6.75F);
+
+            Room oStorageShed = AddRoom("Storage Shed", "Storage Shed");
+            AddPermanentMobs(oStorageShed, MobTypeEnum.Cat);
+            AddBidirectionalExitsWithOut(oSmugglersVillage2, oStorageShed, "shed");
+            breeToImladrisGraph.Rooms[oStorageShed] = new PointF(-12.25F, 7);
+
+            Room oSlashedSail = AddRoom("Slashed Sail", "The Slashed Sail");
+            AddBidirectionalExitsWithOut(oSmugglersVillage2, oSlashedSail, "tavern");
+            breeToImladrisGraph.Rooms[oSlashedSail] = new PointF(-10.75F, 6.5F);
+
+            Room oBlackmireCove = AddRoom("Blackmire Cove", "Blackmire Cove");
+            AddBidirectionalExits(oBlackmireCove, oSmugglersVillage2, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oBlackmireCove] = new PointF(-12.25F, 6.5F);
+
             Room oRiverBank13 = AddRoom("River Bank", "River Bank");
-            AddBidirectionalExits(oRiverBank13, oBrandywineShore, BidirectionalExitType.SouthwestNortheast);
+            AddExit(oBrandywineShore, oRiverBank13, "northeast");
+            AddExit(oRiverBank13, oBrandywineEstuary, "southwest");
             breeToImladrisGraph.Rooms[oRiverBank13] = new PointF(-2.5F, 11);
 
             Room oRiverBank14 = AddRoom("River Bank", "River Bank");
