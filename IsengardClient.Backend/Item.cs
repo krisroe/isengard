@@ -1297,7 +1297,10 @@ namespace IsengardClient.Backend
 
         [SingularName("double bladed axe")]
         [PluralName("double bladed axes")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Slash)]
+        [Weight(8)]
+        [Sellable(99)]
         DoubleBladedAxe,
 
         [SingularName("dragon eye")]
@@ -2031,6 +2034,7 @@ namespace IsengardClient.Backend
 
         [SingularName("long sword")]
         [PluralName("long swords")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(5)]
         [Sellable(59)]
@@ -2230,6 +2234,12 @@ namespace IsengardClient.Backend
         [Weight(5)]
         [Sellable(841)]
         OrkBlade,
+
+        [SingularName("overturned wagon")]
+        [PluralName("overturned wagons")]
+        [LookText("You see a broken wagon covered in scorchmarks and dried blood.")]
+        [ItemClass(ItemClass.Fixed)]
+        OverturnedWagon,
 
         [SingularName("out of order sign")]
         [PluralName("out of order signs")]
@@ -2508,7 +2518,10 @@ namespace IsengardClient.Backend
 
         [SingularName("scythe")]
         [PluralName("scythes")]
-        [WeaponType(WeaponType.Unknown)]
+        [LookText("You see nothing special about it.")]
+        [WeaponType(WeaponType.Slash)]
+        [Weight(5)]
+        [Sellable(73)]
         Scythe,
 
         [SingularName("sextant")]
@@ -2934,6 +2947,14 @@ namespace IsengardClient.Backend
         [Weight(1)]
         [Sellable(SellableEnum.NotSellable)]
         ViscousPotion,
+
+        [SingularName("volcanic ash")]
+        //CSRTODO: plural
+        [LookText("You have scooped up a small handfull of volcanic ash.")]
+        [Wand(SpellsEnum.stun)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
+        VolcanicAsh,
 
         [SingularName("volcanic boots")]
         [EquipmentType(EquipmentType.Feet)]

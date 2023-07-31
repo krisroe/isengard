@@ -419,6 +419,10 @@
         [PluralName("dwarven shoppers")]
         DwarvenShopper,
 
+        [SingularName("dwarven wagoneer")]
+        [PluralName("dwarven wagoneers")]
+        DwarvenWagoneer,
+
         [SingularName("eagle")]
         [PluralName("eagles")]
         Eagle,

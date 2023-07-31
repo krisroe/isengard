@@ -5097,6 +5097,47 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oNorthForkEnd, oNorthFork10, BidirectionalExitType.SoutheastNorthwest);
             westOfBreeMap.Rooms[oNorthForkEnd] = new PointF(9, -11);
 
+            Room oOvergrownRoad1 = AddRoom("Overgrown Road", "Overgrown Road");
+            e = AddExit(oNorthForkEnd, oOvergrownRoad1, "brush");
+            e.Hidden = true;
+            AddExit(oOvergrownRoad1, oNorthForkEnd, "road");
+            westOfBreeMap.Rooms[oOvergrownRoad1] = new PointF(9, -12);
+
+            Room oOvergrownRoad2 = AddRoom("Overgrown Road", "Overgrown Road");
+            AddBidirectionalExits(oOvergrownRoad2, oOvergrownRoad1, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oOvergrownRoad2] = new PointF(8, -12);
+
+            Room oOvergrownRoad3 = AddRoom("Overgrown Road", "Overgrown Road");
+            AddBidirectionalExits(oOvergrownRoad3, oOvergrownRoad2, BidirectionalExitType.WestEast);
+            westOfBreeMap.Rooms[oOvergrownRoad3] = new PointF(7, -12);
+
+            Room oOvergrownRoad4 = AddRoom("Overgrown Road", "Overgrown Road");
+            AddBidirectionalExits(oOvergrownRoad4, oOvergrownRoad3, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oOvergrownRoad4] = new PointF(6, -13);
+
+            Room oOvergrownRoad5 = AddRoom("Overgrown Road", "Overgrown Road");
+            AddBidirectionalExits(oOvergrownRoad5, oOvergrownRoad4, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oOvergrownRoad5] = new PointF(5, -14);
+
+            Room oOvergrownRoad6 = AddRoom("Overgrown Road", "Overgrown Road");
+            AddBidirectionalExits(oOvergrownRoad6, oOvergrownRoad5, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oOvergrownRoad6] = new PointF(5, -15);
+
+            Room oOvergrownRoad7 = AddRoom("Overgrown Road", "Overgrown Road");
+            AddBidirectionalExits(oOvergrownRoad7, oOvergrownRoad6, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oOvergrownRoad7] = new PointF(4, -16);
+
+            Room oOvergrownRoad8 = AddRoom("Overgrown Road", "Overgrown Road");
+            AddBidirectionalExits(oOvergrownRoad8, oOvergrownRoad7, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oOvergrownRoad8] = new PointF(4, -17);
+
+            Room oOvergrownRoad9 = AddRoom("Dwarven Wagoneer", "Overgrown Road");
+            AddPermanentMobs(oOvergrownRoad9, MobTypeEnum.DwarvenWagoneer);
+            AddBidirectionalExits(oOvergrownRoad9, oOvergrownRoad8, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oOvergrownRoad9] = new PointF(4, -18);
+
+            Room oOvergrownRoad10 = AddRoom("Overturned Wagon", "Overgrown Road")
+
             Room oWesternRoad1 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad1, oGrandIntersection, BidirectionalExitType.WestEast);
             westOfBreeMap.Rooms[oWesternRoad1] = new PointF(12, 0);
