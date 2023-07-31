@@ -812,6 +812,10 @@
         [PluralName("hill giants")]
         HillGiant,
 
+        [SingularName("hill giant worker")]
+        [PluralName("hill giant workers")]
+        HillGiantWorker,
+
         [SingularName("hippie")]
         [PluralName("hippies")]
         Hippie,
