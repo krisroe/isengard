@@ -850,6 +850,14 @@ namespace IsengardClient.Backend
         [ItemClass(ItemClass.Fixed)]
         AStatuetteOfBalthazar,
 
+        [SingularName("azure scroll")]
+        [PluralName("azure scrolls")]
+        [LookText("You see a blue toned scroll with some wierd writing on it.")]
+        [Scroll(SpellsEnum.blister)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
+        AzureScroll,
+
         [SingularName("bag")]
         [PluralName("bags")]
         [Weight(1)]
@@ -914,7 +922,11 @@ namespace IsengardClient.Backend
 
         [SingularName("black vestments")]
         //CSRTODO: plural?
+        [LookText("These vestments are the typical clothing of priests and monks.")]
         [EquipmentType(EquipmentType.Torso)]
+        [Weight(2)]
+        [ArmorClass(0.2)]
+        [Sellable(SellableEnum.Junk)]
         BlackVestments,
 
         [SingularName("blue bubbly potion")]
@@ -1646,8 +1658,10 @@ namespace IsengardClient.Backend
 
         [SingularName("grey scroll")]
         [PluralName("grey scrolls")]
+        [LookText("It's a lightly crinkled document, with archaic words written upon it.")]
         [Scroll(SpellsEnum.vigor)]
         [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         GreyScroll,
 
         [SingularName("grey staff")]
@@ -1983,8 +1997,11 @@ namespace IsengardClient.Backend
         LeatherPouch,
 
         [SingularName("leather sleeves")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Arms)]
         [Weight(3)]
+        [ArmorClass(0.2)]
+        [Sellable(SellableEnum.Junk)]
         LeatherSleeves,
 
         [SingularName("light leather armor")]
