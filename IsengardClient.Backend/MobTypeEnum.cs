@@ -452,6 +452,10 @@
         [Alignment(AlignmentType.DullBlue)]
         ElvenGuard,
 
+        [SingularName("elven wight")]
+        [PluralName("elven wights")]
+        ElvenWight,
+
         [SingularName("Erech")]
         //CSRTODO: no plural
         Erech,

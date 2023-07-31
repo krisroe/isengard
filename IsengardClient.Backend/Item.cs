@@ -3011,6 +3011,14 @@ namespace IsengardClient.Backend
         [Sellable(61)]
         WhoopieCushion,
 
+        [SingularName("wight mask")]
+        [PluralName("wight masks")]
+        [LookText("The mask seems to glow with an eerie light.")]
+        [Weight(2)]
+        [ArmorClass(0.4)]
+        [Sellable(402)]
+        WightMask,
+
         [SingularName("yellow beholder's eye")]
         [SingularSelection("yellow beholder eye")]
         [PluralName("yellow beholder's eyes")]
