@@ -200,6 +200,9 @@ namespace IsengardClient.Backend
         [MapTypeDisplayName("West of Bree")]
         WestOfBree,
 
+        [MapTypeDisplayName("Narwe")]
+        Narwe,
+
         [MapTypeDisplayName("Bree/Imladris")]
         BreeToImladris,
 

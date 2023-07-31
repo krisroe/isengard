@@ -5061,6 +5061,42 @@ namespace IsengardClient.Backend
             AddBidirectionalExitsWithOut(oNorthFork2, oTravelersShrine, "shrine");
             westOfBreeMap.Rooms[oTravelersShrine] = new PointF(12, -2);
 
+            Room oNorthFork3 = AddRoom("North Fork Road", "North Fork Road");
+            AddBidirectionalExits(oNorthFork3, oNorthFork2, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oNorthFork3] = new PointF(11, -3);
+
+            Room oNorthFork4 = AddRoom("North Fork Road", "North Fork Road");
+            AddBidirectionalExits(oNorthFork4, oNorthFork3, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oNorthFork4] = new PointF(10, -4);
+
+            Room oNorthFork5 = AddRoom("North Fork Road", "North Fork Road");
+            AddBidirectionalExits(oNorthFork5, oNorthFork4, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oNorthFork5] = new PointF(10, -5);
+
+            Room oNorthFork6 = AddRoom("North Fork Road", "North Fork Road");
+            AddBidirectionalExits(oNorthFork6, oNorthFork5, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oNorthFork6] = new PointF(10, -6);
+
+            Room oNorthFork7 = AddRoom("North Fork Road", "North Fork Road");
+            AddBidirectionalExits(oNorthFork7, oNorthFork6, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oNorthFork7] = new PointF(10, -7);
+
+            Room oNorthFork8 = AddRoom("North Fork Road", "North Fork Road");
+            AddBidirectionalExits(oNorthFork8, oNorthFork7, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oNorthFork8] = new PointF(10, -8);
+
+            Room oNorthFork9 = AddRoom("North Fork Road", "North Fork Road");
+            AddBidirectionalExits(oNorthFork9, oNorthFork8, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oNorthFork9] = new PointF(10, -9);
+
+            Room oNorthFork10 = AddRoom("North Fork Road", "North Fork Road");
+            AddBidirectionalExits(oNorthFork10, oNorthFork9, BidirectionalExitType.NorthSouth);
+            westOfBreeMap.Rooms[oNorthFork10] = new PointF(10, -10);
+
+            Room oNorthForkEnd = AddRoom("North Fork End", "End of the North Fork Road");
+            AddBidirectionalExits(oNorthForkEnd, oNorthFork10, BidirectionalExitType.SoutheastNorthwest);
+            westOfBreeMap.Rooms[oNorthForkEnd] = new PointF(9, -11);
+
             Room oWesternRoad1 = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoad1, oGrandIntersection, BidirectionalExitType.WestEast);
             westOfBreeMap.Rooms[oWesternRoad1] = new PointF(12, 0);
@@ -5149,6 +5185,8 @@ namespace IsengardClient.Backend
             Room oWesternRoadWestOfHobbiton = AddRoom("Western Road", "Western Road");
             AddBidirectionalExits(oWesternRoadWestOfHobbiton, oVillageOfHobbiton4, BidirectionalExitType.WestEast);
             westOfBreeMap.Rooms[oWesternRoadWestOfHobbiton] = new PointF(0, 0);
+
+            AddNarwe(oWesternRoadWestOfHobbiton);
 
             westronRoadToMithlond = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(westronRoadToMithlond, oVillageOfHobbiton3, BidirectionalExitType.NorthSouth);
@@ -5243,6 +5281,86 @@ namespace IsengardClient.Backend
             e.KeyType = SupportedKeysFlags.GateKey;
             westOfBreeMap.Rooms[oSmoulderingVillage] = new PointF(13, -2.5F);
             AddMapBoundaryPoint(oShepherd, oSmoulderingVillage, MapType.WestOfBree, MapType.BreeSewers);
+        }
+
+        private void AddNarwe(Room oWesternRoadFromHobbiton)
+        {
+            RoomGraph narweGraph = _graphs[MapType.Narwe];
+            RoomGraph westOfBreeGraph = _graphs[MapType.WestOfBree];
+
+            narweGraph.Rooms[oWesternRoadFromHobbiton] = new PointF(9, 5);
+
+            Room oDirtRoad1 = AddRoom("Dirt Road", "Dirt Road");
+            AddBidirectionalExits(oDirtRoad1, oWesternRoadFromHobbiton, BidirectionalExitType.WestEast);
+            westOfBreeGraph.Rooms[oDirtRoad1] = new PointF(-1, 0);
+            narweGraph.Rooms[oDirtRoad1] = new PointF(8, 5);
+            AddMapBoundaryPoint(oDirtRoad1, oWesternRoadFromHobbiton, MapType.Narwe, MapType.WestOfBree);
+
+            Room oDirtRoad2 = AddRoom("Dirt Road", "Dirt Road");
+            AddBidirectionalExits(oDirtRoad2, oDirtRoad1, BidirectionalExitType.WestEast);
+            narweGraph.Rooms[oDirtRoad2] = new PointF(7, 5);
+
+            Room oDirtRoad3 = AddRoom("Dirt Road", "Dirt Road");
+            AddBidirectionalExits(oDirtRoad3, oDirtRoad2, BidirectionalExitType.WestEast);
+            narweGraph.Rooms[oDirtRoad3] = new PointF(6, 5);
+
+            Room oDirtRoad4 = AddRoom("Dirt Road", "Dirt Road");
+            AddBidirectionalExits(oDirtRoad4, oDirtRoad3, BidirectionalExitType.WestEast);
+            narweGraph.Rooms[oDirtRoad4] = new PointF(5, 5);
+
+            Room oFallenCityOfNarweEntrance = AddRoom("Narwe Entrance", "The Fallen City of Narwe");
+            Exit e = AddExit(oDirtRoad4, oFallenCityOfNarweEntrance, "south");
+            e.Hidden = true;
+            AddExit(oFallenCityOfNarweEntrance, oDirtRoad4, "north");
+            narweGraph.Rooms[oFallenCityOfNarweEntrance] = new PointF(5, 6);
+
+            Room oNarwe2 = AddRoom("Narwe", "The Fallen City of Narwe");
+            AddBidirectionalExits(oFallenCityOfNarweEntrance, oNarwe2, BidirectionalExitType.WestEast);
+            AddExit(oNarwe2, oFallenCityOfNarweEntrance, "north");
+            narweGraph.Rooms[oNarwe2] = new PointF(6, 6);
+
+            Room oNarwe3 = AddRoom("Narwe", "The Fallen City of Narwe"); //can have north, south, east, west exits, with east/west/south not always present.
+            AddBidirectionalExits(oFallenCityOfNarweEntrance, oNarwe3, BidirectionalExitType.NorthSouth);
+            AddExit(oNarwe3, oDirtRoad4, "east"); //exit not always present
+            AddExit(oFallenCityOfNarweEntrance, oNarwe3, "west");
+            narweGraph.Rooms[oNarwe3] = new PointF(5, 7);
+
+            Room oNarwe4 = AddRoom("Narwe", "The Fallen City of Narwe");
+            AddExit(oNarwe3, oNarwe4, "west"); //exit not always present
+            AddExit(oNarwe4, oNarwe2, "east");
+            narweGraph.Rooms[oNarwe4] = new PointF(4, 7);
+
+            Room oNarwe5 = AddRoom("Narwe", "The Fallen City of Narwe");
+            AddBidirectionalExits(oNarwe4, oNarwe5, BidirectionalExitType.NorthSouth);
+            AddExit(oNarwe5, oNarwe2, "east");
+            narweGraph.Rooms[oNarwe5] = new PointF(4, 8);
+
+            Room oNarwe6 = AddRoom("Narwe", "The Fallen City of Narwe");
+            AddExit(oNarwe4, oNarwe6, "north");
+            narweGraph.Rooms[oNarwe6] = new PointF(4, 6);
+
+            Room oNarwe7 = AddRoom("Narwe", "The Fallen City of Narwe");
+            AddExit(oNarwe3, oNarwe7, "south"); //exit not always present
+            narweGraph.Rooms[oNarwe7] = new PointF(5, 8);
+            //can have east, west, north, south exits
+
+            Room oNarwe8 = AddRoom("Narwe", "The Fallen City of Narwe");
+            AddExit(oNarwe7, oNarwe8, "west");
+            AddExit(oNarwe8, oNarwe7, "north");
+            AddExit(oNarwe8, oNarwe3, "west");
+            narweGraph.Rooms[oNarwe8] = new PointF(4, 8);
+
+            Room oNarwe9 = AddRoom("Narwe", "The Fallen City of Narwe");
+            AddExit(oNarwe8, oNarwe9, "east");
+            AddExit(oNarwe7, oNarwe9, "east"); //not always present
+            AddExit(oNarwe9, oNarwe7, "west");
+            AddExit(oNarwe9, oNarwe6, "south");
+            narweGraph.Rooms[oNarwe9] = new PointF(5, 8);
+
+            Room oNarwe10 = AddRoom("Narwe", "The Fallen City of Narwe");
+            AddExit(oNarwe7, oNarwe10, "south");
+            AddExit(oNarwe10, oNarwe9, "north");
+            narweGraph.Rooms[oNarwe10] = new PointF(5, 9);
         }
 
         private void AddImladrisToTharbad(Room oImladrisSouthGateInside, out Room oTharbadGateOutside, Room southernBrethilNWEdge, Room southernBrethilForestSW, Room southernBrethilForestSE, Room southernBrethilForestNE)
