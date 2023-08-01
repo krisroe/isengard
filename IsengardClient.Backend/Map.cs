@@ -2837,13 +2837,35 @@ namespace IsengardClient.Backend
             Room oBrandywineRiver9 = AddRoom("River", "The Brandywine River");
             AddBidirectionalExits(oBrandywineRiver9, oBrandywineRiver7, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oBrandywineRiver9] = new PointF(0, -3);
-            //CSRTODO: north
 
             Room oBrandywineRiver10 = AddRoom("River", "The Brandywine River");
             AddBidirectionalExits(oBrandywineRiver9, oBrandywineRiver10, BidirectionalExitType.WestEast);
             AddBidirectionalExits(oBrandywineRiver10, oBrandywineRiver8, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oBrandywineRiver10] = new PointF(1, -3);
-            //CSRTODO: north
+
+            Room oBrandywineRiver11 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver11, oBrandywineRiver9, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oBrandywineRiver11] = new PointF(0, -4);
+
+            Room oBrandywineRiver12 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver11, oBrandywineRiver12, BidirectionalExitType.WestEast);
+            AddBidirectionalExits(oBrandywineRiver12, oBrandywineRiver10, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oBrandywineRiver12] = new PointF(1, -4);
+
+            Room oBrandywineRiver13 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver13, oBrandywineRiver11, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oBrandywineRiver13] = new PointF(0, -5);
+            //CSRTODO: boulder
+
+            Room oBrandywineRiver14 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver14, oBrandywineRiver12, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oBrandywineRiver14] = new PointF(1, -5);
+            //CSRTODO: north, west (both requiring fly)
+
+            Room oBrandywineRiver15 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver15, oBrandywineRiver13, BidirectionalExitType.NorthSouth);
+            AddExit(oBrandywineRiver15, oBrandywineRiver14, "east");
+            underBreeGraph.Rooms[oBrandywineRiver15] = new PointF(0, -6);
 
             Room oOohlgrist = AddRoom("Oohlgrist", "Small Boat");
             Trades[ItemTypeEnum.KelpNecklace] = MobTypeEnum.Oohlgrist;

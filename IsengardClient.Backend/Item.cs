@@ -1567,6 +1567,13 @@ namespace IsengardClient.Backend
         [Weight(15)]
         GlimmeringBlade,
 
+        [SingularName("glistening pearl")]
+        [PluralName("glistening pearls")]
+        [LookText("You see a large, polished pearl glistening in the sun.")]
+        [Weight(2)]
+        [Sellable(46)]
+        GlisteningPearl,
+
         [SingularName("glitter")]
         //CSRTODO: glitter plural? (does not use some)
         [LookText("This metallic substance reflects light in all directions.")]
@@ -2273,6 +2280,11 @@ namespace IsengardClient.Backend
 
         [SingularName("pearl encrusted diadem")]
         //CSRTODO: plural?
+        [LookText("You see an exquisite tiara-shaped circle of pearls set in silver.")]
+        [EquipmentType(EquipmentType.Head)]
+        [Weight(2)]
+        [ArmorClass(0.3)]
+        [Sellable(48)]
         PearlEncrustedDiadem,
 
         [SingularName("pearl handled blade")]
