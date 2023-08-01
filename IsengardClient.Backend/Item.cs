@@ -1690,6 +1690,13 @@ namespace IsengardClient.Backend
         [Sellable(118)]
         GreyStaff,
 
+        [SingularName("griffon's feather")]
+        //CSRTODO: plural
+        [LookText("You see the feather of a griffon")]
+        [Weight(1)]
+        [Scroll(SpellsEnum.levitate)]
+        GriffonsFeather,
+
         [SingularName("guide to the Ituk Glacier")]
         //CSRTODO: plural
         [Weight(0)]
@@ -2397,7 +2404,10 @@ namespace IsengardClient.Backend
 
         [SingularName("rake")]
         [PluralName("rakes")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Polearm)]
+        [Weight(2)]
+        [Sellable(SellableEnum.Junk)]
         Rake,
 
         [SingularName("rakshasan eviscerator")]

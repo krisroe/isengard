@@ -2855,7 +2855,11 @@ namespace IsengardClient.Backend
             Room oBrandywineRiver13 = AddRoom("River", "The Brandywine River");
             AddBidirectionalExits(oBrandywineRiver13, oBrandywineRiver11, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oBrandywineRiver13] = new PointF(0, -5);
-            //CSRTODO: boulder
+
+            Room oLargeBoulder = AddRoom("Large Boulder", "Large Boulder");
+            AddNonPermanentMobs(oLargeBoulder, MobTypeEnum.Griffon);
+            AddExit(oBrandywineRiver13, oLargeBoulder, "boulder");
+            AddExit(oLargeBoulder, oBrandywineRiver13, "river");
 
             Room oBrandywineRiver14 = AddRoom("River", "The Brandywine River");
             AddBidirectionalExits(oBrandywineRiver14, oBrandywineRiver12, BidirectionalExitType.NorthSouth);
@@ -2870,6 +2874,12 @@ namespace IsengardClient.Backend
             Room oBrandywineRiver16 = AddRoom("River", "The Brandywine River");
             AddBidirectionalExits(oBrandywineRiver16, oBrandywineRiver15, BidirectionalExitType.NorthSouth);
             underBreeGraph.Rooms[oBrandywineRiver16] = new PointF(0, -7);
+            //CSRTODO: north
+
+            Room oBrandywineRiver17 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver16, oBrandywineRiver17, BidirectionalExitType.WestEast);
+            underBreeGraph.Rooms[oBrandywineRiver17] = new PointF(1, -7);
+            //CSRTODO: north, south (both requiring fly)
 
             Room oOohlgrist = AddRoom("Oohlgrist", "Small Boat");
             Trades[ItemTypeEnum.KelpNecklace] = MobTypeEnum.Oohlgrist;
