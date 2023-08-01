@@ -2696,6 +2696,14 @@ namespace IsengardClient.Backend
         [Sellable(SellableEnum.Junk)]
         SmallWoodenShield,
 
+        [SingularName("Snar's Skeleton Key")]
+        //CSRTODO: plural
+        [LookText("You see a strange key made from the bone of a dead guy.")]
+        [ItemClass(ItemClass.Key)]
+        [Weight(2)]
+        [Sellable(SellableEnum.Junk)]
+        SnarsSkeletonKey,
+
         [SingularName("speckled potion")]
         [PluralName("speckled potions")]
         [Potion(SpellsEnum.unknown)] //stun? "You feel dizzy."

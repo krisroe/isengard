@@ -149,6 +149,10 @@
         [PluralName("blind crones")]
         BlindCrone,
 
+        [SingularName("blue crab")]
+        [PluralName("blue crabs")]
+        BlueCrab,
+
         [SingularName("blue flying snake")]
         [PluralName("blue flying snakes")]
         BlueFlyingSnake,
@@ -227,6 +231,11 @@
         [PluralName("caretakers")]
         [Experience(40)]
         Caretaker,
+
+        [SingularName("Carl Arl")]
+        //CSRTODO: no plural
+        [Experience(450)]
+        CarlArl,
 
         [SingularName("carrion crawler")]
         [PluralName("carrion crawlers")]
