@@ -868,6 +868,14 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Torso)]
         BandedMailArmor,
 
+        [SingularName("bastard sword")]
+        [PluralName("bastard swords")]
+        [LookText("You see a large, powerful sword.")]
+        [WeaponType(WeaponType.Stab)]
+        [Weight(5)]
+        [Sellable(137)]
+        BastardSword,
+
         [SingularName("beastmaster's whip")]
         [PluralName("beastmaster's whips")]
         [LookText("You see a heavy dinosaur hide whip with a heavy chain and mithril tip.")]
