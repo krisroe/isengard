@@ -286,6 +286,10 @@
         [PluralName("cooks")]
         Cook,
 
+        [SingularName("corn husker")]
+        [PluralName("corn huskers")]
+        CornHusker,
+
         [SingularName("coughing man")]
         [PluralName("coughing men")]
         CoughingMan,
