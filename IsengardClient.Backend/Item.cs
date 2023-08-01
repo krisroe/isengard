@@ -1777,6 +1777,7 @@ namespace IsengardClient.Backend
 
         [SingularName("hardwood shield")]
         [PluralName("hardwood shields")]
+        [LookText("Made of the hardest oak, this shield can really protect.")]
         [EquipmentType(EquipmentType.Shield)]
         [Weight(10)]
         [ArmorClass(0.5)]

@@ -2860,6 +2860,7 @@ namespace IsengardClient.Backend
             AddNonPermanentMobs(oLargeBoulder, MobTypeEnum.Griffon);
             AddExit(oBrandywineRiver13, oLargeBoulder, "boulder");
             AddExit(oLargeBoulder, oBrandywineRiver13, "river");
+            underBreeGraph.Rooms[oLargeBoulder] = new PointF(-1, -5);
 
             Room oBrandywineRiver14 = AddRoom("River", "The Brandywine River");
             AddBidirectionalExits(oBrandywineRiver14, oBrandywineRiver12, BidirectionalExitType.NorthSouth);
