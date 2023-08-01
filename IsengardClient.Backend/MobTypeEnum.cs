@@ -1026,6 +1026,7 @@
 
         [SingularName("Lars Magnus Grunwald")]
         //CSRTODO no plural
+        [Experience(200)]
         LarsMagnusGrunwald,
 
         [SingularName("Lathlorien")]

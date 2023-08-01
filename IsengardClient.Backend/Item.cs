@@ -2179,6 +2179,15 @@ namespace IsengardClient.Backend
         [DisallowedClasses(ClassTypeFlags.Mage)] //verified 7/3/23
         MOMTattoo,
 
+        [SingularName("moon pearl")]
+        [PluralName("moon pearls")]
+        [LookText("A small milky white pearl.")]
+        [EquipmentType(EquipmentType.Ears)]
+        [Weight(1)]
+        [ArmorClass(0.1)]
+        [Sellable(35)]
+        MoonPearl,
+
         [SingularName("morning star")]
         [PluralName("morning stars")]
         [WeaponType(WeaponType.Unknown)]
