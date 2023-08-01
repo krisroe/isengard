@@ -590,6 +590,10 @@
         [PluralName("giant catfish")]
         GiantCatfish,
 
+        [SingularName("giant crayfish")]
+        [PluralName("giant crayfish")]
+        GiantCrayfish,
+
         [SingularName("giant centipede")]
         [PluralName("giant centipedes")]
         GiantCentipede,

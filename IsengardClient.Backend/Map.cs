@@ -2867,6 +2867,10 @@ namespace IsengardClient.Backend
             AddExit(oBrandywineRiver15, oBrandywineRiver14, "east");
             underBreeGraph.Rooms[oBrandywineRiver15] = new PointF(0, -6);
 
+            Room oBrandywineRiver16 = AddRoom("River", "The Brandywine River");
+            AddBidirectionalExits(oBrandywineRiver16, oBrandywineRiver15, BidirectionalExitType.NorthSouth);
+            underBreeGraph.Rooms[oBrandywineRiver16] = new PointF(0, -7);
+
             Room oOohlgrist = AddRoom("Oohlgrist", "Small Boat");
             Trades[ItemTypeEnum.KelpNecklace] = MobTypeEnum.Oohlgrist;
             AddPermanentMobs(oOohlgrist, MobTypeEnum.Oohlgrist);
