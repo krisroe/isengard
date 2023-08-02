@@ -183,6 +183,11 @@
         //CSRTODO: no plural
         BrideNamedPrincess,
 
+        [SingularName("bridge guard")]
+        [PluralName("bridge guards")]
+        [Experience(400)]
+        BridgeGuard,
+
         [SingularName("bugbear")]
         [PluralName("bugbears")]
         Bugbear,
@@ -539,6 +544,10 @@
         [Experience(260)]
         [Alignment(AlignmentType.DullBlue)]
         FrodoBaggins,
+
+        [SingularName("Galdor")]
+        //CSRTODO: no plural
+        Galdor,
 
         [SingularName("gambler")]
         [PluralName("gamblers")]
@@ -903,6 +912,10 @@
         [SingularName("hunter")]
         [PluralName("hunters")]
         Hunter,
+
+        [SingularName("hydra")]
+        //CSRTODO: plural?
+        Hydra,
 
         [SingularName("Igor the Bouncer")]
         //CSRTODO: no plural
@@ -1464,6 +1477,10 @@
         [Aggressive]
         [InfectsWithDisease]
         Radbug,
+
+        [SingularName("raider guard")]
+        [PluralName("raider guards")]
+        RaiderGuard,
 
         [SingularName("ram")]
         [PluralName("rams")]

@@ -711,7 +711,8 @@ namespace IsengardClient.Backend
         TombKey = 32,
         FactoryKey = 64,
         RustyKey = 128,
-        All = 255,
+        LibraryKey = 256,
+        All = 511,
     }
 
     /// <summary>
@@ -972,6 +973,11 @@ namespace IsengardClient.Backend
         [Weight(5)]
         [Sellable(24)]
         BoneShield,
+
+        [SingularName("The Book of Ancient Elven Tongues")]
+        [LookTextType(LookTextType.Multiline)]
+        [Weight(10)]
+        BookOfAncientElvenTongues,
 
         [SingularName("book of knowledge")]
         [PluralName("books of knowledge")]
@@ -1364,6 +1370,15 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Unknown)]
         [Sellable(185)]
         ElvenChainMail,
+
+        [SingularName("elven chain mail armor")]
+        //CSRTODO: plural
+        [LookText("It's a suit of fine chain, made by the elven smiths of Finwe.")]
+        [EquipmentType(EquipmentType.Torso)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(12)]
+        [Sellable(256)]
+        ElvenChainMailArmor,
 
         [SingularName("elven chain mail gloves")]
         [EquipmentType(EquipmentType.Hands)]
@@ -2029,6 +2044,14 @@ namespace IsengardClient.Backend
         [ArmorClass(0.2)]
         [Sellable(SellableEnum.Junk)]
         LeatherSleeves,
+
+        [SingularName("library key")]
+        [PluralName("library keys")]
+        [LookText("You see a small iron key.")]
+        [ItemClass(ItemClass.Key)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
+        LibraryKey,
 
         [SingularName("light leather armor")]
         [EquipmentType(EquipmentType.Torso)]
@@ -3032,6 +3055,9 @@ namespace IsengardClient.Backend
         [Weight(3)]
         [Sellable(1262)]
         WagonmastersWhip,
+
+        [SingularName("wand of fire")]
+        WandOfFire,
 
         [SingularName("wand of the efreeti")]
         //CSRTODO: plural
