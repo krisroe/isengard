@@ -1029,6 +1029,14 @@ namespace IsengardClient.Backend
         [WeaponType(WeaponType.Blunt)]
         BrassKnuckles,
 
+        [SingularName("brass leggings")]
+        //CSRTODO: plural
+        [LookText("You see nothing special about it.")]
+        [Weight(7)]
+        [ArmorClass(0.4)]
+        [Sellable(227)]
+        BrassLeggings,
+
         [SingularName("bridge key")]
         [PluralName("bridge keys")]
         [LookText("It looks like it may fit in one of the hatchways.")]
