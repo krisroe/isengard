@@ -969,8 +969,10 @@ namespace IsengardClient.Backend
 
         [SingularName("bone shield")]
         [PluralName("bone shields")]
+        [LookText("It's a shield made completely of bone.")]
         [EquipmentType(EquipmentType.Shield)]
         [Weight(5)]
+        [ArmorClass(0.4)]
         [Sellable(24)]
         BoneShield,
 
@@ -2183,8 +2185,11 @@ namespace IsengardClient.Backend
 
         [SingularName("mithron helmet")]
         [PluralName("mithron helmets")]
+        [LookText("You see a man-sized helmet made of mithron.")]
         [EquipmentType(EquipmentType.Head)]
         [Weight(4)]
+        [ArmorClass(0.6)]
+        [Sellable(58)]
         MithronHelmet,
 
         [SingularName("mithron hood")]
@@ -2752,7 +2757,10 @@ namespace IsengardClient.Backend
 
         [SingularName("speckled potion")]
         [PluralName("speckled potions")]
+        [LookText("The potion is oddly speckled in colors of blue and orange.")]
         [Potion(SpellsEnum.unknown)] //stun? "You feel dizzy."
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         SpeckledPotion,
 
         [SingularName("sprite boots")]
