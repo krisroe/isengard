@@ -1971,6 +1971,7 @@ namespace IsengardClient.Backend
 
         [SingularName("lance")]
         [PluralName("lances")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Polearm)]
         [Weight(1)]
         [Sellable(188)]
