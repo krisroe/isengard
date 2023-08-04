@@ -51,7 +51,7 @@ namespace IsengardClient.Backend
             AddBreeCity(out Room oConstructionSite, out Room oBreeTownSquare, out Room oBreeWestGateInside, out Room oSmoulderingVillage, out Room oNorthBridge, out Room oSewerPipeExit, out Room breeEastGateInside, out Room boatswain, out Room breeEastGateOutside, out Room oCemetery, out Room breeDocks, out Room accursedGuildHall, out Room crusaderGuildHall, out Room thievesGuildHall);
             AddMayorMillwoodMansion(oConstructionSite, _graphs[MapType.BreeStreets]);
             AddBreeToHobbiton(oBreeWestGateInside, oSmoulderingVillage, out Room westronRoadToMithlond);
-            AddBreeToImladris(out Room oOuthouse, breeEastGateInside, breeEastGateOutside, out Room imladrisWestGateOutside, oCemetery, out Room southernBrethilForestNWEdge, out Room southernBrethilForestSW, out Room southernBrethilForestSE, out Room southernBrethilForestNE);
+            AddBreeToImladris(out Room oOuthouse, breeEastGateInside, breeEastGateOutside, out Room imladrisWestGateOutside, oCemetery, out Room southernBrethilForestNWEdge, out Room southernBrethilForestSW, out Room southernBrethilForestSE, out Room southernBrethilForestNE, out Room smugglersVillage2);
             AddUnderBree(oNorthBridge, oOuthouse, oSewerPipeExit);
             AddImladrisCity(out Room oImladrisSouthGateInside, out Room oEastGateOfImladrisOutside, imladrisWestGateOutside, out Room healingHand, out Room oEastGateOfImladrisInside);
             AddEastOfImladris(oEastGateOfImladrisOutside, oEastGateOfImladrisInside, out Room westGateOfEsgaroth);
@@ -65,7 +65,7 @@ namespace IsengardClient.Backend
             AddArmenelos(oArmenelosGatesOutside);
             AddWestOfNindamosAndArmenelos(oSouthernJunction, oPathThroughTheValleyHiddenPath, out Room oEldemondeEastGateOutside, nindamosGraph);
             AddEldemondeCity(oEldemondeEastGateOutside);
-            AddMithlond(breeDocks, boatswain, tharbadDocks, nindamosDocks, westronRoadToMithlond);
+            AddMithlond(breeDocks, boatswain, tharbadDocks, nindamosDocks, westronRoadToMithlond, smugglersVillage2);
             AddIntangible(oBreeTownSquare, healingHand, nindamosVillageCenter, accursedGuildHall, crusaderGuildHall, thievesGuildHall);
 
             Dictionary<Room, MapType> roomsWithoutExplicitMaps = new Dictionary<Room, MapType>();
@@ -545,10 +545,11 @@ namespace IsengardClient.Backend
             tharbadWestGraph.Rooms[oWildmanVillage] = new PointF(-1, 15);
         }
 
-        private void AddMithlond(Room breeDocks, Room boatswain, Room tharbadDocks, Room nindamosDocks, Room westronRoadToHobbiton)
+        private void AddMithlond(Room breeDocks, Room boatswain, Room tharbadDocks, Room nindamosDocks, Room westronRoadToHobbiton, Room smugglersVillage2)
         {
             RoomGraph mithlondGraph = _graphs[MapType.Mithlond];
             RoomGraph shipsGraph = _graphs[MapType.Ships];
+            RoomGraph breeToImladrisGraph = _graphs[MapType.BreeToImladris];
 
             Room oCelduinExpressSlip = AddRoom("Celduin Express Slip", "Pier - Slip for the Celduin Express");
             AddPermanentMobs(oCelduinExpressSlip, MobTypeEnum.HarborMaster);
@@ -688,18 +689,30 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oWesternShore3, oWesternShore4, BidirectionalExitType.SouthwestNortheast);
             mithlondGraph.Rooms[oWesternShore4] = new PointF(3, 17.5F);
 
+            Room blackmireCove = AddRoom("Blackmire Cove", "Blackmire Cove");
+            AddBidirectionalExits(blackmireCove, smugglersVillage2, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[blackmireCove] = new PointF(-12.25F, 6.5F);
+            mithlondGraph.Rooms[blackmireCove] = new PointF(2, 18.5F);
+            mithlondGraph.Rooms[smugglersVillage2] = new PointF(3, 19.5F);
+            AddMapBoundaryPoint(blackmireCove, smugglersVillage2, MapType.Mithlond, MapType.BreeToImladris);
+
+            Room oBlackmireCove2 = AddRoom("Blackmire Cove", "Blackmire Cove");
+            AddBidirectionalExits(blackmireCove, oBlackmireCove2, BidirectionalExitType.WestEast);
+            mithlondGraph.Rooms[oBlackmireCove2] = new PointF(3, 18.5F);
+
             Room oBeach = AddRoom("Beach", "Beach");
             AddExit(oWesternShore4, oBeach, "west");
             AddExit(oBeach, oWesternShore4, "shore");
-            mithlondGraph.Rooms[oBeach] = new PointF(2, 17.5F);
+            AddBidirectionalExits(oBeach, blackmireCove, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oBeach] = new PointF(1, 17.5F);
 
             Room oEncirclingSea = AddRoom("Encircling Sea", "Encircling Sea");
             AddBidirectionalExits(oEncirclingSea, oBeach, BidirectionalExitType.SoutheastNorthwest);
-            mithlondGraph.Rooms[oEncirclingSea] = new PointF(1, 16.5F);
+            mithlondGraph.Rooms[oEncirclingSea] = new PointF(0, 16.5F);
 
             Room oGreatWesternOcean = AddRoom("Ocean", "Great Western Ocean");
             AddBidirectionalExits(oGreatWesternOcean, oBeach, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[oGreatWesternOcean] = new PointF(1, 17.5F);
+            mithlondGraph.Rooms[oGreatWesternOcean] = new PointF(0, 17.5F);
 
             Room oWesternShore5 = AddRoom("Western Shore", "Western Shore");
             AddBidirectionalExits(oWesternShore4, oWesternShore5, BidirectionalExitType.SoutheastNorthwest);
@@ -3654,7 +3667,7 @@ namespace IsengardClient.Backend
             millwoodMansionUpstairsGraph.Rooms[oChancellorOfProtection] = new PointF(4, 4);
         }
 
-        private void AddBreeToImladris(out Room oOuthouse, Room breeEastGateInside, Room breeEastGateOutside, out Room imladrisWestGateOutside, Room oCemetery, out Room southernBrethilNWEdge, out Room southernBrethilForestSW, out Room southernBrethilForestSE, out Room southernBrethilForestNE)
+        private void AddBreeToImladris(out Room oOuthouse, Room breeEastGateInside, Room breeEastGateOutside, out Room imladrisWestGateOutside, Room oCemetery, out Room southernBrethilNWEdge, out Room southernBrethilForestSW, out Room southernBrethilForestSE, out Room southernBrethilForestNE, out Room smugglersVillage2)
         {
             RoomGraph breeToImladrisGraph = _graphs[MapType.BreeToImladris];
 
@@ -4133,7 +4146,7 @@ namespace IsengardClient.Backend
             breeToImladrisGraph.Rooms[oWesternShore5] = new PointF(-6.25F, 10);
 
             Room oWesternShore6 = AddRoom("Western Shore", "Western Shore");
-            AddExit(oWesternShore5, oWesternShore6, "northwest"); //this exit goes to either western shore 6 or western shore 9
+            //AddExit(oWesternShore5, oWesternShore6, "northwest"); //this exit goes to either western shore 6 or western shore 9
             AddExit(oWesternShore6, oWesternShore5, "southeast");
             breeToImladrisGraph.Rooms[oWesternShore6] = new PointF(-7, 9.75F);
 
@@ -4142,13 +4155,17 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oWesternShore7, oWesternShore6, BidirectionalExitType.NorthSouth);
             breeToImladrisGraph.Rooms[oWesternShore7] = new PointF(-7, 9.5F);
 
+            Room oSpiderWeb = AddRoom("Spider Web", "Spider Web");
+            AddBidirectionalExitsWithOut(oWesternShore7, oSpiderWeb, "web");
+            breeToImladrisGraph.Rooms[oSpiderWeb] = new PointF(-6.25F, 9.5F);
+
             Room oWesternShore8 = AddRoom("Western Shore", "Western Shore");
             AddBidirectionalExits(oWesternShore8, oWesternShore7, BidirectionalExitType.SoutheastNorthwest);
             breeToImladrisGraph.Rooms[oWesternShore8] = new PointF(-7.75F, 9.25F);
 
             Room oWesternShore9 = AddRoom("Western Shore", "Western Shore");
             AddExit(oWesternShore8, oWesternShore9, "northwest");
-            AddExit(oWesternShore9, oWesternShore8, "southeast"); //this exit goes to either western shore 5 or western shore 8
+            //AddExit(oWesternShore9, oWesternShore8, "southeast"); //this exit goes to either western shore 5 or western shore 8
             breeToImladrisGraph.Rooms[oWesternShore9] = new PointF(-8.5F, 9);
 
             Room oWesternShore10 = AddRoom("Western Shore", "Western Shore");
@@ -4193,22 +4210,18 @@ namespace IsengardClient.Backend
             AddBidirectionalExitsWithOut(oWillingWench, oAsimele, "back");
             breeToImladrisGraph.Rooms[oAsimele] = new PointF(-8.75F, 7);
 
-            Room oSmugglersVillage2 = AddRoom("Smuggler's Village", "Smuggler's Village");
-            AddBidirectionalExits(oSmugglersVillage2, oSmugglersVillage, BidirectionalExitType.SoutheastNorthwest);
-            breeToImladrisGraph.Rooms[oSmugglersVillage2] = new PointF(-11.5F, 6.75F);
+            smugglersVillage2 = AddRoom("Smuggler's Village", "Smuggler's Village");
+            AddBidirectionalExits(smugglersVillage2, oSmugglersVillage, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[smugglersVillage2] = new PointF(-11.5F, 6.75F);
 
             Room oStorageShed = AddRoom("Storage Shed", "Storage Shed");
             AddPermanentMobs(oStorageShed, MobTypeEnum.Cat);
-            AddBidirectionalExitsWithOut(oSmugglersVillage2, oStorageShed, "shed");
+            AddBidirectionalExitsWithOut(smugglersVillage2, oStorageShed, "shed");
             breeToImladrisGraph.Rooms[oStorageShed] = new PointF(-12.25F, 7);
 
             Room oSlashedSail = AddRoom("Slashed Sail", "The Slashed Sail");
-            AddBidirectionalExitsWithOut(oSmugglersVillage2, oSlashedSail, "tavern");
-            breeToImladrisGraph.Rooms[oSlashedSail] = new PointF(-10.75F, 6.5F);
-
-            Room oBlackmireCove = AddRoom("Blackmire Cove", "Blackmire Cove");
-            AddBidirectionalExits(oBlackmireCove, oSmugglersVillage2, BidirectionalExitType.SoutheastNorthwest);
-            breeToImladrisGraph.Rooms[oBlackmireCove] = new PointF(-12.25F, 6.5F);
+            AddBidirectionalExitsWithOut(smugglersVillage2, oSlashedSail, "tavern");
+            breeToImladrisGraph.Rooms[oSlashedSail] = new PointF(-10.5F, 6.75F);
 
             Room oRiverBank13 = AddRoom("River Bank", "River Bank");
             AddExit(oBrandywineShore, oRiverBank13, "northeast");
@@ -4306,6 +4319,33 @@ namespace IsengardClient.Backend
             Room oTallGrassWest1 = AddRoom("Tall Grass", "Tall Grass");
             AddBidirectionalExits(oShortGrassWest9, oTallGrassWest1, BidirectionalExitType.SouthwestNortheast);
             breeToImladrisGraph.Rooms[oTallGrassWest1] = new PointF(-4.75F, 8.625F);
+
+            Room oTallGrassWest2 = AddRoom("Tall Grass", "Tall Grass");
+            AddBidirectionalExits(oTallGrassWest1, oTallGrassWest2, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oTallGrassWest2] = new PointF(-5.5F, 8.875F);
+
+            Room oTallGrassWest3 = AddRoom("Tall Grass", "Tall Grass");
+            AddBidirectionalExits(oTallGrassWest2, oTallGrassWest3, BidirectionalExitType.SouthwestNortheast);
+            breeToImladrisGraph.Rooms[oTallGrassWest3] = new PointF(-6.25F, 9.125F);
+
+            Room oTallGrassWest4 = AddRoom("Tall Grass", "Tall Grass");
+            AddBidirectionalExits(oTallGrassWest4, oTallGrassWest3, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oTallGrassWest4] = new PointF(-7, 8.875F);
+
+            Room oTallGrassWest5 = AddRoom("Tall Grass", "Tall Grass");
+            AddBidirectionalExits(oTallGrassWest5, oTallGrassWest4, BidirectionalExitType.SouthwestNortheast);
+            AddExit(oTallGrassWest5, oTallGrassWest2, "southeast");
+            breeToImladrisGraph.Rooms[oTallGrassWest5] = new PointF(-6.25F, 8.625F);
+
+            Room oTallGrassWest6 = AddRoom("Tall Grass", "Tall Grass");
+            AddBidirectionalExits(oTallGrassWest6, oTallGrassWest4, BidirectionalExitType.SoutheastNorthwest);
+            breeToImladrisGraph.Rooms[oTallGrassWest6] = new PointF(-7.75F, 8.625F);
+
+            Room oTallGrassWest7 = AddRoom("Tall Grass", "Tall Grass");
+            AddBidirectionalExits(oTallGrassWest7, oTallGrassWest6, BidirectionalExitType.SouthwestNortheast);
+            AddBidirectionalExits(oTallGrassWest7, oTallGrassWest5, BidirectionalExitType.SoutheastNorthwest);
+            AddExit(oTallGrassWest2, oTallGrassWest7, "northwest");
+            breeToImladrisGraph.Rooms[oTallGrassWest7] = new PointF(-6.5F, 8.25F);
 
             Room oWesternWalkway = AddRoom("Western Walkway", "Western Walkway");
             AddBidirectionalExits(oWesternWalkway, oRiverBank24, BidirectionalExitType.NorthSouth);
