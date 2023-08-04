@@ -1518,6 +1518,14 @@ namespace IsengardClient.Backend
         [Sellable(1485)]
         FishMailHood,
 
+        [SingularName("flail")]
+        [PluralName("flails")]
+        [LookText("It's a threshing device with two wooden blocks attached by a chain.")]
+        [WeaponType(WeaponType.Blunt)]
+        [Weight(4)]
+        [Sellable(173)]
+        Flail,
+
         [SingularName("flint blade")]
         [PluralName("flint blades")]
         [WeaponType(WeaponType.Slash)]

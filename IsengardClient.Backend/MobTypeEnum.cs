@@ -599,6 +599,10 @@
         [PluralName("giant catfish")]
         GiantCatfish,
 
+        [SingularName("giant crab")]
+        [PluralName("giant crabs")]
+        GiantCrab,
+
         [SingularName("giant crayfish")]
         [PluralName("giant crayfish")]
         GiantCrayfish,
@@ -816,6 +820,10 @@
         [SingularName("hawker")]
         [PluralName("hawkers")]
         Hawker,
+
+        [SingularName("headless horseman")]
+        [PluralName("headless horsemen")]
+        HeadlessHorseman,
 
         [SingularName("herald")]
         [PluralName("heralds")]
