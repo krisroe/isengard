@@ -1818,6 +1818,10 @@
         [PluralName("tree sprites")]
         TreeSprite,
 
+        [SingularName("triton")]
+        [PluralName("tritons")]
+        Triton,
+
         [SingularName("troll")]
         [PluralName("trolls")]
         Troll,

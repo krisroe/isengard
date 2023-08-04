@@ -692,18 +692,13 @@ namespace IsengardClient.Backend
             Room blackmireCove = AddRoom("Blackmire Cove", "Blackmire Cove");
             AddBidirectionalExits(blackmireCove, smugglersVillage2, BidirectionalExitType.SoutheastNorthwest);
             breeToImladrisGraph.Rooms[blackmireCove] = new PointF(-12.25F, 6.5F);
-            mithlondGraph.Rooms[blackmireCove] = new PointF(2, 18.5F);
-            mithlondGraph.Rooms[smugglersVillage2] = new PointF(3, 19.5F);
-            AddMapBoundaryPoint(blackmireCove, smugglersVillage2, MapType.Mithlond, MapType.BreeToImladris);
 
             Room oBlackmireCove2 = AddRoom("Blackmire Cove", "Blackmire Cove");
             AddBidirectionalExits(blackmireCove, oBlackmireCove2, BidirectionalExitType.WestEast);
-            mithlondGraph.Rooms[oBlackmireCove2] = new PointF(3, 18.5F);
 
             Room oBeach = AddRoom("Beach", "Beach");
             AddExit(oWesternShore4, oBeach, "west");
             AddExit(oBeach, oWesternShore4, "shore");
-            AddBidirectionalExits(oBeach, blackmireCove, BidirectionalExitType.SoutheastNorthwest);
             mithlondGraph.Rooms[oBeach] = new PointF(1, 17.5F);
 
             Room oEncirclingSea = AddRoom("Encircling Sea", "Encircling Sea");
@@ -740,6 +735,15 @@ namespace IsengardClient.Backend
             AddBidirectionalExits(oWesternShore9, oWesternShore10, BidirectionalExitType.NorthSouth);
             mithlondGraph.Rooms[oWesternShore10] = new PointF(7, 23.5F);
 
+            Room oBeach2 = AddRoom("Beach", "Beach");
+            AddBidirectionalExits(oWesternShore10, oBeach2, BidirectionalExitType.SoutheastNorthwest);
+            AddBidirectionalExits(oBeach2, blackmireCove, BidirectionalExitType.SoutheastNorthwest);
+            mithlondGraph.Rooms[oBeach2] = new PointF(8, 24.5F);
+            mithlondGraph.Rooms[blackmireCove] = new PointF(9, 25.5F);
+            mithlondGraph.Rooms[oBlackmireCove2] = new PointF(10, 25.5F);
+            mithlondGraph.Rooms[smugglersVillage2] = new PointF(10, 26.5F);
+            AddMapBoundaryPoint(blackmireCove, smugglersVillage2, MapType.Mithlond, MapType.BreeToImladris);
+
             Room oWestronRoad2 = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(oWestronRoad1, oWestronRoad2, BidirectionalExitType.SoutheastNorthwest);
             mithlondGraph.Rooms[oWestronRoad2] = new PointF(5, 14.5F);
@@ -763,31 +767,31 @@ namespace IsengardClient.Backend
 
             Room oWestronRoad7 = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(oWestronRoad6, oWestronRoad7, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oWestronRoad7] = new PointF(9, 19.5F);
+            mithlondGraph.Rooms[oWestronRoad7] = new PointF(9, 19);
 
             Room oWestronRoad8 = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(oWestronRoad7, oWestronRoad8, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oWestronRoad8] = new PointF(9, 20.5F);
+            mithlondGraph.Rooms[oWestronRoad8] = new PointF(9, 19.5F);
 
             Room oWestronRoad9 = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(oWestronRoad8, oWestronRoad9, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oWestronRoad9] = new PointF(9, 21.5F);
+            mithlondGraph.Rooms[oWestronRoad9] = new PointF(9, 20);
 
             Room oWestronRoad10 = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(oWestronRoad9, oWestronRoad10, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oWestronRoad10] = new PointF(9, 22.5F);
+            mithlondGraph.Rooms[oWestronRoad10] = new PointF(9, 20.5F);
 
             Room oWestronRoad11 = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(oWestronRoad10, oWestronRoad11, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oWestronRoad11] = new PointF(9, 23.5F);
+            mithlondGraph.Rooms[oWestronRoad11] = new PointF(9, 21);
             //CSRTODO: west
 
             Room oWestronRoad12 = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(oWestronRoad11, oWestronRoad12, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[oWestronRoad12] = new PointF(9, 24.5F);
+            mithlondGraph.Rooms[oWestronRoad12] = new PointF(9, 21.5F);
 
             AddBidirectionalExits(oWestronRoad12, westronRoadToHobbiton, BidirectionalExitType.NorthSouth);
-            mithlondGraph.Rooms[westronRoadToHobbiton] = new PointF(9, 25.5F);
+            mithlondGraph.Rooms[westronRoadToHobbiton] = new PointF(9, 22);
 
             Room oEvendimTrail11 = AddRoom("Trail", "Evendim Trail");
             AddBidirectionalExits(oEvendimTrail10, oEvendimTrail11, BidirectionalExitType.WestEast);
@@ -5516,7 +5520,7 @@ namespace IsengardClient.Backend
             westronRoadToMithlond = AddRoom("Westron Road", "Westron Road");
             AddBidirectionalExits(westronRoadToMithlond, oVillageOfHobbiton3, BidirectionalExitType.NorthSouth);
             westOfBreeMap.Rooms[westronRoadToMithlond] = new PointF(2, -2);
-            mithlondGraph.Rooms[oVillageOfHobbiton3] = new PointF(9, 26.5F);
+            mithlondGraph.Rooms[oVillageOfHobbiton3] = new PointF(9, 22.5F);
             AddMapBoundaryPoint(westronRoadToMithlond, oVillageOfHobbiton3, MapType.Mithlond, MapType.WestOfBree);
 
             Room oValleyRoad = AddRoom("Valley Road", "Valley Road");
