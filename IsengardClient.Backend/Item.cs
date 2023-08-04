@@ -2842,6 +2842,15 @@ namespace IsengardClient.Backend
         [Sellable(569)]
         SteelChainArmor,
 
+        [SingularName("steel gauntlets")]
+        //CSRTODO: plural
+        [LookText("The gauntlets are made of ribbed leather with steel coverings.")]
+        [EquipmentType(EquipmentType.Hands)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(4)]
+        [Sellable(185)]
+        SteelGauntlets,
+
         [SingularName("steel reinforced shield")]
         [PluralName("steel reinforced shields")]
         [Weight(8)]
