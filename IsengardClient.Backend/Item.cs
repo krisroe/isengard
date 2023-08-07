@@ -1247,7 +1247,10 @@ namespace IsengardClient.Backend
 
         [SingularName("dark blade")]
         [PluralName("dark blades")]
+        [LookText("The blade is too dark to see.  Only the hilt reflects light.")]
         [WeaponType(WeaponType.Slash)]
+        [Weight(5)]
+        [Sellable(414)]
         DarkBlade,
 
         [SingularName("dark goggles")]
@@ -1339,6 +1342,11 @@ namespace IsengardClient.Backend
         [LookText("The handle of this key is shaped like a dragon.")]
         [Weight(1)]
         DragonKey,
+
+        [SingularName("dragon whip")]
+        [PluralName("dragon whips")]
+        [LookText("A wound cord of dragon hide with mithril spikes.")]
+        DragonWhip,
 
         [SingularName("dried seaweed")]
         //CSRTODO: plural?
@@ -1557,7 +1565,10 @@ namespace IsengardClient.Backend
 
         [SingularName("gate key")]
         [PluralName("gate keys")]
+        [LookText("a simple wooden key that probably will not last very long.")]
         [ItemClass(ItemClass.Key)]
+        [Weight(0)]
+        [Sellable(SellableEnum.Junk)]
         GateKey,
 
         [SingularName("gate warning")]
@@ -2362,6 +2373,8 @@ namespace IsengardClient.Backend
         [PluralName("philosopher's stones")]
         [LookText("You see a mystical stone which is rumored to have magical healing properties.")]
         [Wand(SpellsEnum.heal)] //CSRTODO: not sure about this, says "You feel incredibly better." when zapping.
+        [Weight(30)]
+        [Sellable(1856)]
         PhilosophersStone,
 
         [SingularName("piece of coal")]
@@ -2635,6 +2648,7 @@ namespace IsengardClient.Backend
 
         [SingularName("silk vest")]
         [PluralName("silk vests")]
+        [LookText("You see nothing special about it.")]
         [EquipmentType(EquipmentType.Torso)]
         [Weight(1)]
         [ArmorClass(0.1)]
@@ -3032,6 +3046,12 @@ namespace IsengardClient.Backend
         [Sellable(36)]
         VanishingCream,
 
+        [SingularName("vault key")]
+        [PluralName("vault keys")]
+        [LookText("A hardened metal key.")]
+        [ItemClass(ItemClass.Key)]
+        VaultKey,
+
         [SingularName("verdant green scroll")]
         [PluralName("verdant green scrolls")]
         [LookText("You see nothing special about it.")]
@@ -3042,7 +3062,10 @@ namespace IsengardClient.Backend
 
         [SingularName("very old key")]
         [PluralName("very old keys")]
+        [LookText("An old masterkey, it may open more than one lock")]
         [ItemClass(ItemClass.Key)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         VeryOldKey,
 
         [SingularName("viscous potion")]
