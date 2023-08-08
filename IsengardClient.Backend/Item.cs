@@ -1060,6 +1060,10 @@ namespace IsengardClient.Backend
 
         [SingularName("brown bag")]
         [PluralName("brown bags")]
+        [LookText("Several objects can be put inside this bag.")]
+        [ItemClass(ItemClass.Bag)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         BrownBag,
 
         [SingularName("bucket")]
@@ -1078,7 +1082,10 @@ namespace IsengardClient.Backend
 
         [SingularName("carbon scroll")]
         [PluralName("carbon scrolls")]
+        [LookText("It is as black as midnight, and has glowing yellow script on it.")]
         [Scroll(SpellsEnum.rumble)]
+        [Weight(1)]
+        [Sellable(SellableEnum.Junk)]
         CarbonScroll,
 
         [SingularName("carved ivory key")]
@@ -1990,6 +1997,7 @@ namespace IsengardClient.Backend
 
         [SingularName("lancette")]
         [PluralName("lancettes")]
+        [LookText("You see nothing special about it.")]
         [WeaponType(WeaponType.Stab)]
         [Weight(1)]
         [Sellable(59)]
@@ -2606,6 +2614,13 @@ namespace IsengardClient.Backend
         [LookText("It gleams like quartz.")]
         SandCrystal,
 
+        [SingularName("sand pail")]
+        [PluralName("sand pails")]
+        [LookText("Yech!  A dead starfish lies in the bottom of the dirty pail.")]
+        [Weight(3)]
+        [Sellable(SellableEnum.Junk)]
+        SandPail,
+
         [SingularName("sapphire")]
         [PluralName("sapphires")]
         [LookText("You see nothing special about it.")]
@@ -2683,7 +2698,9 @@ namespace IsengardClient.Backend
 
         [SingularName("silver dagger")]
         [PluralName("silver daggers")]
+        [LookText("You see a bright silver dagger used by assassins.")]
         [WeaponType(WeaponType.Stab)]
+        [Weight(3)]
         [Sellable(67)]
         SilverDagger,
 
@@ -2817,6 +2834,7 @@ namespace IsengardClient.Backend
 
         [SingularName("sprite leather leggings")]
         [EquipmentType(EquipmentType.Legs)]
+        [LookText("You see some leather leggings, made by the sprites.")]
         [Weight(3)]
         [Sellable(185)]
         SpriteLeatherLeggings,
@@ -2940,6 +2958,7 @@ namespace IsengardClient.Backend
 
         [SingularName("taupe scroll")]
         [PluralName("taupe scrolls")]
+        [LookText("You see a brownish-grey scrol with yellow writing on it.")]
         [Scroll(SpellsEnum.shatterstone)]
         TaupeScroll,
 
