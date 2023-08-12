@@ -2567,8 +2567,10 @@ namespace IsengardClient.Backend
 
         [SingularName("rogue's mask")]
         [PluralName("rogue's masks")]
+        [LookText("You see a half-mask of black velvet, its bottom trimmed with tiny gems.")]
         [EquipmentType(EquipmentType.Face)]
         [Weight(1)]
+        [ArmorClass(0.4)]
         [Sellable(297)]
         RoguesMask,
 
