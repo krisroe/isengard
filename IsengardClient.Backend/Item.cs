@@ -1963,6 +1963,14 @@ namespace IsengardClient.Backend
         [Sellable(203)]
         IronSpear,
 
+        [SingularName("ivory coffer")]
+        [PluralName("ivory coffers")]
+        [LookText("You see a small white box closed with a tiny brass latch.")]
+        [ItemClass(ItemClass.Bag)]
+        [Weight(1)]
+        [Sellable(34)]
+        IvoryCoffer,
+
         [SingularName("jewelled armlets")]
         //CSRTODO: plural
         [EquipmentType(EquipmentType.Arms)]
@@ -2329,6 +2337,9 @@ namespace IsengardClient.Backend
         [PluralName("opal staffs")]
         [Wand(SpellsEnum.mend)]
         OpalStaff,
+
+        [SingularName("orange beholder's eye")]
+        OrangeBeholdersEye,
 
         [SingularName("orange potion")]
         [PluralName("orange potions")]
