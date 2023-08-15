@@ -3135,6 +3135,10 @@ namespace IsengardClient.Backend
         WagonmastersWhip,
 
         [SingularName("wand of fire")]
+        [LookText("You see a magnificent wand from the elemental plane of fire.")]
+        [Wand(SpellsEnum.immolate)]
+        [Weight(1)]
+        [Sellable(618)]
         WandOfFire,
 
         [SingularName("wand of the efreeti")]

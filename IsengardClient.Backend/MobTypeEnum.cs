@@ -1876,6 +1876,10 @@
         [PluralName("villager's ghosts")]
         VillagersGhost,
 
+        [SingularName("visiting dignitary")]
+        //CSRTODO: plural
+        VisitingDignitary,
+
         [SingularName("Voteli")]
         //CSRTODO: no plural
         Voteli,
