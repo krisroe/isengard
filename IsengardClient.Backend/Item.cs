@@ -753,6 +753,14 @@ namespace IsengardClient.Backend
         [Sellable(86)]
         AdamantineScaleMailGloves,
 
+        [SingularName("adamantine scale mail hood")]
+        [LookText("You see a hood crafted with scales made of adamantine.")]
+        [EquipmentType(EquipmentType.Head)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(6)]
+        [Sellable(199)]
+        AdamantineScaleMailHood,
+
         [SingularName("adamantine scale mail leggings")]
         [EquipmentType(EquipmentType.Legs)]
         [Weight(7)]
@@ -1117,8 +1125,12 @@ namespace IsengardClient.Backend
         [EquipmentType(EquipmentType.Torso)]
         ChainMailArmor,
 
-        [SingularName("chain mail gloves")]
+        [SingularName("chain mail gloves")] //verified collective 8/15/23
+        [LookText("You see some shiny, chain mail gloves, for smaller hands.")]
         [EquipmentType(EquipmentType.Hands)]
+        [DisallowedClasses(ClassTypeFlags.Mage)]
+        [Weight(3)]
+        [Sellable(93)]
         ChainMailGloves,
 
         [SingularName("chain mail hood")]
@@ -1664,6 +1676,14 @@ namespace IsengardClient.Backend
         [LookText("My, how it glitters.")]
         [ItemClass(ItemClass.Coins)]
         GoldCoins,
+
+        [SingularName("gold dagger")]
+        [PluralName("gold daggers")]
+        [LookText("You see a magnificent golden dagger.  The gold itself is worth a lot.")]
+        [WeaponType(WeaponType.Stab)]
+        [Weight(1)]
+        [Sellable(270)]
+        GoldDagger,
 
         [SingularName("golden dagger")]
         [PluralName("golden daggers")]
