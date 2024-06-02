@@ -149,13 +149,7 @@
     <Compile Include="frmStrategy.Designer.cs">
       <DependentUpon>frmStrategy.cs</DependentUpon>
     </Compile>
-    <Compile Include="IsengardSettings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>IsengardSettings.settings</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ucStrategyModifications.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -203,34 +197,9 @@
     <EmbeddedResource Include="frmStrategy.resx">
       <DependentUpon>frmStrategy.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="ucStrategyModifications.resx">
       <DependentUpon>ucStrategyModifications.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="IsengardSettings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>IsengardSettings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="frmGraph.xaml">
