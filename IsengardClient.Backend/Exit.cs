@@ -1,5 +1,4 @@
 ﻿using Priority_Queue;
-using QuickGraph;
 namespace IsengardClient.Backend
 {
     public class Exit : Edge<Room>, GraphSharp.Controls.IDeletableEdge

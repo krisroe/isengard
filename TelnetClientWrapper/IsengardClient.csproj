@@ -19,11 +19,12 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -218,7 +219,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>IsengardSettings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -239,14 +239,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Graph#.Controls\GraphSharp.Controls.csproj">
-      <Project>{90d874f2-486e-477e-93a9-ffa6fc92a2f4}</Project>
-      <Name>GraphSharp.Controls</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Graph#\GraphSharp.csproj">
-      <Project>{9c59c516-fca0-4fcf-ae11-e20f0f1b1949}</Project>
-      <Name>GraphSharp</Name>
-    </ProjectReference>
     <ProjectReference Include="..\IsengardClient.Backend\IsengardClient.Backend.csproj">
       <Project>{0d9b40d5-f079-4081-9d7f-7c75e1622d6d}</Project>
       <Name>IsengardClient.Backend</Name>

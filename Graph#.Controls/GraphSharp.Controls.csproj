@@ -46,7 +46,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <Prefer32Bit>false</Prefer32Bit>
@@ -89,7 +89,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.IdentityModel" />
     <Reference Include="WPFExtensions, Version=1.0.3437.34043, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\TelnetClientWrapper\packages\WPFExtensions.1.0.0\lib\WPFExtensions.dll</HintPath>
+      <HintPath>..\packages\WPFExtensions.1.0.0\lib\WPFExtensions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -152,12 +152,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Graph#\GraphSharp.csproj">
-      <Project>{9C59C516-FCA0-4FCF-AE11-E20F0F1B1949}</Project>
-      <Name>GraphSharp</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\AlgorithmConstraints.cs" />
