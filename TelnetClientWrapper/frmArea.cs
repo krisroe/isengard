@@ -104,6 +104,7 @@ namespace IsengardClient
 
         private void btnInventorySinkGraph_Click(object sender, EventArgs e)
         {
+#if DEBUG
             Room contextRoom;
             if (cboTickRoom.SelectedIndex > 0)
                 contextRoom = _gameMap.HealingRooms[(HealingRoom)cboTickRoom.SelectedItem];
@@ -114,6 +115,9 @@ namespace IsengardClient
             frmGraph graphForm = new frmGraph(_gameMap, contextRoom, true, _getGraphInputs, VertexSelectionRequirement.UnambiguousRoomBackendOrDisplayName, false);
             graphForm.ShowDialog();
             UIShared.HandleRoomSelected(graphForm.SelectedRoom, cboInventorySinkRoom);
+#else
+            MessageBox.Show("Not Supported in release mode!");
+#endif
         }
 
         private void btnInventorySinkClear_Click(object sender, EventArgs e)

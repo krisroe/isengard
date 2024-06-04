@@ -2,7 +2,10 @@
 using QuickGraph;
 namespace IsengardClient.Backend
 {
-    public class Exit : Edge<Room>, GraphSharp.Controls.IDeletableEdge
+    public class Exit : Edge<Room>
+#if DEBUG
+    , GraphSharp.Controls.IDeletableEdge
+#endif
     {
         public override string ToString()
         {

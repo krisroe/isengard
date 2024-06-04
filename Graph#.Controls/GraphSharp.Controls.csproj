@@ -57,6 +57,7 @@
     <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>5</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="QuickGraph">
