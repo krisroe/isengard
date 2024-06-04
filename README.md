@@ -1,0 +1,1 @@
+This is a WinForms/WPF client application for using the Mordor MUD Isengard
