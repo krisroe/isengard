@@ -5,6 +5,7 @@
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="QuickGraph" Version="3.6.61119.7" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
   </ItemGroup>
   <ItemGroup>
@@ -12,9 +13,6 @@
     <ProjectReference Include="..\Graph#\GraphSharp.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="QuickGraph">
-      <HintPath>..\QuickGraph\QuickGraph.dll</HintPath>
-    </Reference>
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 </Project>
