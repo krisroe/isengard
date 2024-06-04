@@ -528,7 +528,6 @@ namespace IsengardClient
 
         private void DisplayGraph(ComboBox roomDropdown)
         {
-#if DEBUG
             Room contextRoom = roomDropdown.SelectedItem as Room;
             if (contextRoom == null && roomDropdown != cboTargetRoom) contextRoom = cboTargetRoom.SelectedItem as Room;
             if (contextRoom == null) contextRoom = _currentRoom;
@@ -536,9 +535,6 @@ namespace IsengardClient
             frmGraph graphForm = new frmGraph(_gameMap, contextRoom, true, _GraphInputs, vsr, false);
             graphForm.ShowDialog();
             UIShared.HandleRoomSelected(graphForm.SelectedRoom, roomDropdown);
-#else
-            MessageBox.Show("Not supported in release mode!");
-#endif
         }
 
         private void cboRoom_SelectedIndexChanged(object sender, EventArgs e)

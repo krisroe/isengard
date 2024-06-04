@@ -53,7 +53,6 @@ namespace IsengardClient
 
         private void btnSelect_Click(object sender, EventArgs e)
         {
-#if DEBUG
             Room starterRoom = _selectedRoom ?? _currentRoom;
             frmGraph fg = new frmGraph(_fullMap, starterRoom, true, _gi, VertexSelectionRequirement.UnambiguousRoomBackendOrDisplayName, false);
             if (fg.ShowDialog().GetValueOrDefault(false))
@@ -61,9 +60,6 @@ namespace IsengardClient
                 _selectedRoom = fg.SelectedRoom;
                 txtRoom.Text = _selectedRoom.GetRoomNameWithExperience();
             }
-#else
-            MessageBox.Show("Not supported in release mode!");
-#endif
         }
     }
 }

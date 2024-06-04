@@ -10555,7 +10555,6 @@ TryUnlockExit:
 
         private void btnGraph_Click(object sender, EventArgs e)
         {
-#if DEBUG
             Room originalCurrentRoom = _currentEntityInfo.CurrentRoom;
             bool readOnly = _currentBackgroundParameters != null;
             frmGraph frm = new frmGraph(_gameMap, originalCurrentRoom, false, GetGraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation, readOnly);
@@ -10579,9 +10578,6 @@ TryUnlockExit:
                     }
                 }
             }
-#else
-            MessageBox.Show("Not supported in release mode!");
-#endif
         }
 
         private void btnLocations_Click(object sender, EventArgs e)

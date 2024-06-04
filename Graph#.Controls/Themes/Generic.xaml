@@ -115,8 +115,6 @@
         </Setter>
         <Setter Property="Controls:GraphElementBehaviour.HighlightTrigger"
                 Value="{Binding RelativeSource={RelativeSource Self},Path=IsMouseOver}" />
-        <Setter Property="extbehaviour:DragBehaviour.IsDragEnabled"
-                Value="True" />
         <Setter Property="extbehaviour:DragBehaviour.X"
                 Value="{Binding RelativeSource={RelativeSource Self},Path=(Controls:GraphCanvas.X),Mode=TwoWay}" />
         <Setter Property="extbehaviour:DragBehaviour.Y"

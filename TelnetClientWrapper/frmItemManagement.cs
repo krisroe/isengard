@@ -300,13 +300,9 @@ namespace IsengardClient
 
         private void btnTargetGraph_Click(object sender, EventArgs e)
         {
-#if DEBUG
             frmGraph graphForm = new frmGraph(_gameMap, _currentRoom, true, _GraphInputs, VertexSelectionRequirement.ValidPathFromCurrentLocation, false);
             graphForm.ShowDialog();
             EnsureRoomSelectedInDropdown(cboTargetRoom, graphForm.SelectedRoom);
-#else
-            MessageBox.Show("Not supported in release mode!");
-#endif
         }
 
         private void EnsureRoomSelectedInDropdown(ComboBox cbo, Room selectedRoom)

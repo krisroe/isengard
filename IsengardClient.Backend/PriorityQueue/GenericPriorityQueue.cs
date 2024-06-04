@@ -38,13 +38,10 @@ namespace Priority_Queue
         /// <param name="comparer">The comparison function to use to compare TPriority values</param>
         public GenericPriorityQueue(int maxNodes, Comparison<TPriority> comparer)
         {
-#if DEBUG
             if (maxNodes <= 0)
             {
                 throw new InvalidOperationException("New queue size cannot be smaller than 1");
             }
-#endif
-
             _numNodes = 0;
             _nodes = new TItem[maxNodes + 1];
             _numNodesEverEnqueued = 0;
@@ -98,7 +95,6 @@ namespace Priority_Queue
 #endif
         public bool Contains(TItem node)
         {
-#if DEBUG
             if (node == null)
             {
                 throw new ArgumentNullException("node");
@@ -111,8 +107,6 @@ namespace Priority_Queue
             {
                 throw new InvalidOperationException("node.QueueIndex has been corrupted. Did you change it manually?");
             }
-#endif
-
             return (_nodes[node.QueueIndex] == node);
         }
 
@@ -128,7 +122,6 @@ namespace Priority_Queue
 #endif
         public void Enqueue(TItem node, TPriority priority)
         {
-#if DEBUG
             if (node == null)
             {
                 throw new ArgumentNullException("node");
@@ -146,8 +139,6 @@ namespace Priority_Queue
                 throw new InvalidOperationException("Node is already enqueued: " + node);
             }
             node.Queue = this;
-#endif
-
             node.Priority = priority;
             _numNodes++;
             _nodes[_numNodes] = node;
@@ -358,7 +349,6 @@ namespace Priority_Queue
 #endif
         public TItem Dequeue()
         {
-#if DEBUG
             if (_numNodes <= 0)
             {
                 throw new InvalidOperationException("Cannot call Dequeue() on an empty queue");
@@ -369,7 +359,6 @@ namespace Priority_Queue
                 throw new InvalidOperationException("Queue has been corrupted (Did you update a node priority manually instead of calling UpdatePriority()?" +
                                                     "Or add the same node to two different queues?)");
             }
-#endif
 
             TItem returnMe = _nodes[1];
             //If the node is already the last node, we can remove it immediately
@@ -399,18 +388,14 @@ namespace Priority_Queue
         /// </summary>
         public void Resize(int maxNodes)
         {
-#if DEBUG
             if (maxNodes <= 0)
             {
                 throw new InvalidOperationException("Queue size cannot be smaller than 1");
             }
-
             if (maxNodes < _numNodes)
             {
                 throw new InvalidOperationException("Called Resize(" + maxNodes + "), but current queue contains " + _numNodes + " nodes");
             }
-#endif
-
             TItem[] newArray = new TItem[maxNodes + 1];
             int highestIndexToCopy = Math.Min(maxNodes, _numNodes);
             Array.Copy(_nodes, newArray, highestIndexToCopy + 1);
@@ -426,13 +411,10 @@ namespace Priority_Queue
         {
             get
             {
-#if DEBUG
                 if (_numNodes <= 0)
                 {
                     throw new InvalidOperationException("Cannot call .First on an empty queue");
                 }
-#endif
-
                 return _nodes[1];
             }
         }
@@ -448,7 +430,6 @@ namespace Priority_Queue
 #endif
         public void UpdatePriority(TItem node, TPriority priority)
         {
-#if DEBUG
             if (node == null)
             {
                 throw new ArgumentNullException("node");
@@ -461,8 +442,6 @@ namespace Priority_Queue
             {
                 throw new InvalidOperationException("Cannot call UpdatePriority() on a node which is not enqueued: " + node);
             }
-#endif
-
             node.Priority = priority;
             OnNodeUpdated(node);
         }
@@ -496,7 +475,6 @@ namespace Priority_Queue
 #endif
         public void Remove(TItem node)
         {
-#if DEBUG
             if (node == null)
             {
                 throw new ArgumentNullException("node");
@@ -509,7 +487,6 @@ namespace Priority_Queue
             {
                 throw new InvalidOperationException("Cannot call Remove() on a node which is not enqueued: " + node);
             }
-#endif
 
             //If the node is already the last node, we can remove it immediately
             if (node.QueueIndex == _numNodes)
@@ -539,7 +516,6 @@ namespace Priority_Queue
 #endif
         public void ResetNode(TItem node)
         {
-#if DEBUG
             if (node == null)
             {
                 throw new ArgumentNullException("node");
@@ -552,10 +528,7 @@ namespace Priority_Queue
             {
                 throw new InvalidOperationException("node.ResetNode was called on a node that is still in the queue");
             }
-
             node.Queue = null;
-#endif
-
             node.QueueIndex = 0;
         }
 

@@ -91,6 +91,9 @@
     <Compile Include="frmDisconnected.Designer.cs">
       <DependentUpon>frmDisconnected.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmGraph.xaml.cs">
+      <DependentUpon>frmGraph.xaml</DependentUpon>
+    </Compile>
     <Compile Include="frmItemManagement.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -230,6 +233,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Graph#.Controls\GraphSharp.Controls.csproj">
+      <Project>{90d874f2-486e-477e-93a9-ffa6fc92a2f4}</Project>
+      <Name>GraphSharp.Controls</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Graph#\GraphSharp.csproj">
       <Project>{9c59c516-fca0-4fcf-ae11-e20f0f1b1949}</Project>
       <Name>GraphSharp</Name>
@@ -238,6 +245,12 @@
       <Project>{0d9b40d5-f079-4081-9d7f-7c75e1622d6d}</Project>
       <Name>IsengardClient.Backend</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="frmGraph.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
