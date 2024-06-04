@@ -67,7 +67,7 @@ namespace IsengardClient.Tests
                 addedPlayers = s2;
                 removedPlayers = s3;
             };
-            InformationalMessagesSequence seq = new InformationalMessagesSequence("Despug", a);
+            InformationalMessagesSequence seq = new InformationalMessagesSequence("TestUser", a);
             FeedLineParameters flp = new FeedLineParameters(null);
 
             flp.InfoMessages = new List<InformationalMessages>();
@@ -290,7 +290,7 @@ namespace IsengardClient.Tests
                 playerStatusFlags = psf;
             };
 
-            ScoreOutputSequence sos = new ScoreOutputSequence("Despug", a);
+            ScoreOutputSequence sos = new ScoreOutputSequence("TestUser", a);
 
             List<string> input = new List<string>();
             FeedLineParameters flp = new FeedLineParameters(input);
@@ -301,7 +301,7 @@ namespace IsengardClient.Tests
             classType = null;
             playerStatusFlags = null;
             input.Clear();
-            input.Add("Despug the Mage Occulate (lvl 12)");
+            input.Add("TestUser the Mage Occulate (lvl 12)");
             input.Add(" *Poisoned*");
             input.Add("   59/ 59 Hit Points     39/ 61 Magic Points    AC: 2");
             input.Add("    Gold:  376933  To Next Level:    24115 Exp         0 GP");
@@ -342,7 +342,7 @@ namespace IsengardClient.Tests
             classType = null;
             playerStatusFlags = null;
             input.Clear();
-            input.Add("Despug the Mage Occulate (lvl 1)");
+            input.Add("TestUser the Mage Occulate (lvl 1)");
             input.Add(string.Empty);
             input.Add("   59/159 Hit Points     39/261 Magic Points    AC: 3.3");
             input.Add("    Gold:  376933  To Next Level:        0 Exp         0 GP");
@@ -382,7 +382,7 @@ namespace IsengardClient.Tests
             classType = null;
             playerStatusFlags = null;
             input.Clear();
-            input.Add("Despug the Mage Occulate (lvl 62)");
+            input.Add("TestUser the Mage Occulate (lvl 62)");
             input.Add(string.Empty);
             input.Add("    9/  9 Hit Points      9/  9 Magic Points    AC: 2.0");
             input.Add("    Gold:  376933  To Next Level:       14 Exp         0 GP");
@@ -661,8 +661,8 @@ namespace IsengardClient.Tests
             {
             };
 
-            RoomTransitionSequence seq = new RoomTransitionSequence("Despug", a);
-            InformationalMessagesSequence info = new InformationalMessagesSequence("Despug", a2);
+            RoomTransitionSequence seq = new RoomTransitionSequence("TestUser", a);
+            InformationalMessagesSequence info = new InformationalMessagesSequence("TestUser", a2);
             FeedLineParameters flParams;
 
             flParams = new FeedLineParameters(null);

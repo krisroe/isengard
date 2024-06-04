@@ -176,7 +176,7 @@ namespace IsengardClient.Tests
             {
                 conn.Open();
                 IsengardSettingData.CreateNewDatabaseSchema(conn);
-                int iUserID = IsengardSettingData.GetUserID(conn, "Despug", true);
+                int iUserID = IsengardSettingData.GetUserID(conn, "TestUser", true);
                 settings.SaveSettings(conn, iUserID);
                 sets4 = new IsengardSettingData(conn, iUserID, errorMessages, gameMap);
             }

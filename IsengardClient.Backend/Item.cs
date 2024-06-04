@@ -2853,7 +2853,6 @@ namespace IsengardClient.Backend
         [Sellable(198)]
         SpriteBoots,
 
-        //doesn't fit despug
         [SingularName("sprite leather armor")] //verified collective 7/23/23
         [LookText("You see some leather armor, fashioned by the sprites for smaller races.")]
         [EquipmentType(EquipmentType.Torso)]
