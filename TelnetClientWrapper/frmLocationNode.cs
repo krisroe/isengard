@@ -40,7 +40,14 @@ namespace IsengardClient
             }
             _input.DisplayName = txtDisplayName.Text;
             _input.RoomObject = _selectedRoom;
-            _input.Room = _fullMap.GetRoomTextIdentifier(_input.RoomObject);
+            if (_selectedRoom == null)
+            {
+                _input.Room = null;
+            }
+            else
+            {
+                _input.Room = _fullMap.GetRoomTextIdentifier(_input.RoomObject);
+            }
             DialogResult = DialogResult.OK;
             Close();
         }
