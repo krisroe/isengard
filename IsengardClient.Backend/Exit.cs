@@ -1,8 +1,8 @@
 ﻿using Priority_Queue;
-using QuickGraph;
+using QuikGraph;
 namespace IsengardClient.Backend
 {
-    public class Exit : Edge<Room>, GraphSharp.Controls.IDeletableEdge
+    public class Exit : Edge<Room>, IDeletableEdge
     {
         public override string ToString()
         {
@@ -140,5 +140,13 @@ namespace IsengardClient.Backend
         {
             Exit = e;
         }
+    }
+
+    /// <summary>
+    /// supports marking an edge as deleted
+    /// </summary>
+    public interface IDeletableEdge
+    {
+        bool IsDeleted();
     }
 }

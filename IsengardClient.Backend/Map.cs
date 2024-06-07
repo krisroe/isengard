@@ -1,5 +1,5 @@
 ﻿using Priority_Queue;
-using QuickGraph;
+using QuikGraph;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

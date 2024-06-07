@@ -1,7 +1,7 @@
-﻿using GraphSharp.Algorithms.Layout;
-using GraphSharp.Controls;
+﻿using GraphShape.Algorithms.Layout;
+using GraphShape.Controls;
 using IsengardClient.Backend;
-using QuickGraph;
+using QuikGraph;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -260,14 +260,14 @@ namespace IsengardClient
 
     internal class RoomGraphLayoutAlgorithm : DefaultParameterizedLayoutAlgorithmBase<Room, Exit, RoomBidirectionalGraph, RoomGraphLayoutAlgorithmParameters>
     {
-        public RoomGraphLayoutAlgorithm(RoomBidirectionalGraph g, IDictionary<Room, System.Windows.Point> vertexPositions, RoomGraphLayoutAlgorithmParameters oldParameters) : base(g, vertexPositions, oldParameters)
+        public RoomGraphLayoutAlgorithm(RoomBidirectionalGraph g, IDictionary<Room, GraphShape.Point> vertexPositions, RoomGraphLayoutAlgorithmParameters oldParameters) : base(g, vertexPositions, oldParameters)
         {
         }
         protected override void InternalCompute()
         {
             foreach (var next in this.VisitedGraph.ComputedPositions)
             {
-                VertexPositions[next.Key] = new System.Windows.Point(next.Value.X, next.Value.Y);
+                VerticesPositions[next.Key] = new GraphShape.Point(next.Value.X, next.Value.Y);
             }
         }
     }

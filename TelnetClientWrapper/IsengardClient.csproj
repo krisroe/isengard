@@ -40,20 +40,17 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GraphShape, Version=1.2.1.0, Culture=neutral, PublicKeyToken=77ac9095553894e3, processorArchitecture=MSIL">
+      <HintPath>..\packages\GraphShape.1.2.1\lib\net45\GraphShape.dll</HintPath>
+    </Reference>
+    <Reference Include="GraphShape.Controls, Version=1.2.2.0, Culture=neutral, PublicKeyToken=77ac9095553894e3, processorArchitecture=MSIL">
+      <HintPath>..\packages\GraphShape.Controls.1.2.2\lib\net45\GraphShape.Controls.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="QuickGraph, Version=3.6.61114.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
-      <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.dll</HintPath>
-    </Reference>
-    <Reference Include="QuickGraph.Data, Version=3.6.61114.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.Data.dll</HintPath>
-    </Reference>
-    <Reference Include="QuickGraph.Graphviz, Version=3.6.61114.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
-      <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.Graphviz.dll</HintPath>
-    </Reference>
-    <Reference Include="QuickGraph.Serialization, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.Serialization.dll</HintPath>
+    <Reference Include="QuikGraph, Version=2.3.0.0, Culture=neutral, PublicKeyToken=46bd58b0789759cb, processorArchitecture=MSIL">
+      <HintPath>..\packages\QuikGraph.2.3.0\lib\net45\QuikGraph.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -158,6 +155,7 @@
     <Compile Include="frmStrategy.Designer.cs">
       <DependentUpon>frmStrategy.cs</DependentUpon>
     </Compile>
+    <Compile Include="GraphControls.cs" />
     <Compile Include="IsengardSettings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -243,14 +241,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Graph#.Controls\GraphSharp.Controls.csproj">
-      <Project>{90d874f2-486e-477e-93a9-ffa6fc92a2f4}</Project>
-      <Name>GraphSharp.Controls</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Graph#\GraphSharp.csproj">
-      <Project>{9c59c516-fca0-4fcf-ae11-e20f0f1b1949}</Project>
-      <Name>GraphSharp</Name>
-    </ProjectReference>
     <ProjectReference Include="..\IsengardClient.Backend\IsengardClient.Backend.csproj">
       <Project>{0d9b40d5-f079-4081-9d7f-7c75e1622d6d}</Project>
       <Name>IsengardClient.Backend</Name>
