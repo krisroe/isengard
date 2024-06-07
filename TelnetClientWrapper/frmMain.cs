@@ -1340,15 +1340,23 @@ namespace IsengardClient
             using (SQLiteConnection conn = IsengardSettingData.GetSqliteConnection(localDatabase))
             {
                 conn.Open();
-                if (newDatabase) //generate database schema
+                using (SQLiteTransaction tx = conn.BeginTransaction())
                 {
-                    IsengardSettingData.CreateNewDatabaseSchema(conn);
+                    if (newDatabase) //generate database schema
+                    {
+                        IsengardSettingData.CreateNewDatabaseSchema(conn, tx);
+                    }
+                    tx.Commit();
                 }
-                int userID = IsengardSettingData.GetUserID(conn, _username, false);
-                if (userID == 0)
-                    _settingsData = IsengardSettingData.GetDefaultSettings();
-                else
-                    _settingsData = LoadSettingsForUser(conn, userID);
+                using (SQLiteTransaction tx = conn.BeginTransaction())
+                {
+                    int userID = IsengardSettingData.GetUserID(conn, _username, false, tx);
+                    if (userID == 0)
+                        _settingsData = IsengardSettingData.GetDefaultSettings();
+                    else
+                        _settingsData = LoadSettingsForUser(conn, userID, tx);
+                    tx.Commit();
+                }
             }
             Invoke(new Action(AfterLoadSettings));
 
@@ -10309,8 +10317,12 @@ TryUnlockExit:
                 using (SQLiteConnection conn = IsengardSettingData.GetSqliteConnection(GetDatabasePath()))
                 {
                     conn.Open();
-                    int userID = IsengardSettingData.GetUserID(conn, _username, true);
-                    _settingsData.SaveSettings(conn, userID);
+                    using (SQLiteTransaction tx = conn.BeginTransaction())
+                    {
+                        int userID = IsengardSettingData.GetUserID(conn, _username, true, tx);
+                        _settingsData.SaveSettings(conn, userID, tx);
+                        tx.Commit();
+                    }
                 }
             }
             finally
@@ -11393,25 +11405,40 @@ TryUnlockExit:
                 using (SQLiteConnection conn = IsengardSettingData.GetSqliteConnection(localDatabase))
                 {
                     conn.Open();
-                    int userID = IsengardSettingData.GetUserID(conn, player, false);
-                    if (userID == 0)
+                    IsengardSettingData settingsData = null;
+                    bool haveUser = false;
+                    using (SQLiteTransaction tx = conn.BeginTransaction())
                     {
-                        MessageBox.Show("That user does not have settings.");
+                        int userID = IsengardSettingData.GetUserID(conn, player, false, tx);
+                        haveUser = userID != 0;
+                        if (haveUser)
+                        {
+                            settingsData = LoadSettingsForUser(conn, userID, tx);
+                        }
+                        tx.Commit();
+                    }
+                    string sMessage;
+                    if (haveUser)
+                    {
+                        settingsData.ScrubIDs();
+                        _settingsData = settingsData;
+                        AfterLoadSettings();
+                        sMessage = "Settings loaded!";
+                    }
+                    else
+                    {
+                        sMessage = "That user does not have settings.";
                         return;
                     }
-                    IsengardSettingData settingsData = LoadSettingsForUser(conn, userID);
-                    settingsData.ScrubIDs();
-                    _settingsData = settingsData;
-                    AfterLoadSettings();
-                    MessageBox.Show("Settings loaded!");
+                    MessageBox.Show(sMessage);
                 }
             }
         }
 
-        private IsengardSettingData LoadSettingsForUser(SQLiteConnection conn, int UserID)
+        private IsengardSettingData LoadSettingsForUser(SQLiteConnection conn, int UserID, SQLiteTransaction tx)
         {
             List<string> errorMessages = new List<string>();
-            IsengardSettingData ret = new IsengardSettingData(conn, UserID, errorMessages, _gameMap);
+            IsengardSettingData ret = new IsengardSettingData(conn, UserID, errorMessages, _gameMap, tx);
             AddBroadcastMessages(errorMessages);
             return ret;
         }

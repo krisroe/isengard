@@ -147,11 +147,12 @@ namespace IsengardClient.Backend
                 DynamicMobData[next.Key] = copyDMD;
             }
         }
-        public IsengardSettingData(SQLiteConnection conn, int UserID, List<string> errorMessages, IsengardMap gameMap) : this()
+        public IsengardSettingData(SQLiteConnection conn, int UserID, List<string> errorMessages, IsengardMap gameMap, SQLiteTransaction tx) : this()
         {
             object oData;
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.Parameters.AddWithValue("@UserID", UserID);
                 cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -1863,7 +1864,7 @@ namespace IsengardClient.Backend
             }
         }
 
-        public void SaveSettings(SQLiteConnection conn, int userID)
+        public void SaveSettings(SQLiteConnection conn, int userID, SQLiteTransaction tx)
         {
             Dictionary<string, string> existingSettings = new Dictionary<string, string>();
             Dictionary<string, string> newSettings = new Dictionary<string, string>();
@@ -1873,6 +1874,7 @@ namespace IsengardClient.Backend
             }
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.CommandText = "SELECT SettingName,SettingValue FROM Settings WHERE UserID = @UserID";
                 cmd.Parameters.AddWithValue("@UserID", userID);
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -1923,8 +1925,8 @@ namespace IsengardClient.Backend
                     cmd.ExecuteNonQuery();
                 }
 
-                HashSet<string> existingDynamicItemKeys = GetExistingStringIDs(conn, userID, "DynamicItemData");
-                HashSet<string> existingDynamicMobKeys = GetExistingStringIDs(conn, userID, "DynamicMobData");
+                HashSet<string> existingDynamicItemKeys = GetExistingStringIDs(conn, userID, "DynamicItemData", tx);
+                HashSet<string> existingDynamicMobKeys = GetExistingStringIDs(conn, userID, "DynamicMobData", tx);
 
                 SQLiteParameter keyParameter = cmd.Parameters.Add("@Key", DbType.String);
                 foreach (KeyValuePair<ItemTypeEnum, DynamicItemData> nextDID in DynamicItemData)
@@ -1936,18 +1938,18 @@ namespace IsengardClient.Backend
                     SaveDynamicItemDataRow(nextDID.Key.ToString(), nextDID.Value, cmd, keyParameter, existingDynamicItemKeys);
                 }
 
-                SaveAreasToDatabase(conn, userID);
-                SaveLocationsToDatabase(conn, userID);
-                SaveStrategiesToDatabase(conn, userID);
-                SavePermRunsToDatabase(conn, userID);
-                SaveDynamicMobData(conn, userID, existingDynamicMobKeys);
+                SaveAreasToDatabase(conn, userID, tx);
+                SaveLocationsToDatabase(conn, userID, tx);
+                SaveStrategiesToDatabase(conn, userID, tx);
+                SavePermRunsToDatabase(conn, userID, tx);
+                SaveDynamicMobData(conn, userID, existingDynamicMobKeys, tx);
 
-                DeleteExistingStringKeys(conn, "DynamicItemData", userID, existingDynamicItemKeys);
-                DeleteExistingStringKeys(conn, "DynamicMobData", userID, existingDynamicMobKeys);
+                DeleteExistingStringKeys(conn, "DynamicItemData", userID, existingDynamicItemKeys, tx);
+                DeleteExistingStringKeys(conn, "DynamicMobData", userID, existingDynamicMobKeys, tx);
             }
         }
 
-        private void SaveDynamicMobData(SQLiteConnection conn, int userID, HashSet<string> existingKeys)
+        private void SaveDynamicMobData(SQLiteConnection conn, int userID, HashSet<string> existingKeys, SQLiteTransaction tx)
         {
             List<string> baseColumns = new List<string>() { "StrategyID" };
             foreach (string s in GetStrategyOverrideAttributes()) baseColumns.Add(s);
@@ -1957,6 +1959,7 @@ namespace IsengardClient.Backend
 
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.Parameters.AddWithValue("@UserID", userID);
                 SQLiteParameter keyParam = cmd.Parameters.Add("@Key", DbType.String);
                 SQLiteParameter strategyIDParam = cmd.Parameters.Add("@StrategyID", DbType.Int32);
@@ -1987,7 +1990,7 @@ namespace IsengardClient.Backend
             }
         }
 
-        private void SaveAreasToDatabase(SQLiteConnection conn, int userID)
+        private void SaveAreasToDatabase(SQLiteConnection conn, int userID, SQLiteTransaction tx)
         {
             List<string> baseRecordColumns = new List<string>()
             {
@@ -2001,9 +2004,10 @@ namespace IsengardClient.Backend
             string sInsertBaseRecordCommand = GetInsertCommand("Areas", baseRecordColumns);
             string sUpdateBaseRecordCommand = GetUpdateCommand("Areas", baseRecordColumns, "ID");
 
-            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "Areas", "ID");
+            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "Areas", "ID", tx);
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.Parameters.AddWithValue("@UserID", userID);
 
                 SQLiteParameter idParameter = cmd.Parameters.Add("@ID", DbType.Int32);
@@ -2039,7 +2043,7 @@ namespace IsengardClient.Backend
                         }
                     }
                 }
-                DeleteUnprocessedIDs(existingIDs, conn, "Areas", "ID");
+                DeleteUnprocessedIDs(existingIDs, conn, "Areas", "ID", tx);
             }
         }
 
@@ -2069,7 +2073,7 @@ namespace IsengardClient.Backend
             }
         }
 
-        private void SavePermRunsToDatabase(SQLiteConnection conn, int userID)
+        private void SavePermRunsToDatabase(SQLiteConnection conn, int userID, SQLiteTransaction tx)
         {
             List<string> baseRecordColumns = new List<string>()
             {
@@ -2101,12 +2105,14 @@ namespace IsengardClient.Backend
             string sInsertBaseRecordCommand = GetInsertCommand("PermRuns", baseRecordColumns);
             string sUpdateBaseRecordCommand = GetUpdateCommand("PermRuns", baseRecordColumns, "ID");
 
-            HashSet<string> existingPermRunToAreaRecords = GetExistingIDsForCompoundKey(conn, userID, "SELECT p2a.PermRunID,p2a.AreaID FROM PermRunToAreas p2a INNER JOIN PermRuns p ON p.ID = p2a.PermRunID INNER JOIN Areas a ON a.ID = p2a.AreaID WHERE p.UserID = @UserID AND a.UserID = @UserID", 2);
+            HashSet<string> existingPermRunToAreaRecords = GetExistingIDsForCompoundKey(conn, userID, "SELECT p2a.PermRunID,p2a.AreaID FROM PermRunToAreas p2a INNER JOIN PermRuns p ON p.ID = p2a.PermRunID INNER JOIN Areas a ON a.ID = p2a.AreaID WHERE p.UserID = @UserID AND a.UserID = @UserID", 2, tx);
 
-            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "PermRuns", "ID");
+            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "PermRuns", "ID", tx);
             using (SQLiteCommand cmdSavePermRun = conn.CreateCommand())
             using (SQLiteCommand cmdSavePermRunToArea = conn.CreateCommand())
             {
+                cmdSavePermRun.Transaction = tx;
+                cmdSavePermRunToArea.Transaction = tx;
                 cmdSavePermRun.Parameters.AddWithValue("@UserID", userID);
 
                 SQLiteParameter idParameter = cmdSavePermRun.Parameters.Add("@ID", DbType.Int32);
@@ -2199,8 +2205,8 @@ namespace IsengardClient.Backend
                     }
                 }
 
-                DeleteUnprocessedIDs(existingIDs, conn, "PermRuns", "ID");
-                DeleteExistingIDsForCompoundKey(conn, existingPermRunToAreaRecords, "DELETE FROM PermRunToAreas WHERE PermRunID = @ID1 AND AreaID = @ID2", 2);
+                DeleteUnprocessedIDs(existingIDs, conn, "PermRuns", "ID", tx);
+                DeleteExistingIDsForCompoundKey(conn, existingPermRunToAreaRecords, "DELETE FROM PermRunToAreas WHERE PermRunID = @ID1 AND AreaID = @ID2", 2, tx);
             }
         }
 
@@ -2226,7 +2232,7 @@ namespace IsengardClient.Backend
             realmsParam.Value = so.Realms.HasValue ? (object)Convert.ToInt32(so.Realms.Value) : DBNull.Value;
         }
 
-        private void SaveStrategiesToDatabase(SQLiteConnection conn, int userID)
+        private void SaveStrategiesToDatabase(SQLiteConnection conn, int userID, SQLiteTransaction tx)
         {
             List<string> baseRecordColumns = new List<string>()
             {
@@ -2252,12 +2258,14 @@ namespace IsengardClient.Backend
             string sInsertBaseRecordCommand = GetInsertCommand("Strategies", baseRecordColumns);
             string sUpdateBaseRecordCommand = GetUpdateCommand("Strategies", baseRecordColumns, "ID");
 
-            HashSet<string> existingStrategySteps = GetExistingIDsForCompoundKey(conn, userID, "SELECT ss.StrategyID,ss.CombatType,ss.IndexValue FROM StrategySteps ss INNER JOIN Strategies s ON s.ID = ss.StrategyID WHERE s.UserID = @UserID", 3);
+            HashSet<string> existingStrategySteps = GetExistingIDsForCompoundKey(conn, userID, "SELECT ss.StrategyID,ss.CombatType,ss.IndexValue FROM StrategySteps ss INNER JOIN Strategies s ON s.ID = ss.StrategyID WHERE s.UserID = @UserID", 3, tx);
 
-            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "Strategies", "ID");
+            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "Strategies", "ID", tx);
             using (SQLiteCommand cmd = conn.CreateCommand())
             using (SQLiteCommand strategyStepCommand = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
+                strategyStepCommand.Transaction = tx;
                 cmd.Parameters.AddWithValue("@UserID", userID);
 
                 SQLiteParameter idParameter = cmd.Parameters.Add("@ID", DbType.Int32);
@@ -2357,8 +2365,8 @@ namespace IsengardClient.Backend
                     ProcessStrategyStepsForCombatType(existingStrategySteps, iCombatType, steps, isNew, iID, strategyStepCommand, sInsertStrategyStepCommand, sUpdateStrategyStepCommand, strategyStepIndex, strategyStepStepType);
                 }
 
-                DeleteUnprocessedIDs(existingIDs, conn, "Strategies", "ID");
-                DeleteExistingIDsForCompoundKey(conn, existingStrategySteps, "DELETE FROM StrategySteps WHERE StrategyID = @ID1 AND CombatType = @ID2 AND IndexValue = @ID3", 3);
+                DeleteUnprocessedIDs(existingIDs, conn, "Strategies", "ID", tx);
+                DeleteExistingIDsForCompoundKey(conn, existingStrategySteps, "DELETE FROM StrategySteps WHERE StrategyID = @ID1 AND CombatType = @ID2 AND IndexValue = @ID3", 3, tx);
             }
         }
 
@@ -2415,11 +2423,12 @@ namespace IsengardClient.Backend
             }
         }
 
-        private void SaveLocationsToDatabase(SQLiteConnection conn, int userID)
+        private void SaveLocationsToDatabase(SQLiteConnection conn, int userID, SQLiteTransaction tx)
         {
-            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "LocationNodes", "ID");
+            HashSet<int> existingIDs = GetExistingIntegerIDs(conn, userID, "LocationNodes", "ID", tx);
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.Parameters.AddWithValue("@UserID", userID);
                 SQLiteParameter orderParam = cmd.Parameters.Add("@OrderValue", DbType.Int32);
                 SQLiteParameter displayNameParam = cmd.Parameters.Add("@DisplayName", DbType.String);
@@ -2477,7 +2486,7 @@ namespace IsengardClient.Backend
                     }
                 }
             }
-            DeleteUnprocessedIDs(existingIDs, conn, "LocationNodes", "ID");
+            DeleteUnprocessedIDs(existingIDs, conn, "LocationNodes", "ID", tx);
         }
 
         private string GetInsertCommand(string tableName, List<string> columns)
@@ -2529,10 +2538,11 @@ namespace IsengardClient.Backend
             return sb.ToString();
         }
 
-        private void DeleteUnprocessedIDs(HashSet<int> ids, SQLiteConnection conn, string tableName, string idColumnName)
+        private void DeleteUnprocessedIDs(HashSet<int> ids, SQLiteConnection conn, string tableName, string idColumnName, SQLiteTransaction tx)
         {
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.CommandText = $"DELETE FROM {tableName} WHERE {idColumnName} = @{idColumnName}";
                 SQLiteParameter idParameter = cmd.Parameters.Add($"@{idColumnName}", DbType.Int32);
                 foreach (int iID in ids)
@@ -2543,11 +2553,12 @@ namespace IsengardClient.Backend
             }
         }
 
-        private HashSet<string> GetExistingStringIDs(SQLiteConnection conn, int userID, string tableName)
+        private HashSet<string> GetExistingStringIDs(SQLiteConnection conn, int userID, string tableName, SQLiteTransaction tx)
         {
             HashSet<string> ret = new HashSet<string>();
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.CommandText = $"SELECT Key FROM {tableName} WHERE UserID = @UserID";
                 cmd.Parameters.AddWithValue("@UserID", userID);
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -2561,10 +2572,11 @@ namespace IsengardClient.Backend
             return ret;
         }
 
-        private void DeleteExistingStringKeys(SQLiteConnection conn, string tableName, int userID, HashSet<string> keys)
+        private void DeleteExistingStringKeys(SQLiteConnection conn, string tableName, int userID, HashSet<string> keys, SQLiteTransaction tx)
         {
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.CommandText = $"DELETE FROM {tableName} WHERE UserID = @UserID AND Key = @Key";
                 cmd.Parameters.AddWithValue("@UserID", userID);
                 SQLiteParameter keyParameter = cmd.Parameters.Add("@Key", DbType.String);
@@ -2576,11 +2588,12 @@ namespace IsengardClient.Backend
             }
         }
 
-        private HashSet<int> GetExistingIntegerIDs(SQLiteConnection conn, int userID, string tableName, string idColumnName)
+        private HashSet<int> GetExistingIntegerIDs(SQLiteConnection conn, int userID, string tableName, string idColumnName, SQLiteTransaction tx)
         {
             HashSet<int> ret = new HashSet<int>();
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.Parameters.AddWithValue("@UserID", userID);
                 cmd.CommandText = $"SELECT {idColumnName} FROM {tableName} WHERE UserID = @UserID";
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -2594,10 +2607,11 @@ namespace IsengardClient.Backend
             return ret;
         }
 
-        private void DeleteExistingIDsForCompoundKey(SQLiteConnection conn, HashSet<string> keys, string sql, int numberOfKeys)
+        private void DeleteExistingIDsForCompoundKey(SQLiteConnection conn, HashSet<string> keys, string sql, int numberOfKeys, SQLiteTransaction tx)
         {
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.CommandText = sql;
                 List<SQLiteParameter> idParams = new List<SQLiteParameter>();
                 for (int i = 1; i <= numberOfKeys; i++)
@@ -2616,12 +2630,13 @@ namespace IsengardClient.Backend
             }
         }
 
-        private HashSet<string> GetExistingIDsForCompoundKey(SQLiteConnection conn, int userID, string command, int numberOfKeys)
+        private HashSet<string> GetExistingIDsForCompoundKey(SQLiteConnection conn, int userID, string command, int numberOfKeys, SQLiteTransaction tx)
         {
             HashSet<string> existingKeys = new HashSet<string>();
             StringBuilder sb = new StringBuilder();
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.Parameters.AddWithValue("@UserID", userID);
                 cmd.CommandText = command;
                 using (SQLiteDataReader reader = cmd.ExecuteReader())
@@ -3481,7 +3496,7 @@ namespace IsengardClient.Backend
             writer.WriteEndElement();
         }
 
-        public static void CreateNewDatabaseSchema(SQLiteConnection conn)
+        public static void CreateNewDatabaseSchema(SQLiteConnection conn, SQLiteTransaction tx)
         {
             string sStrategyOverrideColumns = "UseMagicCombat INTEGER NULL,UseMeleeCombat INTEGER NULL,UsePotionsCombat INTEGER NULL,AfterKillMonsterAction INTEGER NULL,AutoSpellLevelMin INTEGER NULL,AutoSpellLevelMax INTEGER NULL,Realms INTEGER NULL";
             List<string> tableCreations = new List<string>()
@@ -3499,6 +3514,7 @@ namespace IsengardClient.Backend
             };
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 foreach (string next in tableCreations)
                 {
                     cmd.CommandText = next;
@@ -3524,10 +3540,11 @@ namespace IsengardClient.Backend
             return new SQLiteConnection(connsb.ToString());
         }
 
-        public static int GetUserID(SQLiteConnection conn, string userName, bool autoCreate)
+        public static int GetUserID(SQLiteConnection conn, string userName, bool autoCreate, SQLiteTransaction tx)
         {
             using (SQLiteCommand cmd = conn.CreateCommand())
             {
+                cmd.Transaction = tx;
                 cmd.CommandText = "SELECT ID FROM Users WHERE UserName = @UserName";
                 cmd.Parameters.AddWithValue("@UserName", userName);
                 object oResult = cmd.ExecuteScalar();

@@ -175,10 +175,18 @@ namespace IsengardClient.Tests
             using (var conn = IsengardSettingData.GetSqliteConnection(sSQLiteDatabaseFileName))
             {
                 conn.Open();
-                IsengardSettingData.CreateNewDatabaseSchema(conn);
-                int iUserID = IsengardSettingData.GetUserID(conn, "TestUser", true);
-                settings.SaveSettings(conn, iUserID);
-                sets4 = new IsengardSettingData(conn, iUserID, errorMessages, gameMap);
+                using (SQLiteTransaction tx = conn.BeginTransaction())
+                {
+                    IsengardSettingData.CreateNewDatabaseSchema(conn, tx);
+                    tx.Commit();
+                }
+                using (SQLiteTransaction tx = conn.BeginTransaction())
+                {
+                    int iUserID = IsengardSettingData.GetUserID(conn, "TestUser", true, tx);
+                    settings.SaveSettings(conn, iUserID, tx);
+                    sets4 = new IsengardSettingData(conn, iUserID, errorMessages, gameMap, tx);
+                    tx.Commit();
+                }
             }
             Assert.AreEqual(errorMessages.Count, 0);
             VerifySettingsMatch(settings, sets4, true);

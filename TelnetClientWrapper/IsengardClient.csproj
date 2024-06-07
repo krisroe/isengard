@@ -270,4 +270,11 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(TargetDir)x64\SQLite.Interop.dll" "$(TargetDir)SQLite.Interop.dll" /Y
+
+rd /s /q "$(TargetDir)x86"
+
+rd /s /q "$(TargetDir)x64"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
